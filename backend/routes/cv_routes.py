@@ -1,12 +1,14 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from ai.rag_pipeline import RAGPipeline
+from ai.cover_letter import generate_cover_letter
 from ai.rewrite import generate_fix_rewrite
-from models.schemas import GenerateFixRequest
+from models.schemas import GenerateCoverLetterRequest, GenerateFixRequest
 from models.history import save_analysis_result
 from services.cv_parser import extract_text_from_file, extract_links_from_file
 from utils.file_handler import save_file
 from utils.skill_extractor import extract_skills
 from ai.analyzer import analyze_cv
+import os
 
 router = APIRouter(prefix="/cv", tags=["CV"])
 
@@ -67,6 +69,7 @@ async def analyze(file: UploadFile = File(...)):
         "resume_score": resume_score,
         "analysis": analysis,
         "cv_text": text,
+        "jooble_configured": bool(os.getenv("JOOBLE_API_KEY", "").strip()),
     }
     
     # Save to history
@@ -105,5 +108,32 @@ async def generate_fix(payload: GenerateFixRequest):
         "section": str(result.get("section") or payload.fix.section),
         "format": str(result.get("format") or output_format),
         "rewritten_text": str(result.get("rewritten_text") or "").strip(),
+        "notes": str(result.get("notes") or "").strip(),
+    }
+
+
+@router.post("/generate-cover-letter")
+async def generate_cover_letter_route(payload: GenerateCoverLetterRequest):
+    if not payload.cv_text.strip():
+        raise HTTPException(status_code=400, detail="cv_text is required")
+    if not payload.job.title.strip():
+        raise HTTPException(status_code=400, detail="job.title is required")
+
+    result = generate_cover_letter(
+        cv_text=payload.cv_text,
+        job=payload.job.model_dump(),
+        tone=payload.tone,
+    )
+
+    if not isinstance(result, dict):
+        raise HTTPException(status_code=502, detail="Cover letter generation failed")
+
+    if "error" in result:
+        raise HTTPException(status_code=502, detail=str(result["error"]))
+
+    return {
+        "job_title": str(result.get("job_title") or payload.job.title),
+        "company_name": str(result.get("company_name") or payload.job.company_name),
+        "cover_letter": str(result.get("cover_letter") or "").strip(),
         "notes": str(result.get("notes") or "").strip(),
     }

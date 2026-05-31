@@ -4,11 +4,13 @@ export type UploadPreviewResponse = {
 };
 
 export type MatchedJob = {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   url?: string;
   company_name?: string;
+  location?: string;
+  source?: string;
   score?: number;
   overlap?: number;
   matched_skills?: string[];
@@ -86,6 +88,8 @@ export type AnalyzeResponse = {
   links: string[];
   analysis: Analysis;
   cv_text: string;
+  resume_score?: number;
+  jooble_configured?: boolean;
 };
 
 export type StoredReport = {
@@ -104,5 +108,28 @@ export type GenerateFixRewriteResponse = {
   section: string;
   format: "plain" | "latex" | string;
   rewritten_text: string;
+  notes?: string;
+};
+
+export type GenerateCoverLetterRequest = {
+  cv_text: string;
+  job: Pick<
+    MatchedJob,
+    | "title"
+    | "description"
+    | "company_name"
+    | "location"
+    | "source"
+    | "url"
+    | "matched_skills"
+    | "score"
+  >;
+  tone?: "professional" | "friendly" | "confident" | string;
+};
+
+export type GenerateCoverLetterResponse = {
+  job_title: string;
+  company_name?: string;
+  cover_letter: string;
   notes?: string;
 };

@@ -2,6 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.cv_routes import router as cv_router
 from config import settings
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="AI Job Match Backend")
 
@@ -23,4 +27,5 @@ def root():
         "message": "Backend is running",
         "backend_port": settings.BACKEND_PORT,
         "allowed_origins": settings.allowed_origins,
+        "jooble_configured": bool(os.getenv("JOOBLE_API_KEY", "").strip()),
     }

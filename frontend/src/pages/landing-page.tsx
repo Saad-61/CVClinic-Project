@@ -3,7 +3,6 @@ import {
   ChevronUp,
   FileText,
   ShieldCheck,
-  Sparkles,
   Target,
 } from "lucide-react";
 import { useRef, useState } from "react";
@@ -83,7 +82,9 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="rounded-2xl border border-white/80 bg-white/90 p-4">
-                <Sparkles className="h-5 w-5 text-violet-500" aria-hidden="true" />
+                <div className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[10px] font-semibold text-slate-700">
+                  02
+                </div>
                 <div className="mt-3 text-sm font-semibold text-slate-900">
                   Clear next actions
                 </div>

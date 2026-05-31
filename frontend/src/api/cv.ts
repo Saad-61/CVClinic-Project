@@ -1,5 +1,7 @@
 import type {
   AnalyzeResponse,
+  GenerateCoverLetterRequest,
+  GenerateCoverLetterResponse,
   GenerateFixRewriteRequest,
   GenerateFixRewriteResponse,
   UploadPreviewResponse,
@@ -68,4 +70,24 @@ export async function generateFixRewrite(
   }
 
   return (await response.json()) as GenerateFixRewriteResponse;
+}
+
+export async function generateCoverLetter(
+  payload: GenerateCoverLetterRequest,
+  signal?: AbortSignal,
+) {
+  const response = await fetch("/api/cv/generate-cover-letter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+
+  return (await response.json()) as GenerateCoverLetterResponse;
 }

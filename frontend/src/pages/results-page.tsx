@@ -1,7 +1,25 @@
-import { ExternalLink, RotateCcw, Zap, Briefcase, Target, Wrench, ChevronRight } from "lucide-react";
+import {
+  ExternalLink,
+  RotateCcw,
+  Zap,
+  Briefcase,
+  Target,
+  Wrench,
+  ChevronRight,
+  FileText,
+  Loader2,
+  Mail,
+  MapPin,
+  BookOpen,
+  Key,
+  CheckCircle2,
+  Circle,
+  ArrowRight,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { QuickRewriteCard } from "../components/quick-rewrite-card";
+import { generateCoverLetter } from "../api/cv";
 import { CopyButton } from "../components/copy-button";
 import { ScorePill } from "../components/score-pill";
 import { Badge } from "../components/ui/badge";
@@ -27,6 +45,7 @@ import type {
   AnalyzeResponse,
   MatchedJob,
   MissingSkill,
+  ProjectImprovement,
   QuickRewriteCandidate,
   StoredReport,
   TopAction,
@@ -44,12 +63,31 @@ function sectionEmpty(text: string | undefined) {
   return !text || !text.trim();
 }
 
+function isInstantRewriteSection(section: string) {
+  const normalized = section.trim().toLowerCase();
+  if (!normalized) return false;
+
+  const blocked = ["project", "portfolio", "demo", "github", "repository"];
+  if (blocked.some((keyword) => normalized.includes(keyword))) return false;
+
+  return [
+    "summary",
+    "objective",
+    "skills",
+    "profile",
+    "contact",
+    "header",
+  ].some((keyword) => normalized.includes(keyword));
+}
+
 function buildQuickRewriteCandidates(report: AnalyzeResponse): QuickRewriteCandidate[] {
   const analysis = report.analysis || {};
   const candidates: QuickRewriteCandidate[] = [];
   for (const fix of analysis.cv_fixes ?? []) {
     const section = String(fix.section || "").trim();
     if (!section) continue;
+    if (!isInstantRewriteSection(section)) continue;
+
     candidates.push({
       section,
       fix: String(fix.fix || "").trim(),
@@ -62,13 +100,25 @@ function buildQuickRewriteCandidates(report: AnalyzeResponse): QuickRewriteCandi
 }
 
 // ── Job Card ──────────────────────────────────────────────────────────────────
-function JobCard({ job, showScore }: { job: MatchedJob; showScore: boolean }) {
+function JobCard({
+  job,
+  showScore,
+  cvText,
+}: {
+  job: MatchedJob;
+  showScore: boolean;
+  cvText?: string;
+}) {
   const score = job.score ?? 0;
   const pct = Math.min(Math.round(score), 100);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [coverNote, setCoverNote] = useState("");
+  const [coverLoading, setCoverLoading] = useState(false);
+  const [coverError, setCoverError] = useState<string | null>(null);
   const barColor =
-    pct >= 60 ? "bg-green-500" : pct >= 40 ? "bg-amber-400" : "bg-rose-400";
+    pct > 50 ? "bg-green-500" : pct >= 40 ? "bg-amber-400" : "bg-rose-400";
   const textColor =
-    pct >= 60 ? "text-green-600" : pct >= 40 ? "text-amber-500" : "text-rose-500";
+    pct > 50 ? "text-green-600" : pct >= 40 ? "text-amber-500" : "text-rose-500";
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -77,6 +127,21 @@ function JobCard({ job, showScore }: { job: MatchedJob; showScore: boolean }) {
           <div className="font-semibold text-slate-900">{job.title}</div>
           {job.company_name && (
             <div className="mt-0.5 text-xs text-slate-500">{job.company_name}</div>
+          )}
+          {(job.location || job.source) && (
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              {job.location && (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {job.location}
+                </span>
+              )}
+              {job.source && (
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+                  {job.source}
+                </span>
+              )}
+            </div>
           )}
         </div>
         {showScore && (
@@ -98,7 +163,7 @@ function JobCard({ job, showScore }: { job: MatchedJob; showScore: boolean }) {
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+              className="rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 border border-purple-100"
             >
               {s}
             </span>
@@ -112,12 +177,83 @@ function JobCard({ job, showScore }: { job: MatchedJob; showScore: boolean }) {
             href={job.url}
             target="_blank"
             rel="noreferrer noopener"
-            className="inline-flex items-center gap-1.5 rounded-full border border-purple-100 bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700 hover:bg-purple-100 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-600 px-3 py-1 text-xs font-semibold text-white hover:bg-purple-700 transition-colors"
           >
             Apply <ExternalLink className="h-3 w-3" />
           </a>
         ) : null}
+        {showScore && cvText ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={coverLoading || !!coverLetter}
+            className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+            onClick={async () => {
+              if (coverLetter) return;
+              setCoverError(null);
+              setCoverLoading(true);
+              try {
+                const response = await generateCoverLetter({
+                  cv_text: cvText,
+                  job: {
+                    title: job.title,
+                    description: job.description,
+                    company_name: job.company_name,
+                    location: job.location,
+                    source: job.source,
+                    url: job.url,
+                    matched_skills: job.matched_skills,
+                    score: job.score,
+                  },
+                  tone: "professional",
+                });
+                setCoverLetter(response.cover_letter);
+                setCoverNote(response.notes || "");
+              } catch (error) {
+                setCoverError((error as Error).message || "Could not draft cover letter.");
+              } finally {
+                setCoverLoading(false);
+              }
+            }}
+          >
+            {coverLoading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : coverLetter ? (
+              <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+            ) : (
+              <Mail className="h-3.5 w-3.5" />
+            )}
+            {coverLetter ? "Letter drafted" : "Draft cover letter"}
+          </Button>
+        ) : null}
       </div>
+
+      {coverError ? (
+        <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+          {coverError}
+        </div>
+      ) : null}
+
+      {coverLetter ? (
+        <div className="mt-3 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-purple-600" />
+              <div className="text-sm font-semibold text-purple-900">Cover Letter Draft</div>
+            </div>
+            <CopyButton value={coverLetter} label="Copy" />
+          </div>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+            {coverLetter}
+          </p>
+          {coverNote ? (
+            <p className="mt-3 rounded-lg bg-white/70 border border-purple-100 px-3 py-2 text-xs text-slate-600">
+              <span className="font-semibold text-purple-700">Note:</span> {coverNote}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {job.description ? (
         <>
@@ -132,6 +268,114 @@ function JobCard({ job, showScore }: { job: MatchedJob; showScore: boolean }) {
           </details>
         </>
       ) : null}
+    </div>
+  );
+}
+
+// ── Learning Roadmap ──────────────────────────────────────────────────────────
+function LearningRoadmap({ skills }: { skills: MissingSkill[] }) {
+  if (!skills.length) return null;
+
+  // Group by priority
+  const high = skills.filter((s) => String(s.priority).toUpperCase() === "HIGH");
+  const medium = skills.filter((s) => String(s.priority).toUpperCase() === "MEDIUM");
+  const low = skills.filter((s) => String(s.priority).toUpperCase() === "LOW");
+  const phases: { label: string; color: string; bg: string; border: string; dot: string; items: MissingSkill[] }[] = [
+    { label: "Phase 1 — High Priority", color: "text-red-700", bg: "bg-red-50", border: "border-red-200", dot: "bg-red-500", items: high },
+    { label: "Phase 2 — Medium Priority", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500", items: medium },
+    { label: "Phase 3 — Lower Priority", color: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200", dot: "bg-slate-400", items: low },
+  ].filter((p) => p.items.length > 0);
+
+  if (!phases.length) return null;
+
+  return (
+    <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 via-white to-indigo-50 p-5 shadow-sm">
+      <div className="flex items-center gap-2 mb-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-700 shadow-sm">
+          <BookOpen className="h-4 w-4 text-white" />
+        </div>
+        <div>
+          <div className="font-bold text-purple-900 text-base">Learning Roadmap</div>
+          <div className="text-xs text-slate-500">Your personalised skill-building path, ordered by market impact</div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {phases.map((phase, phaseIdx) => (
+          <div key={phase.label}>
+            {/* Phase header */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${phase.dot} text-white text-xs font-bold shadow-sm`}>
+                {phaseIdx + 1}
+              </div>
+              <div className={`text-sm font-bold ${phase.color}`}>{phase.label}</div>
+              {phaseIdx < phases.length - 1 && (
+                <div className="ml-auto">
+                  <ArrowRight className="h-4 w-4 text-slate-300" />
+                </div>
+              )}
+            </div>
+
+            {/* Skills in this phase */}
+            <div className="ml-3.5 border-l-2 border-dashed border-slate-200 pl-5 space-y-3">
+              {phase.items.map((skill, idx) => {
+                const isNew = String(skill.project_type || "").toLowerCase() === "new";
+                return (
+                  <div
+                    key={`${phase.label}-${idx}`}
+                    className={`relative rounded-xl border ${phase.border} ${phase.bg} p-3.5`}
+                  >
+                    {/* Connector dot */}
+                    <div className={`absolute -left-[23px] top-4 h-3 w-3 rounded-full ${phase.dot} border-2 border-white shadow-sm`} />
+
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <div className="font-semibold text-slate-900 text-sm">{skill.skill}</div>
+                      <div className="flex gap-1.5">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                          isNew
+                            ? "bg-violet-100 text-violet-700 border border-violet-200"
+                            : "bg-amber-100 text-amber-700 border border-amber-200"
+                        }`}>
+                          {isNew ? "New project" : "Add to existing"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {skill.why && (
+                      <p className="mt-1.5 text-xs text-slate-600">
+                        <span className="font-semibold text-slate-800">Why: </span>{skill.why}
+                      </p>
+                    )}
+
+                    {(skill.project || skill.project_idea) && (
+                      <div className="mt-2 rounded-lg bg-white/80 border border-white px-3 py-2 text-xs text-slate-700">
+                        {skill.project && (
+                          <div><span className="font-semibold text-purple-700">Project: </span>{skill.project}</div>
+                        )}
+                        {skill.project_idea && (
+                          <div className="mt-0.5"><span className="font-semibold text-slate-800">Idea: </span>{skill.project_idea}</div>
+                        )}
+                        {skill.implementation && (
+                          <div className="mt-0.5"><span className="font-semibold text-slate-800">How: </span>{skill.implementation}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer legend */}
+      <div className="mt-5 flex flex-wrap gap-3 border-t border-purple-100 pt-4 text-[10px] font-semibold uppercase tracking-wide">
+        <span className="flex items-center gap-1 text-red-600"><Circle className="h-2.5 w-2.5 fill-red-500 text-red-500" /> High priority</span>
+        <span className="flex items-center gap-1 text-amber-600"><Circle className="h-2.5 w-2.5 fill-amber-500 text-amber-500" /> Medium priority</span>
+        <span className="flex items-center gap-1 text-slate-500"><Circle className="h-2.5 w-2.5 fill-slate-400 text-slate-400" /> Lower priority</span>
+        <span className="flex items-center gap-1 text-violet-700 ml-auto"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-violet-200 border border-violet-300" /> New project</span>
+        <span className="flex items-center gap-1 text-amber-700"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-200 border border-amber-300" /> Existing project</span>
+      </div>
     </div>
   );
 }
@@ -225,6 +469,25 @@ function ActionItem({ action, idx }: { action: TopAction; idx: number }) {
   );
 }
 
+function ProjectImprovementCard({ improvement }: { improvement: ProjectImprovement }) {
+  return (
+    <div className="rounded-xl border-l-4 border-l-green-500 border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="font-semibold text-slate-900">{improvement.project}</div>
+      <div className="mt-2 space-y-1 text-xs text-slate-600">
+        {improvement.current_issue && (
+          <div><span className="font-semibold text-slate-800">Issue:</span> {improvement.current_issue}</div>
+        )}
+        {improvement.improvement && (
+          <div><span className="font-semibold text-slate-800">Upgrade:</span> {improvement.improvement}</div>
+        )}
+        {improvement.impact && (
+          <div><span className="font-semibold text-slate-800">Impact:</span> {improvement.impact}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ResultsPage() {
   const navigate = useNavigate();
@@ -248,6 +511,7 @@ export default function ResultsPage() {
   const missingSkills = (analysis.missing_skills ?? [])
     .slice()
     .sort((a, b) => priorityWeight(b.priority) - priorityWeight(a.priority));
+  const cvFixes = analysis.cv_fixes ?? [];
   const projectImprovements = analysis.project_improvements ?? [];
   const quickRewriteCandidates = buildQuickRewriteCandidates(effective.report);
   const topActions = analysis.top_actions ?? [];
@@ -265,6 +529,9 @@ export default function ResultsPage() {
 
   const jobsToShow = jobsView === "all" ? allJobs : jobsSorted;
   const evaluatedCount = allJobs.length || jobsSorted.length;
+  const jobSources = Array.from(
+    new Set((allJobs.length ? allJobs : jobsSorted).map((job) => job.source).filter(Boolean))
+  );
 
   const createdLabel = formatDateTime(effective.createdAt);
   const rawJson = JSON.stringify(effective.report, null, 2);
@@ -357,7 +624,7 @@ export default function ResultsPage() {
           </div>
           {topActions.length > 3 && (
             <button
-              onClick={() => setActiveTab("overview")}
+              onClick={() => setActiveTab("actions")}
               className="mt-3 flex items-center gap-1 text-xs font-medium text-purple-600 hover:underline"
             >
               See all {topActions.length} actions <ChevronRight className="h-3 w-3" />
@@ -400,16 +667,22 @@ export default function ResultsPage() {
               {jobsSorted.length}
             </span>
           </TabsTrigger>
+          <TabsTrigger value="actions" className="flex items-center gap-1.5">
+            <Zap className="h-3.5 w-3.5" /> Actions
+            <span className="ml-1 rounded-full bg-purple-100 px-1.5 py-0.5 text-xs font-semibold text-purple-700">
+              {topActions.length}
+            </span>
+          </TabsTrigger>
           <TabsTrigger value="skills" className="flex items-center gap-1.5">
             <Target className="h-3.5 w-3.5" /> Skills Gap
             <span className="ml-1 rounded-full bg-orange-100 px-1.5 py-0.5 text-xs font-semibold text-orange-700">
               {missingSkills.length}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="improvements" className="flex items-center gap-1.5">
-            <Wrench className="h-3.5 w-3.5" /> Improvements
+          <TabsTrigger value="cv-fixes" className="flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5" /> CV Fixes
             <span className="ml-1 rounded-full bg-indigo-100 px-1.5 py-0.5 text-xs font-semibold text-indigo-700">
-              {quickRewriteCandidates.length + projectImprovements.length}
+              {quickRewriteCandidates.length}
             </span>
           </TabsTrigger>
         </TabsList>
@@ -425,7 +698,7 @@ export default function ResultsPage() {
                     <CardTitle>Actions</CardTitle>
                     <CardDescription>Concrete next steps beyond your CV.</CardDescription>
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setActiveTab("overview")}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setActiveTab("actions")}>
                     All
                   </Button>
                 </div>
@@ -457,7 +730,7 @@ export default function ResultsPage() {
               <CardContent className="space-y-3">
                 {jobsSorted.length ? (
                   jobsSorted.slice(0, 3).map((job) => (
-                    <JobCard key={job.id} job={job} showScore />
+                    <JobCard key={job.id} job={job} showScore cvText={cvText} />
                   ))
                 ) : (
                   <div className="text-sm text-slate-500">No matches returned.</div>
@@ -497,7 +770,7 @@ export default function ResultsPage() {
                     <CardTitle>Quick Rewrites</CardTitle>
                     <CardDescription>Instant CV-only fixes ready to paste.</CardDescription>
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setActiveTab("improvements")}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setActiveTab("cv-fixes")}>
                     Open
                   </Button>
                 </div>
@@ -534,6 +807,60 @@ export default function ResultsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Dynamic Jooble status callout */}
+              {effective.report.jooble_configured === false ? (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+                  <div className="flex items-start gap-3">
+                    <Key className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                    <div>
+                      <div className="font-semibold text-amber-900">Add Jooble for Pakistan-targeted jobs</div>
+                      <p className="mt-1 text-amber-800">
+                        Currently showing remote jobs
+                        {jobSources.length ? ` from ${jobSources.join(" + ")}` : ""}.
+                        Set <code className="rounded bg-amber-100 px-1 font-mono text-xs">JOOBLE_API_KEY</code> in{" "}
+                        <code className="rounded bg-amber-100 px-1 font-mono text-xs">backend/.env</code>{" "}
+                        to get real Pakistan-based listings from Jooble.
+                      </p>
+                      <a
+                        href="https://jooble.org/api/about"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 underline hover:text-amber-900"
+                      >
+                        Get free Jooble API key <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : effective.report.jooble_configured === true ? (
+                <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span className="font-semibold text-green-800">Jooble connected</span>
+                    <span className="text-green-700">
+                      — Pakistan-targeted jobs included
+                      {jobSources.length ? ` (sources: ${jobSources.join(", ")})` : ""}.
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-slate-700">
+                  <div className="font-semibold text-slate-900">Current job pool: remote-first boards</div>
+                  <p className="mt-1">
+                    {jobSources.length ? `Sources: ${jobSources.join(" + ")}.` : ""} Set{" "}
+                    <code className="rounded bg-indigo-100 px-1 font-mono text-xs">JOOBLE_API_KEY</code>{" "}
+                    for Pakistan-targeted jobs.
+                  </p>
+                </div>
+              )}
+
+              {/* Score legend */}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="rounded-full bg-green-50 border border-green-200 px-2.5 py-1 font-semibold text-green-700">Above 50% = strong</span>
+                <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 font-semibold text-amber-700">40–50% = workable</span>
+                <span className="rounded-full bg-rose-50 border border-rose-200 px-2.5 py-1 font-semibold text-rose-700">Below 40% = weak</span>
+              </div>
+
               <div className="flex gap-2">
                 <Button
                   type="button" size="sm"
@@ -553,7 +880,12 @@ export default function ResultsPage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 {jobsToShow.length ? (
                   jobsToShow.map((job) => (
-                    <JobCard key={job.id} job={job} showScore={jobsView === "matched"} />
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      showScore={jobsView === "matched"}
+                      cvText={jobsView === "matched" ? cvText : undefined}
+                    />
                   ))
                 ) : (
                   <div className="col-span-2 text-sm text-slate-500">No jobs returned.</div>
@@ -563,36 +895,88 @@ export default function ResultsPage() {
           </Card>
         </TabsContent>
 
-        {/* ── Skills Gap Tab ── */}
-        <TabsContent value="skills">
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills Gap</CardTitle>
-              <CardDescription>
-                <span className="mr-4 inline-flex items-center gap-1.5">
-                  <span className="inline-block h-3 w-3 rounded-sm bg-amber-500" />
-                  Add to existing project
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="inline-block h-3 w-3 rounded-sm bg-violet-500" />
-                  Build new project
-                </span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {missingSkills.length ? (
-                missingSkills.map((s, idx) => (
-                  <SkillCard key={`sk-${idx}`} skill={s} idx={idx} />
-                ))
-              ) : (
-                <div className="text-sm text-slate-500">No missing skills returned.</div>
-              )}
-            </CardContent>
-          </Card>
+        {/* ── Actions Tab ── */}
+        <TabsContent value="actions">
+          <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>Action Plan</CardTitle>
+                <CardDescription>
+                  Work to do before you claim it on the CV. CV wording changes live in CV Fixes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {topActions.length ? (
+                  topActions.map((action, idx) => (
+                    <ActionItem key={`act-${idx}`} action={action} idx={idx} />
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500">No action plan returned.</div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-start gap-2">
+                  <Wrench className="mt-0.5 h-4 w-4 text-green-600" />
+                  <div>
+                    <CardTitle>Project Upgrades</CardTitle>
+                    <CardDescription>
+                      Existing projects to improve, then mention after you implement them.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {projectImprovements.length ? (
+                  projectImprovements.map((improvement, idx) => (
+                    <ProjectImprovementCard key={`pi-${idx}`} improvement={improvement} />
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500">No project upgrades returned.</div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        {/* ── Improvements Tab (rewrites + project improvements) ── */}
-        <TabsContent value="improvements">
+        {/* ── Skills Gap Tab ── */}
+        <TabsContent value="skills">
+          <div className="space-y-5">
+            {/* Detailed skill cards */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Skills Gap — Detail</CardTitle>
+                <CardDescription>
+                  <span className="mr-4 inline-flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-sm bg-amber-500" />
+                    Add to existing project
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-sm bg-violet-500" />
+                    Build new project
+                  </span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {missingSkills.length ? (
+                  missingSkills.map((s, idx) => (
+                    <SkillCard key={`sk-${idx}`} skill={s} idx={idx} />
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500">No missing skills returned.</div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Learning Roadmap — shown below the detailed cards */}
+            <LearningRoadmap skills={missingSkills} />
+          </div>
+        </TabsContent>
+
+        {/* ── CV Fixes Tab ── */}
+        <TabsContent value="cv-fixes">
           <div className="space-y-5">
             {/* CV Quick Rewrites */}
             <Card>
@@ -621,36 +1005,43 @@ export default function ResultsPage() {
               </CardContent>
             </Card>
 
-            {/* Project Improvements */}
-            {projectImprovements.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Project Improvements</CardTitle>
-                  <CardDescription>Concrete upgrades for existing projects.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {projectImprovements.map((p, idx) => (
-                    <div
-                      key={`pi-${idx}`}
-                      className="rounded-xl border-l-4 border-l-green-500 border border-slate-200 bg-white p-4 shadow-sm"
-                    >
-                      <div className="font-semibold text-slate-900">{p.project}</div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Strategic CV Fixes</CardTitle>
+                <CardDescription>
+                  Advice for wording, grouping, and proof links. Use Quick Rewrites only for instant paste-ready text.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {cvFixes.length ? (
+                  cvFixes.map((fix, idx) => (
+                    <div key={`fix-${idx}`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="font-semibold text-slate-900">{fix.section}</div>
+                        {isInstantRewriteSection(fix.section) ? (
+                          <Badge variant="indigo">Rewrite-ready</Badge>
+                        ) : (
+                          <Badge variant="slate">Do after proof exists</Badge>
+                        )}
+                      </div>
                       <div className="mt-2 space-y-1 text-xs text-slate-600">
-                        {p.current_issue && (
-                          <div><span className="font-semibold text-slate-800">Issue:</span> {p.current_issue}</div>
+                        {fix.fix && (
+                          <div><span className="font-semibold text-slate-800">Fix:</span> {fix.fix}</div>
                         )}
-                        {p.improvement && (
-                          <div><span className="font-semibold text-slate-800">Fix:</span> {p.improvement}</div>
+                        {fix.why && (
+                          <div><span className="font-semibold text-slate-800">Why:</span> {fix.why}</div>
                         )}
-                        {p.impact && (
-                          <div><span className="font-semibold text-slate-800">Impact:</span> {p.impact}</div>
+                        {fix.how && (
+                          <div><span className="font-semibold text-slate-800">How:</span> {fix.how}</div>
                         )}
                       </div>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500">No CV fixes returned.</div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

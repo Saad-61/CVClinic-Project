@@ -34,7 +34,6 @@ SKILL_KEYWORDS = [
     "tailwindcss",
     "bootstrap",
     "react",
-    "react.js",
     "next.js",
     "vue",
     "vue.js",
@@ -68,7 +67,6 @@ SKILL_KEYWORDS = [
     # Databases / storage
     "mysql",
     "postgresql",
-    "postgres",
     "sqlite",
     "mongodb",
     "redis",
@@ -92,7 +90,6 @@ SKILL_KEYWORDS = [
     "pandas",
     "numpy",
     "scikit-learn",
-    "sklearn",
     "tensorflow",
     "pytorch",
     "keras",
@@ -123,7 +120,6 @@ SKILL_KEYWORDS = [
     "jenkins",
     "github actions",
     "ci/cd",
-    "cicd",
     "deployment",
     "render",
     "railway",
@@ -196,21 +192,157 @@ SKILL_KEYWORDS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# SKILL_ALIASES  –  ALL keys MUST be lowercase so that the cleaned-text
+# lookup (which always produces lowercase) matches them reliably.
+#
+# Each value should be the canonical form that appears (or maps to something)
+# in SKILL_KEYWORDS.  Duplicated self-mappings are harmless but avoided here.
+# ---------------------------------------------------------------------------
+SKILL_ALIASES = {
+    # ── Languages ──────────────────────────────────────────────
+    "py":                       "python",
+    "python3":                  "python",
+    "cpp":                      "c++",
+    "c plus plus":              "c++",
+    "csharp":                   "c#",
+    "c sharp":                  "c#",
+    "js":                       "javascript",
+    "es6":                      "javascript",
+    "es2015":                   "javascript",
+    "ts":                       "typescript",
+    "golang":                   "go",
+
+    # ── Frontend ───────────────────────────────────────────────
+    "reactjs":                  "react",
+    "react.js":                 "react",
+    "next.js":                  "next.js",
+    "nextjs":                   "next.js",
+    "nuxt":                     "vue.js",
+    "nuxtjs":                   "vue.js",
+    "nuxt.js":                  "vue.js",
+    "vuejs":                    "vue.js",
+    "vue":                      "vue",
+    "tailwind":                 "tailwindcss",
+    "tailwind css":             "tailwindcss",
+
+    # ── Backend / APIs ─────────────────────────────────────────
+    "node":                     "node.js",
+    "nodejs":                   "node.js",
+    "node js":                  "node.js",
+    "rest api":                 "rest api",
+    "restful api":              "restful api",
+    "restful":                  "rest api",
+    "apis":                     "api design",
+    "api":                      "api design",
+    "oauth 2":                  "oauth2",
+    "spring":                   "spring boot",
+
+    # ── Databases ──────────────────────────────────────────────
+    "postgres":                 "postgresql",
+    "postgresql":               "postgresql",    # self-map; canonical already
+    "postgre sql":              "postgresql",
+    "mysql db":                 "mysql",
+    "mongo":                    "mongodb",
+    "mongo db":                 "mongodb",
+    "elastic":                  "elasticsearch",
+    "elastic search":           "elasticsearch",
+    "vector db":                "vector database",
+
+    # ── ML / AI ────────────────────────────────────────────────
+    "ai":                       "artificial intelligence",
+    "gen ai":                   "artificial intelligence",
+    "genai":                    "artificial intelligence",
+    "ml":                       "machine learning",
+    "dl":                       "deep learning",
+    "cv":                       "computer vision",
+    "nlp":                      "natural language processing",
+    "llms":                     "llm",
+    "large language models":    "large language model",
+    "retrieval augmented generation": "rag",
+    "sklearn":                  "scikit-learn",
+    "scikit learn":             "scikit-learn",
+    "sentence-transformers":    "sentence transformers",
+    "huggingface":              "transformers",
+    "hugging face":             "transformers",
+    "openai api":               "openai",
+    "gpt":                      "openai",
+    "gpt-4":                    "openai",
+    "chatgpt":                  "openai",
+    "gemini api":               "gemini",
+    "prompt":                   "prompt engineering",
+
+    # ── DevOps / Cloud ─────────────────────────────────────────
+    "amazon web services":      "aws",
+    "google cloud platform":    "gcp",
+    "google cloud":             "gcp",
+    "azure cloud":              "azure",
+    "docker compose":           "docker-compose",
+    "k8s":                      "kubernetes",
+    "github action":            "github actions",
+    "gh actions":               "github actions",
+    "ci cd":                    "ci/cd",
+    "cicd":                     "ci/cd",
+    "continuous integration":   "ci/cd",
+    "continuous deployment":    "ci/cd",
+    "cd":                       "ci/cd",
+
+    # ── Testing ────────────────────────────────────────────────
+    "unit test":                "unit testing",
+    "integration test":         "integration testing",
+    "e2e":                      "e2e testing",
+    "end to end":               "end-to-end testing",
+
+    # ── Misc ───────────────────────────────────────────────────
+    "graphql api":              "graphql",
+    "nosql":                    "mongodb",
+    "version control":          "git",
+    "source control":           "git",
+}
+
+
 def clean_text(text: str) -> str:
     text = text.lower()
-    text = re.sub(r"[^a-z0-9\s+.#]", " ", text)  # keep tech chars
+    text = re.sub(r"[^a-z0-9\s+.#/-]", " ", text)  # keep tech chars
+    text = text.replace("/", " ")
+    text = text.replace("-", " ")
+    text = re.sub(r"\s+", " ", text)
     return text
 
 
-def extract_skills(text: str):
-    text = clean_text(text)
+def normalize_skill(skill: str) -> str:
+    """
+    Return the canonical form of a skill string.
 
-    found_skills = set()
+    Lookup order:
+      1. cleaned-lowercase key in SKILL_ALIASES   → alias target
+      2. fallback → lowercased original
+    """
+    cleaned = clean_text(skill).strip()
+    return SKILL_ALIASES.get(cleaned, skill.lower())
 
-    for skill in SKILL_KEYWORDS:
-        # match whole word
-        pattern = r"\b" + re.escape(skill) + r"\b"
-        if re.search(pattern, text):
-            found_skills.add(skill)
+
+def _term_pattern(term: str) -> str:
+    cleaned = clean_text(term).strip()
+    escaped = re.escape(cleaned).replace(r"\ ", r"\s+")
+    return rf"(?<![a-z0-9+#.]){escaped}(?![a-z0-9+#.])"
+
+
+def extract_skills(text: str) -> list[str]:
+    """
+    Extract and normalise all recognised skills from *text*.
+
+    Returns a sorted list of canonical skill names with no duplicates.
+    """
+    cleaned_text = clean_text(text)
+
+    found_skills: set[str] = set()
+    # Search for every keyword *and* every alias key
+    terms = [*SKILL_KEYWORDS, *SKILL_ALIASES.keys()]
+
+    for skill in terms:
+        pattern = _term_pattern(skill)
+        if re.search(pattern, cleaned_text):
+            found_skills.add(normalize_skill(skill))
 
     return sorted(found_skills)
