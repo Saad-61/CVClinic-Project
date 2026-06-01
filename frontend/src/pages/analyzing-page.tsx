@@ -3,28 +3,39 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { analyzeCv } from "../api/cv";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { saveStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
 
-const STATUS = [
-  "Uploading and validating your CV...",
-  "Extracting text from your file...",
-  "Matching your profile to jobs...",
-  "Scoring fit and ranking results...",
-  "Drafting recommendations and CV fixes...",
-  "Preparing the report view...",
-] as const;
+const LOADING_TIPS = [
+  "Extracting layout and text sections from your CV...",
+  "Searching and retrieval matching from 70+ jobs...",
+  "Scoring skill alignment and calculating match scores...",
+  "Generating missing skill project ideas and action items..."
+];
 
 export default function AnalyzingPage() {
   const navigate = useNavigate();
-  const { analysisRequestId, clearPendingAnalysis, file, filename, setReport } = useCv();
+  const { analysisRequestId, clearPendingAnalysis, file, filename, setReport, targetRole } =
+    useCv();
   const controllerRef = useRef<AbortController | null>(null);
   const startedRequestRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [statusIndex, setStatusIndex] = useState(0);
-  const status = STATUS[statusIndex % STATUS.length];
+  const [tipIndex, setTipIndex] = useState(0);
+
+  // Rotate loading tips every 3 seconds - separated to prevent double-render clear bugs
+  useEffect(() => {
+    const tipTimer = setInterval(() => {
+      setTipIndex((prev) => (prev + 1) % LOADING_TIPS.length);
+    }, 4000);
+    return () => clearInterval(tipTimer);
+  }, []);
 
   useEffect(() => {
     if (!file || !analysisRequestId) {
@@ -32,9 +43,7 @@ export default function AnalyzingPage() {
       return;
     }
 
-    if (startedRequestRef.current === analysisRequestId) {
-      return;
-    }
+    if (startedRequestRef.current === analysisRequestId) return;
     startedRequestRef.current = analysisRequestId;
 
     const controller = new AbortController();
@@ -43,56 +52,45 @@ export default function AnalyzingPage() {
 
     const createdAt = new Date().toISOString();
 
-    const tick = setInterval(() => setStatusIndex((i) => i + 1), 1400);
-
-    analyzeCv(file, controller.signal)
+    analyzeCv(file, targetRole, controller.signal)
       .then((report) => {
         setReport(report, filename || file.name, createdAt);
-        saveStoredReport({
-          filename: filename || file.name,
-          createdAt,
-          report,
-        });
+        saveStoredReport({ filename: filename || file.name, createdAt, report });
         navigate("/results", { replace: true });
       })
       .catch((e) => {
         if ((e as Error).name === "AbortError") return;
         clearPendingAnalysis();
         setError((e as Error).message || "Failed to analyze CV.");
-      })
-      .finally(() => {
-        clearInterval(tick);
       });
 
     return () => {
-      clearInterval(tick);
-      if (startedRequestRef.current !== analysisRequestId) {
+      // Only abort if this isn't the active request (navigating away mid-analysis)
+      if (startedRequestRef.current === analysisRequestId) {
+        // Don't abort — let the request finish in background
+      } else {
         controller.abort();
       }
     };
-  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport]);
+  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole]);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-lg">
       <Card>
         <CardHeader>
-          <CardTitle>Analyzing your CV</CardTitle>
-          <CardDescription>
-            This usually takes a few seconds. You can cancel anytime.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4">
-            <Loader2 className="h-5 w-5 animate-spin text-purple-700" aria-hidden="true" />
-            <div className="flex-1">
-              <div className="text-sm font-semibold text-slate-900">{status}</div>
-              <div className="mt-1 text-xs text-slate-500">
-                Don’t close the tab — we’ll redirect to your report automatically.
-              </div>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Analyzing your CV</CardTitle>
+              <CardDescription className="mt-1">
+                <span className="text-slate-500 font-medium text-xs truncate max-w-[240px] block">
+                  File: {filename || file?.name}
+                </span>
+              </CardDescription>
             </div>
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => {
                 controllerRef.current?.abort();
                 clearPendingAnalysis();
@@ -103,31 +101,31 @@ export default function AnalyzingPage() {
               Cancel
             </Button>
           </div>
+        </CardHeader>
 
+        <CardContent className="pb-6">
           {error ? (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-              {error}
-              <div className="mt-3 flex gap-2">
-                <Button type="button" variant="default" onClick={() => navigate("/", { replace: true })}>
+            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm">
+              <p className="text-rose-800">{error}</p>
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => navigate("/", { replace: true })}
+                >
                   Back to upload
                 </Button>
               </div>
             </div>
           ) : (
-            <>
-              <Separator />
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <div className="flex items-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-purple-700" aria-hidden="true" />
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold text-slate-900">Preparing your results</div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      We’re keeping things moving in the background.
-                    </div>
-                  </div>
-                </div>
+            <div className="flex flex-col items-center justify-center py-14 px-4 text-center space-y-6">
+              <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
+              <div className="space-y-1.5 max-w-xs">
+                <p className="text-sm font-semibold text-slate-800 transition-all duration-300 min-h-[40px] flex items-center justify-center">
+                  {LOADING_TIPS[tipIndex]}
+                </p>
               </div>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -9,7 +9,7 @@ from services.fetch_jobs import get_all_jobs
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 CACHE_FILE = DATA_DIR / "jobs_cache.json"
 CACHE_EXPIRY = 60 * 60 * 6  # 6 hours
-CACHE_VERSION = 2
+CACHE_VERSION = 3
 
 
 def _load_env() -> None:
@@ -25,6 +25,7 @@ def _cache_signature():
         "location": os.getenv("JOB_SEARCH_LOCATION", "Pakistan"),
         "keywords": os.getenv("JOB_SEARCH_KEYWORDS", ""),
         "has_jooble": bool(os.getenv("JOOBLE_API_KEY", "").strip()),
+        "has_adzuna": bool(os.getenv("ADZUNA_APP_ID", "").strip()),
     }
 
 def get_cached_jobs():

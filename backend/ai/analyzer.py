@@ -1,28 +1,14 @@
-import hashlib
 import json
 from ai.llm import generate_response
 from utils.analysis_postprocess import postprocess_analysis
 
-
-# ---------------------------------------------------------------------------
-# Fix E: In-memory cache — same CV + same jobs → zero LLM call
-# ---------------------------------------------------------------------------
-_analysis_cache: dict[str, dict] = {}
-
-
-def _make_cache_key(cv_skills: list, top_jobs: list, links: list) -> str:
-    """Stable MD5 key from the structured inputs (not raw CV text)."""
-    payload = json.dumps(
-        {"skills": sorted(cv_skills), "jobs": top_jobs, "links": sorted(links)},
-        sort_keys=True,
-    )
-    return hashlib.md5(payload.encode()).hexdigest()
 
 
 # ---------------------------------------------------------------------------
 # Fix F: Zero-overlap fast-path — no LLM needed
 # ---------------------------------------------------------------------------
 _ZERO_OVERLAP_TEMPLATE = {
+    "inferred_role": "Software Engineer",
     "job_matches": [],
     "missing_skills": [
         {
@@ -66,6 +52,7 @@ def _build_structured_prompt(
     full_cv_text: str,
     project_context: str,
     links: list,
+    target_role: str | None = None,
 ) -> str:
     """
     Sends structured data to the LLM plus a focused excerpt of the CV for projects.
@@ -81,11 +68,24 @@ def _build_structured_prompt(
     if has_linkedin:
         link_note += " LinkedIn link is present in CV — do NOT suggest adding LinkedIn.\n"
 
+    target_role_section = ""
+    if target_role and target_role.strip():
+        target_role_section = f"""
+---
+CANDIDATE TARGET CAREER ROLE:
+{target_role.strip()}
+
+Your analysis, explanations, missing skills, and actions MUST prioritize helping the candidate align with and get hired for this target career role.
+If the top matched jobs below don't fit this target career role, focus your recommendations and actions on this target career role anyway.
+Ignore/demote matched job gaps or requirements that are completely irrelevant to this target career role.
+"""
+
     return f"""
 You are an AI career assistant. All matching, scoring, and skill extraction has already been done by code.
 Your job is ONLY to write the explanations, reasons, gaps, and actionable advice.
 
 Do NOT re-score jobs. Do NOT change the scores. Use them as-is.
+{target_role_section}
 
 ---
 CANDIDATE SUMMARY:
@@ -109,43 +109,51 @@ LINK NOTES:
 {link_note if link_note else 'No GitHub/LinkedIn links found — you may suggest adding them.'}
 
 ---
-TASKS:
+TASKS & DETAILED INSTRUCTIONS:
 
 1. JOB MATCHING — for each job in top_jobs:
    - Use the provided score as-is
-    - Write reason in 2 concise sentences: mention the specific CV projects, tools, or experience that support this role
-    - Write evidence: cite matched_skills and, if relevant, one project or section name
-    - Write gap: state the exact requirements the CV does not yet show, using the job's wording where possible
+   - Write reason in 2 concise sentences: mention the specific CV projects, tools, or experience that support this role
+   - Write evidence: cite matched_skills and, if relevant, one project or section name
+   - Write gap: state the exact requirements the CV does not yet show, using the job's wording where possible
 
-2. MISSING SKILLS — look at missing_skills across all jobs:
-   - Pick top 5 unique skills, ordered HIGH → MEDIUM → LOW priority
-   - For each: say WHY it matters for these roles
-   - If the skill fits an existing project → project_type: "existing", name the project
-   - Otherwise → project_type: "new", propose a specific small project
-   - implementation: WHAT to build → WHERE → HOW (one sentence)
+2. MISSING SKILLS (Exactly 5 entries total):
+   - You MUST propose EXACTLY 2 entries as new project ideas (project_type: "new"). 
+   - You MUST propose EXACTLY 3 entries as existing projects to update (project_type: "existing").
+   - For the 2 new projects:
+     * Focus on critical technical gaps (e.g. Docker, Redis, CI/CD, testing frameworks like PyTest, message queues like RabbitMQ/Celery).
+     * Propose a highly tailored, production-grade project title and details.
+     * In "project_idea": Describe a solid architecture, the specific features, and exactly what tools/libraries to use. Write a detailed paragraph (2-3 sentences).
+     * In "implementation": Give advanced step-by-step instructions and explicitly tell the candidate WHERE to look/what resources to read (e.g. "Follow the official Docker multi-stage build docs", "Refer to the FastAPI background tasks guide", "Check the Redis caching standard tutorials"). Write a detailed paragraph (3-4 sentences).
+   - For the 3 existing project updates (project_type: "existing"):
+     * Select a project from the CV (e.g., BookYourShoot, ScoutVCT) and suggest adding a highly advanced feature that demonstrates the missing skill.
 
-3. PROJECT IMPROVEMENTS — for existing projects only:
-   - Read the CANDIDATE PROJECT/EXPERIENCE EXCERPT to find existing projects.
-   - Max 3 improvements
-   - Each: WHAT → WHERE (project name) → HOW
-   - Make impact measurable or user-visible
+3. PROJECT IMPROVEMENTS — for existing projects only (Max 3 entries):
+   - Read the candidate's existing projects (BookYourShoot, ScoutVCT, VisionBench) and suggest ADVANCED technical upgrades.
+   - STRICT CRITICAL RULES: 
+     * Do NOT suggest basic REST API endpoint creation. If the candidate built a project in FastAPI or Express, assume they already have REST APIs. Suggest advanced upgrades like query optimizations (PostgreSQL indexes, EXPLAIN ANALYZE), API caching (Redis), rate-limiting middleware, integration tests with PyTest/Supertest, or setting up Docker Compose.
+     * Do NOT suggest adding basic Git/GitHub workflows. The candidate is a senior CS student who already lists Git/GitHub in their skills.
+     * Propose technical enhancements with measurable outcomes.
 
 4. CV FIXES — max 3 short fixes:
    - Tie each fix to a specific section or project
    - Be specific: name the section, the exact change, and why
 
 5. TOP ACTIONS — exactly 3:
-   - Something the candidate can do this week
-   - Include a concrete deliverable per action
-   - Do not repeat themes across actions
+   - STRICT CRITICAL RULES:
+     * Do NOT suggest creating a GitHub repository or setting up basic Git.
+     * Do NOT suggest generic "tailor your LinkedIn profile" or "add a summary". If suggesting a LinkedIn/resume polish, be highly specific and advanced (e.g., "Add your PyTorch/CUDA benchmarks or face recognition models pipeline diagram link to LinkedIn").
+     * Focus on high-impact, professional actions (e.g. containerizing a service, setting up unit tests with 80%+ coverage, writing API documentation).
+
+6. INFERRED ROLE — Determine a short 2-3 word career title that best describes the candidate's CV profile (e.g. 'Frontend Developer', 'Machine Learning Engineer', 'DevOps Engineer', 'Full Stack Developer').
 
 ---
 RULES:
-- Keep ALL explanations to 1-2 lines max
+- Keep ALL explanations to 2-3 sentences where helpful to provide detail.
 - Be specific: name projects, technologies, exact deliverables
 - Do NOT invent projects, metrics, links, or technologies not found in the excerpt or skills list
 - Use the full CV details when proposing top actions, project improvements, and new projects.
-- missing_skills: max 5 entries
+- missing_skills: EXACTLY 2 "new" project entries, and EXACTLY 3 "existing" project entries (5 entries total).
 - project_improvements: max 3 entries
 - cv_fixes: max 3 entries
 - top_actions: exactly 3 entries
@@ -153,6 +161,7 @@ RULES:
 ---
 OUTPUT (STRICT JSON ONLY — no markdown fences):
 {{
+  "inferred_role": "Short 2-3 word career title inferred from CV details",
   "job_matches": [
     {{"title": "", "score": 0, "reason": "", "evidence": "", "gap": ""}}
   ],
@@ -183,6 +192,7 @@ def analyze_cv(
     links: list | None = None,
     cv_skills: list | None = None,
     projects: list | None = None,
+    target_role: str | None = None,
 ) -> dict:
     """
     Main CV analysis entry point.
@@ -256,20 +266,12 @@ def analyze_cv(
             end = min(len(cv_text), idx + 3000)
             project_context = cv_text[start:end].strip()
 
-    # --- Fix E: cache check -----------------------------------------------
-    cache_key = _make_cache_key(cv_skills, structured_jobs, links)
-    if cache_key in _analysis_cache:
-        print("[Analyzer] Cache hit — returning cached result (no LLM call)")
-        return _analysis_cache[cache_key]
-
     # --- Build and send compact prompt ------------------------------------
-    prompt = _build_structured_prompt(cv_skills, structured_jobs, full_cv_text, project_context, links)
+    prompt = _build_structured_prompt(cv_skills, structured_jobs, full_cv_text, project_context, links, target_role=target_role)
 
     try:
         response = generate_response(prompt, request_source="analysis")
         result = postprocess_analysis(response)
-        # Store in cache
-        _analysis_cache[cache_key] = result
         return result
     except Exception as e:
         error_response = {

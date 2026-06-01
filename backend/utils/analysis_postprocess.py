@@ -39,6 +39,9 @@ def postprocess_analysis(analysis):
     if "error" in analysis:
         return analysis
 
+    analysis.setdefault("inferred_role", "Software Engineer")
+    analysis["inferred_role"] = _normalize_text(analysis.get("inferred_role") or "Software Engineer")
+
     analysis.setdefault("job_matches", [])
     analysis.setdefault("missing_skills", [])
     analysis.setdefault("project_improvements", [])

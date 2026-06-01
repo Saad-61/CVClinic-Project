@@ -52,24 +52,30 @@ class RAGPipeline:
     def compute_final_score(self, embedding_similarity, overlap, cv_skills, job_skills):
         """
         Hybrid scoring formula:
-        final_score = 0.6 * embedding_similarity + 0.4 * skill_overlap_score
-        
-        With skill-aware ranking: penalize 0 overlap heavily
+          - 50% embedding similarity
+          - 50% skill overlap (normalized against actual job skill count)
+
+        Calibrated to hit desired bands:
+          Poor   0-35 | Average 35-55 | Good 55-75 | Excellent 75-90 | Near-perfect 90-100
         """
-        # Normalize embedding_similarity to 0-100 range
         embedding_score = embedding_similarity * 100
-        
-        # Calculate skill overlap score (0-100)
-        overlap_score = min(overlap / 5, 1.0) * 100
-        
-        # Hybrid formula: 60% embeddings, 40% skills
-        final_score = (0.6 * embedding_score) + (0.4 * overlap_score)
-        
-        # CRITICAL: Heavy penalty if zero skill overlap
+
+        # Skill overlap: fraction of job skills the CV covers (0-1)
+        job_skill_count = max(len(job_skills), 1)
+        overlap_ratio = min(overlap / job_skill_count, 1.0)
+        overlap_score = overlap_ratio * 100
+
+        # 50/50 blend
+        raw = (0.5 * embedding_score) + (0.5 * overlap_score)
+
+        # Mild calibration stretch so strong matches reach 75-85%
+        calibrated = min(raw * 1.3, 100)
+
+        # Heavy penalty for zero skill overlap
         if overlap == 0:
-            final_score *= 0.7  # 30% reduction for no overlap
-        
-        return round(final_score, 2)
+            calibrated *= 0.55
+
+        return round(calibrated, 2)
 
     def generate_evidence(self, cv_skills, job_skills, cv_text, job_text):
         """
@@ -87,37 +93,73 @@ class RAGPipeline:
 
     def calculate_resume_score(self, cv_skills, cv_text, cv_links=None):
         """
-        Calculate overall resume quality score (0-100)
-        Based on:
-        - Skill count
-        - Project mentions
-        - Link presence
-        """
-        # Skill coverage: max 40 points
-        skill_score = min(len(cv_skills) * 5, 40)
-        
-        # Project count: max 30 points (find "project", "built", "developed" mentions)
-        project_mentions = cv_text.lower().count("project") + \
-                         cv_text.lower().count("built") + \
-                         cv_text.lower().count("developed")
-        project_score = min(project_mentions * 3, 30)
-        
-        # Links/proof: max 30 points
-        links = cv_links if cv_links is not None else extract_links(cv_text)
-        link_score = min(len(links) * 10, 30)
-        
-        resume_score = skill_score + project_score + link_score
-        return round(min(resume_score, 100), 2)
+        Calculate overall resume quality score (0-100).
 
-    def retrieve_jobs_with_scores(self, cv_text, cv_links=None):
+        Target bands:
+          Needs Work  0-35   : sparse CV, few skills, no proof
+          Fair        35-55  : some skills, weak proof or no links
+          Good        55-75  : solid skills + projects
+          Strong      75-90  : skills + projects + links
+          Excellent   90-100 : everything — depth, breadth, impact, proof
+
+        Buckets:
+          Skill depth    : max 35 pts  (7 canonical skills = max)
+          Project proof  : max 30 pts  (8 keyword hits = max)
+          Link presence  : max 20 pts  (3 links = max)
+          Impact signals : max 15 pts  (4 impact words = max)
+        """
+        text_lower = cv_text.lower()
+
+        # Skill depth: 35 pts — normalized to 7 distinct skills
+        skill_score = min(len(cv_skills) / 7 * 35, 35)
+
+        # Project/experience evidence: 30 pts
+        project_keywords = [
+            "project", "built", "developed", "implemented",
+            "designed", "created", "engineered", "launched",
+        ]
+        project_mentions = sum(text_lower.count(kw) for kw in project_keywords)
+        project_score = min(project_mentions / 8 * 30, 30)
+
+        # Links / proof: 20 pts — 3 links = max
+        links = cv_links if cv_links is not None else extract_links(cv_text)
+        link_score = min(len(links) / 3 * 20, 20)
+
+        # Impact signals: 15 pts — measurable outcome words
+        impact_words = [
+            "improved", "reduced", "increased", "automated", "deployed",
+            "scaled", "optimised", "optimized", "achieved", "awarded",
+            "saved", "boosted", "accelerated", "delivered",
+        ]
+        impact_count = sum(text_lower.count(w) for w in impact_words)
+        impact_score = min(impact_count / 4 * 15, 15)
+
+        raw = skill_score + project_score + link_score + impact_score
+        final = round(min(raw, 100), 2)
+        print(
+            f"[ResumeScore] skills={len(cv_skills)} skill_pts={round(skill_score,1)} "
+            f"proj_mentions={project_mentions} proj_pts={round(project_score,1)} "
+            f"links={len(links)} link_pts={round(link_score,1)} "
+            f"impact={impact_count} impact_pts={round(impact_score,1)} "
+            f"TOTAL={final}"
+        )
+        return final
+
+
+    def retrieve_jobs_with_scores(self, cv_text, cv_links=None, target_role=None):
         if self.vector_store is None:
             self.load_jobs()
 
-        query_embedding = get_embedding(cv_text)
+        search_query = cv_text
+        if target_role and target_role.strip():
+            role_str = target_role.strip()
+            search_query = f"Target Role: {role_str} Job Title: {role_str} Position: {role_str}\n\n{cv_text}"
+
+        query_embedding = get_embedding(search_query)
         links = cv_links if cv_links is not None else extract_links(cv_text)
 
         distances, indices = self.vector_store.index.search(
-            np.array([query_embedding]).astype('float32'), 3
+            np.array([query_embedding]).astype('float32'), min(20, len(self.vector_store.data))
         )
 
         # extract structured skills

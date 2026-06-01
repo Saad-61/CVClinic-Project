@@ -29,9 +29,14 @@ uploads/
 backend/data/*.pdf
 backend/data/*.docx
 backend/data/*.json
+backend/cache/
 *.pdf
 *.docx
+
 
 # OS
 .DS_Store
 Thumbs.db
+backend/models/history.json
+frontend/tsconfig.tsbuildinfo
+backend/profile_test_results.json

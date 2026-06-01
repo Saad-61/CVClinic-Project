@@ -1,14 +1,16 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from ai.rag_pipeline import RAGPipeline
 from ai.cover_letter import generate_cover_letter
 from ai.rewrite import generate_fix_rewrite
 from models.schemas import GenerateCoverLetterRequest, GenerateFixRequest
 from models.history import save_analysis_result
 from services.cv_parser import extract_text_from_file, extract_links_from_file
+from services.analysis_cache import cv_hash, get_cached_analysis, save_analysis, cache_info
 from utils.file_handler import save_file
 from utils.skill_extractor import extract_skills
 from ai.analyzer import analyze_cv
 import os
+
 
 router = APIRouter(prefix="/cv", tags=["CV"])
 
@@ -43,12 +45,27 @@ async def match_jobs(file: UploadFile = File(...)):
     }
 
 @router.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(
+    file: UploadFile = File(...),
+    target_role: str | None = Form(None)
+):
     file_path = save_file(file)
     text = extract_text_from_file(file_path)
     file_links = extract_links_from_file(file_path, text)
 
-    rag_result = get_rag_pipeline().retrieve_jobs_with_scores(text, file_links)
+    # ── Persistent disk cache check ────────────────────────────────────────
+    role_key = (target_role or "").strip().lower()
+    h = cv_hash(text + "||role:" + role_key)
+    cached = get_cached_analysis(h)
+    if cached is not None:
+        # Restore jooble_configured from current env (may differ between runs)
+        cached["jooble_configured"] = bool(os.getenv("JOOBLE_API_KEY", "").strip())
+        if "target_role" not in cached or cached["target_role"] is None:
+            cached["target_role"] = target_role
+        return cached
+
+    # ── Full analysis ──────────────────────────────────────────────────────
+    rag_result = get_rag_pipeline().retrieve_jobs_with_scores(text, file_links, target_role=target_role)
     jobs = rag_result["matched_jobs"]
     all_jobs = rag_result.get("all_jobs", [])
     links = list(dict.fromkeys([*(rag_result.get("links", [])), *file_links]))
@@ -58,7 +75,7 @@ async def analyze(file: UploadFile = File(...)):
     cv_skills = extract_skills(text)
 
     try:
-        analysis = analyze_cv(text, jobs, links, cv_skills=cv_skills)
+        analysis = analyze_cv(text, jobs, links, cv_skills=cv_skills, target_role=target_role)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
@@ -70,8 +87,12 @@ async def analyze(file: UploadFile = File(...)):
         "analysis": analysis,
         "cv_text": text,
         "jooble_configured": bool(os.getenv("JOOBLE_API_KEY", "").strip()),
+        "target_role": target_role,
     }
-    
+
+    # ── Persist to disk cache ──────────────────────────────────────────────
+    save_analysis(h, response)
+
     # Save to history
     try:
         result_id = save_analysis_result(file.filename, response)
@@ -81,6 +102,12 @@ async def analyze(file: UploadFile = File(...)):
         print(f"Warning: Failed to save result to history: {e}")
 
     return response
+
+
+@router.get("/cache-info")
+async def get_cache_info():
+    """Dev endpoint: returns the number of cached analyses and disk usage."""
+    return cache_info()
 
 
 @router.post("/generate-fix")

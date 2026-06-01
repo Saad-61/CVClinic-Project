@@ -73,6 +73,7 @@ export type ConfidenceMap = Partial<
 >;
 
 export type Analysis = {
+  inferred_role?: string;
   job_matches?: AnalysisJobMatch[];
   missing_skills?: MissingSkill[];
   project_improvements?: ProjectImprovement[];
@@ -90,6 +91,7 @@ export type AnalyzeResponse = {
   cv_text: string;
   resume_score?: number;
   jooble_configured?: boolean;
+  target_role?: string;
 };
 
 export type StoredReport = {

@@ -9,6 +9,7 @@ type CvState = {
   report: AnalyzeResponse | null;
   createdAt: string | null;
   analysisRequestId: number | null;
+  targetRole: string;
 };
 
 type CvActions = {
@@ -18,6 +19,7 @@ type CvActions = {
   queueAnalysis: () => boolean;
   clearPendingAnalysis: () => void;
   startOver: () => void;
+  setTargetRole: (role: string) => void;
 };
 
 const CvContext = createContext<(CvState & CvActions) | null>(null);
@@ -29,6 +31,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
   const [report, setReportState] = useState<AnalyzeResponse | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [analysisRequestId, setAnalysisRequestId] = useState<number | null>(null);
+  const [targetRole, setTargetRoleState] = useState("");
 
   const setFile = useCallback((next: File | null) => {
     setFileState(next);
@@ -37,6 +40,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setReportState(null);
     setCreatedAt(null);
     setAnalysisRequestId(null);
+    setTargetRoleState("");
   }, []);
 
   const setPreview = useCallback((text: string, name?: string) => {
@@ -68,7 +72,12 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setReportState(null);
     setCreatedAt(null);
     setAnalysisRequestId(null);
+    setTargetRoleState("");
     clearStoredReport();
+  }, []);
+
+  const setTargetRole = useCallback((role: string) => {
+    setTargetRoleState(role);
   }, []);
 
   const value = useMemo(
@@ -79,12 +88,14 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       report,
       createdAt,
       analysisRequestId,
+      targetRole,
       setFile,
       setPreview,
       setReport,
       queueAnalysis,
       clearPendingAnalysis,
       startOver,
+      setTargetRole,
     }),
     [
       file,
@@ -93,12 +104,14 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       report,
       createdAt,
       analysisRequestId,
+      targetRole,
       setFile,
       setPreview,
       setReport,
       queueAnalysis,
       clearPendingAnalysis,
       startOver,
+      setTargetRole,
     ],
   );
 
