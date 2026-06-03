@@ -1,4 +1,4 @@
-# AI Job Match & Career Optimizer (RAG-Based)
+# CVClinic — RAG-Based Resume Advisor & Career Optimizer
 
 ## 🚀 Overview
 
@@ -37,51 +37,54 @@ This system retrieves actual job postings, scores the CV against them, and uses 
 
 ## 🧠 AI Architecture (RAG)
 
-### Retrieval Pipeline
-1. Job postings stored in FAISS vector database (embeddings via `sentence-transformers`)
-2. User CV converted to embedding
-3. Semantic similarity search + skill-based scoring
-4. Filtering: remove zero-overlap jobs, fallback to top 2 if empty
-5. Scoring formula: `(1/(1+distance)*100) + (skill_overlap*8) - penalty`, clamped [0, 100]
+### Retrieval & Scoring Pipeline
+1. **Job Retrieval & Cache**: Jobs are fetched from external APIs (e.g. Remotive) and cached locally for 1 hour to prevent redundant API calls.
+2. **FAISS Vector Database**: Job descriptions are stored and indexed using FAISS with embeddings generated via `sentence-transformers/all-MiniLM-L6-v2`.
+3. **Semantic Querying**: The user's CV text (plus any targeted career role) is embedded to retrieve the top 20 job matches.
+4. **Hybrid Scoring Formula**:
+   * **Embedding Score**: 50% weight, computed as `similarity * 100` (where similarity is `1 / (1 + L2_distance)`).
+   * **Skill Overlap Score**: 50% weight, computed as `(overlap / job_skill_count) * 100` (clamped to 1.0).
+   * **Calibration**: The blended score is multiplied by `1.3` (clamped at `100`) to stretch high-quality matches into standard scoring ranges.
+   * **Zero-Overlap Penalty**: A heavy `0.55` multiplier penalty (45% reduction) is applied if the CV has no overlapping skills with the job description.
+5. **Ranking & Filtering**: Jobs are sorted by priority (favoring any positive skill overlap) and score. Jobs without overlap are filtered out unless all matches have zero overlap, in which case the top 2 matches are returned as a fallback.
 
-### Analysis Pipeline
-1. Extract text and links from uploaded CV (PDF/DOCX)
-2. Retrieve matched jobs with scores
-3. Build evidence-based prompt with job context
-4. Generate LLM analysis:
-   - Job match explanations (with CV evidence + job gap)
-   - Missing skills with priority (HIGH/MEDIUM/LOW)
-   - Project improvements (existing projects only)
-   - CV fixes (specific, tied to sections)
-   - Top 3 weekly actions
-5. Post-process: normalize nulls, deduplicate, add confidence, guarantee ≥1 new-project suggestion
+### Resume Quality Score
+Calculates an overall CV quality rating (0-100) based on four metrics:
+* **Skill Depth** (Max 35 pts): Normalizes CV skills count (up to 7 canonical skills).
+* **Project Evidence** (Max 30 pts): Counts action verbs/projects mentioned (up to 8 keywords).
+* **Proof Presence** (Max 20 pts): Detects external links/portfolios (up to 3 links).
+* **Impact Signals** (Max 15 pts): Evaluates measurable business outcomes or metric-oriented words (up to 4 words).
+
+### Analysis & Processing Pipeline
+1. **Extraction**: Text is extracted from uploaded PDF/DOCX resumes. Links (GitHub, LinkedIn, portfolios) are extracted from both PDF metadata/annotations and regex text matching.
+2. **Disk-Based Analysis Cache**: CV hashes are checked against a persistent local cache to return instant analysis for identical resumes and target roles.
+3. **Zero-Overlap Fast-Path**: If there is zero skill overlap across matches, the system bypasses the LLM completely and returns a deterministic, high-quality advice template. This saves token cost and avoids LLM hallucinations.
+4. **Augmented LLM Analysis**: Otherwise, a structured prompt containing the CV details, target career role, and top 2 matched jobs (with evidence/gaps) is sent to Google Gemini.
+5. **Post-Processing**: The raw LLM output is parsed, normalized (nulls handled), deduplicated, and enriched with confidence scores per section. It also ensures a new-project suggestion is always guaranteed.
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Backend
-
 * **FastAPI** – REST API framework
 * **Uvicorn** – ASGI server (default port: 8010)
 * **Pydantic** – Data validation
+* **Disk Caching** – Persistent cache system for CV analyses
 
 ### AI / ML Stack
-
-* **Embeddings:** sentence-transformers (`all-MiniLM-L6-v2`)
-* **Vector DB:** FAISS (IndexFlatL2)
-* **LLM:** Google Gemini 2.0 Flash with dynamic model resolution
-* **JSON Parsing:** Multi-stage parser (direct → fenced blocks → streaming decode)
+* **Embeddings**: sentence-transformers (`all-MiniLM-L6-v2`)
+* **Vector DB**: FAISS (IndexFlatL2)
+* **LLM**: Google Gemini 2.0 Flash / 1.5 Flash
+* **JSON Parsing**: Multi-stage parser (direct → fenced blocks → streaming decode)
 
 ### File Parsing
-
 * **PyMuPDF (fitz)** – PDF extraction + hyperlink detection
 * **python-docx** – DOCX extraction
 * **Regex + Pattern Matching** – Link extraction from text
 
 ### Dependencies
-
-See [backend/requirements.txt](backend/requirements.txt) for full list.
+See [backend/requirements.txt](backend/requirements.txt) for the full list.
 
 ---
 
@@ -91,14 +94,14 @@ See [backend/requirements.txt](backend/requirements.txt) for full list.
 **POST** `/cv/upload`  
 Uploads and previews a CV file.
 
-**Input:** multipart/form-data with file (PDF/DOCX)  
-**Output:**
-```json
-{
-  "filename": "resume.pdf",
-  "preview": "John Doe... [first 500 chars]"
-}
-```
+* **Input**: `multipart/form-data` with `file` (PDF/DOCX)
+* **Output**:
+  ```json
+  {
+    "filename": "resume.pdf",
+    "preview": "John Doe... [first 500 chars]"
+  }
+  ```
 
 ---
 
@@ -106,19 +109,19 @@ Uploads and previews a CV file.
 **POST** `/cv/match-jobs`  
 Retrieves basic job matches without scoring.
 
-**Input:** multipart/form-data with file  
-**Output:**
-```json
-{
-  "matched_jobs": [
-    {
-      "id": 0,
-      "title": "Backend Engineer",
-      "description": "..."
-    }
-  ]
-}
-```
+* **Input**: `multipart/form-data` with `file`
+* **Output**:
+  ```json
+  {
+    "matched_jobs": [
+      {
+        "id": 0,
+        "title": "Backend Engineer",
+        "description": "..."
+      }
+    ]
+  }
+  ```
 
 ---
 
@@ -126,36 +129,113 @@ Retrieves basic job matches without scoring.
 **POST** `/cv/analyze`  
 Runs the complete RAG + LLM analysis pipeline.
 
-**Input:** multipart/form-data with file  
-**Output:**
-```json
-{
-  "matched_jobs": [
-    {
-      "id": 0,
-      "title": "Backend Engineer",
-      "description": "...",
-      "score": 78,
-      "evidence": "Strong Python/FastAPI background...",
-      "gap": "Missing Docker and Kubernetes experience"
+* **Input**: `multipart/form-data` with `file` and optional `target_role` (form text)
+* **Output**:
+  ```json
+  {
+    "matched_jobs": [
+      {
+        "id": 0,
+        "title": "Backend Engineer",
+        "description": "...",
+        "score": 78,
+        "overlap": 3,
+        "matched_skills": ["Python", "FastAPI", "React"],
+        "evidence": "Matched: Python, FastAPI",
+        "gap": "Missing Docker and Kubernetes experience"
+      }
+    ],
+    "all_jobs": [...],
+    "links": ["https://github.com/user", "https://linkedin.com/in/user"],
+    "resume_score": 72.5,
+    "jooble_configured": false,
+    "target_role": "Backend Engineer",
+    "result_id": "2026-06-03T19:24:58.123456__resume.pdf",
+    "analysis": {
+      "inferred_role": "Backend Developer",
+      "job_matches": [...],
+      "missing_skills": [...],
+      "project_improvements": [...],
+      "cv_fixes": [...],
+      "top_actions": [...]
     }
-  ],
-  "links": ["https://github.com/user", "https://linkedin.com/in/user"],
-  "analysis": {
-    "job_matching": [...],
-    "missing_skills": [...],
-    "project_improvements": [...],
-    "cv_fixes": [...],
-    "top_actions": [...]
   }
-}
-```
+  ```
+
+---
+
+### 4. Generate CV Fix Rewrite
+**POST** `/cv/generate-fix`  
+Generates tailored LaTeX or plain-text rewrites for specific CV recommendations.
+
+* **Input**: JSON payload
+  ```json
+  {
+    "cv_text": "...",
+    "output_format": "plain | latex",
+    "fix": {
+      "section": "Projects",
+      "fix": "Add database optimizations to scoutvct",
+      "why": "...",
+      "how": "..."
+    }
+  }
+  ```
+* **Output**:
+  ```json
+  {
+    "section": "Projects",
+    "format": "latex",
+    "rewritten_text": "\\item Optimized queries by adding PostgreSQL index...",
+    "notes": "Ensure you place this under your scoutvct project section."
+  }
+  ```
+
+---
+
+### 5. Generate Cover Letter
+**POST** `/cv/generate-cover-letter`  
+Generates a highly personalized cover letter for a matched job.
+
+* **Input**: JSON payload
+  ```json
+  {
+    "cv_text": "...",
+    "tone": "professional | conversational | enthusiastic",
+    "job": {
+      "title": "Backend Engineer",
+      "company_name": "Acme Corp",
+      "description": "..."
+    }
+  }
+  ```
+* **Output**:
+  ```json
+  {
+    "job_title": "Backend Engineer",
+    "company_name": "Acme Corp",
+    "cover_letter": "Dear Hiring Manager,\n\nI am writing to express my interest...",
+    "notes": "Tailored towards your Python/FastAPI experience."
+  }
+  ```
+
+---
+
+### 6. Cache Info (Dev)
+**GET** `/cv/cache-info`  
+Returns the number of cached CV analyses and disk usage.
+
+* **Output**:
+  ```json
+  {
+    "cached_items_count": 12,
+    "total_size_bytes": 45032
+  }
+  ```
 
 ---
 
 ## 🚀 Quick Start
-
-### Prerequisites
 - Python 3.13+
 - pip or venv
 

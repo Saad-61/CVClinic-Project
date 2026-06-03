@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="AI Job Match Backend")
+app = FastAPI(title="CVClinic Backend")
 
 # CORS — origins controlled by FRONTEND_PORT in backend/.env
 app.add_middleware(
