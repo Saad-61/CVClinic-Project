@@ -89,7 +89,7 @@ body {
 /* Section label — small uppercase purple pill */
 .section-label {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -97,7 +97,7 @@ body {
   background: hsl(276 50% 96%);
   border: 1px solid hsl(276 50% 88%);
   border-radius: 9999px;
-  padding: 0.2rem 0.7rem;
+  padding: 0.35rem 0.9rem;
   margin-bottom: 0.5rem;
 }
 

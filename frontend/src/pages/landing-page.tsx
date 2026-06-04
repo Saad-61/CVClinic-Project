@@ -135,8 +135,12 @@ export default function LandingPage() {
           {/* Prominent scroll indicator (desktop only) */}
           <div className="hidden lg:inline-flex items-center gap-4 rounded-2xl border-2 border-purple-200 bg-purple-50 px-6 py-4">
             <div className="flex flex-col items-center gap-0.5">
-              <ChevronDown className="h-6 w-6 text-purple-600 animate-bounce" aria-hidden="true" />
-              <ChevronDown className="h-5 w-5 text-purple-400 animate-bounce" style={{ animationDelay: "0.15s" }} aria-hidden="true" />
+              <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}>
+                <ChevronDown className="h-6 w-6 text-purple-600" aria-hidden="true" />
+              </motion.div>
+              <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.05, repeat: Infinity, ease: 'easeInOut', delay: 0.12 }}>
+                <ChevronDown className="h-5 w-5 text-purple-400" aria-hidden="true" />
+              </motion.div>
             </div>
             <div>
               <div className="text-sm font-bold text-purple-800">Scroll to discover your gaps</div>
@@ -163,7 +167,7 @@ export default function LandingPage() {
         >
           <div className="space-y-2">
             <div className="section-label">The problem</div>
-            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
+            <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               You apply. You wait.<br />
               <span className="text-slate-500 font-semibold">You never find out why.</span>
             </h2>
@@ -229,7 +233,7 @@ export default function LandingPage() {
         >
           <div className="space-y-2">
             <div className="section-label">What you get</div>
-            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
+            <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               A diagnostic report,<br />
               <span className="text-purple-700">not just a score.</span>
             </h2>
@@ -350,9 +354,9 @@ export default function LandingPage() {
         >
           <div className="space-y-2">
             <div className="section-label">How it works</div>
-            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
-              Three steps, no setup.
-            </h2>
+            <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
+                Three steps, no setup.
+              </h2>
           </div>
 
           <motion.div
@@ -414,9 +418,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
         >
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            {/* Purple top accent bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-purple-600 to-violet-500" />
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
             <div className="p-6 space-y-5">
               {/* Header */}
@@ -437,17 +439,17 @@ export default function LandingPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="target-role-select"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-500"
+                  className="block font-outfit text-xl font-black text-slate-900"
                 >
                   Target Role{" "}
-                  <span className="font-normal normal-case tracking-normal text-slate-400">(optional)</span>
+                  <span className="font-normal normal-case tracking-normal text-slate-900">(optional)</span>
                 </label>
                 <select
                   id="target-role-select"
                   value={selectedRoleOption}
                   onChange={(e) => handleRoleOptionChange(e.target.value)}
                   disabled={uploading}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-black focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 >
                   <option value="">-- Defaults to best match --</option>
                   {TARGET_ROLES.map((role) => (
@@ -462,7 +464,7 @@ export default function LandingPage() {
                     onChange={(e) => handleCustomRoleChange(e.target.value)}
                     placeholder="e.g. Senior iOS Engineer, Cloud Architect…"
                     disabled={uploading}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-black placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
                   />
                 )}
               </div>
