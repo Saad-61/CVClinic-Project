@@ -2,26 +2,19 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  Briefcase,
-  ListTodo,
-  FileCheck,
+  Target,
+  Zap,
+  Search,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { uploadCv } from "../api/cv";
 import { FileDropzone } from "../components/file-dropzone";
-import { SectionHeader } from "../components/section-header";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
 import { Skeleton } from "../components/ui/skeleton";
 import { useCv } from "../state/cv-context";
 
@@ -40,13 +33,34 @@ const TARGET_ROLES = [
   "Other (specify below)",
 ];
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { file, filename, preview, setFile, setPreview, queueAnalysis, targetRole, setTargetRole } = useCv();
+  const {
+    file,
+    filename,
+    preview,
+    setFile,
+    setPreview,
+    queueAnalysis,
+    targetRole,
+    setTargetRole,
+  } = useCv();
+
   const [uploading, setUploading] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
+  const uploadRef = useRef<HTMLDivElement>(null);
 
   const [selectedRoleOption, setSelectedRoleOption] = useState(() => {
     if (!targetRole) return "";
@@ -94,154 +108,350 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-      {/* ── Left column ── */}
-      <div className="space-y-6">
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/85 p-6 shadow-sm sm:p-8">
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-purple-100 via-violet-50 to-fuchsia-50 opacity-80" />
-          <div className="relative space-y-4">
-            <Badge variant="indigo" className="w-fit">
-              CV Analyzer
-            </Badge>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                Turn your CV into a job-fit report
-              </h1>
-              <p className="text-base leading-relaxed text-slate-600 max-w-md">
-                Upload once — get match scores, skill gaps, and a prioritised action
-                plan in seconds.
-              </p>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] lg:gap-16 lg:items-start">
+
+      {/* ─────────────── LEFT: Narrative Story ─────────────── */}
+      <div className="space-y-24 pb-24">
+
+        {/* ── HERO ── */}
+        <section className="py-10 sm:py-14">
+          {/* Badge */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-semibold text-purple-700">
+            CV Analysis · No account required
+          </div>
+
+          {/* Headline */}
+          <h1 className="font-outfit mb-5 text-5xl font-black leading-[1.05] tracking-tight text-slate-900 sm:text-6xl xl:text-[4rem]">
+            Your CV,<br />
+            finally matched<br />
+            to{" "}
+            <span className="text-purple-700">real jobs.</span>
+          </h1>
+
+          <p className="mb-10 max-w-[440px] text-lg leading-relaxed text-slate-600">
+            Upload your CV and get a complete diagnostic — match scores, skill gaps, and a ranked action plan based on live job listings.
+          </p>
+
+          {/* Prominent scroll indicator (desktop only) */}
+          <div className="hidden lg:inline-flex items-center gap-4 rounded-2xl border-2 border-purple-200 bg-purple-50 px-6 py-4">
+            <div className="flex flex-col items-center gap-0.5">
+              <ChevronDown className="h-6 w-6 text-purple-600 animate-bounce" aria-hidden="true" />
+              <ChevronDown className="h-5 w-5 text-purple-400 animate-bounce" style={{ animationDelay: "0.15s" }} aria-hidden="true" />
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/80 bg-white/90 p-3.5">
-                <Briefcase className="h-4 w-4 text-purple-600" aria-hidden="true" />
-                <div className="mt-2.5 text-sm font-semibold text-slate-900">
-                  Job-fit scores
-                </div>
-                <div className="mt-0.5 text-xs text-slate-500">
-                  Instant match % against real roles.
-                </div>
-              </div>
-              <div className="rounded-xl border border-white/80 bg-white/90 p-3.5">
-                <ListTodo className="h-4 w-4 text-purple-600" aria-hidden="true" />
-                <div className="mt-2.5 text-sm font-semibold text-slate-900">
-                  Next actions
-                </div>
-                <div className="mt-0.5 text-xs text-slate-500">
-                  Concrete steps, not vague tips.
-                </div>
-              </div>
-              <div className="rounded-xl border border-white/80 bg-white/90 p-3.5">
-                <FileCheck className="h-4 w-4 text-purple-600" aria-hidden="true" />
-                <div className="mt-2.5 text-sm font-semibold text-slate-900">
-                  Clean output
-                </div>
-                <div className="mt-0.5 text-xs text-slate-500">
-                  Prioritised, not a wall of text.
-                </div>
-              </div>
+            <div>
+              <div className="text-sm font-bold text-purple-800">Scroll to discover your gaps</div>
+              <div className="text-xs text-purple-500 mt-0.5">See what the analysis covers before you upload</div>
             </div>
           </div>
-        </div>
 
-        {/* How it works */}
-        <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm">
-          <SectionHeader title="How it works" description="Three steps, no setup." />
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {/* Mobile CTA */}
+          <button
+            onClick={() => uploadRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-700 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-purple-800 transition-colors lg:hidden"
+          >
+            Analyze My CV
+          </button>
+        </section>
+
+        {/* ── THE PROBLEM ── */}
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="space-y-7"
+        >
+          <div className="space-y-2">
+            <div className="section-label">The problem</div>
+            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
+              You apply. You wait.<br />
+              <span className="text-slate-500 font-semibold">You never find out why.</span>
+            </h2>
+            <p className="max-w-md text-slate-600 leading-relaxed">
+              Most rejections have nothing to do with your qualifications — and everything to do with the gap between your CV and what the role actually needs.
+            </p>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            className="grid gap-3"
+          >
             {[
-              { step: "01", title: "Upload", body: "PDF or DOCX, up to 10 MB." },
-              { step: "02", title: "Preview", body: "Confirm the extracted text." },
-              { step: "03", title: "Analyze", body: "Get scores, gaps, actions." },
-            ].map(({ step, title, body }) => (
-              <div key={step} className="rounded-lg border border-slate-200 bg-white p-4">
-                <div className="text-xs font-medium text-slate-400">Step {step}</div>
-                <div className="mt-1 text-sm font-semibold text-slate-900">{title}</div>
-                <div className="mt-0.5 text-xs text-slate-500">{body}</div>
-              </div>
+              {
+                Icon: XCircle,
+                iconColor: "text-rose-500",
+                accentBorder: "border-l-rose-400",
+                title: "Applying blind",
+                body: "You send the same CV to every listing without knowing which specific skills or framing are making you fall short.",
+              },
+              {
+                Icon: Search,
+                iconColor: "text-amber-500",
+                accentBorder: "border-l-amber-400",
+                title: "No honest feedback",
+                body: "Rejections give you nothing. Generic AI tools give you encouragement — not a real gap analysis against actual job requirements.",
+              },
+              {
+                Icon: Clock,
+                iconColor: "text-slate-400",
+                accentBorder: "border-l-slate-300",
+                title: "Effort without direction",
+                body: "You have the experience. The problem is framing — and without a diagnostic, you can't fix what you can't see.",
+              },
+            ].map(({ Icon, iconColor, accentBorder, title, body }) => (
+              <motion.div
+                key={title}
+                variants={fadeUp}
+                className={`rounded-xl border border-slate-200 border-l-4 ${accentBorder} bg-white p-5 shadow-sm`}
+              >
+                <div className="flex items-start gap-4">
+                  <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${iconColor}`} aria-hidden="true" />
+                  <div>
+                    <div className="font-semibold text-slate-900">{title}</div>
+                    <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.section>
 
-        {/* What you get + Score guide */}
-        <div className="grid gap-4 md:grid-cols-[1.15fr,0.85fr]">
-          <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-            <SectionHeader title="What you'll get" description="A report built for action." />
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              {[
-                { title: "Match score", body: "How closely your CV overlaps with a role." },
-                { title: "Skill gaps", body: "Missing areas turned into project ideas." },
-                { title: "CV fixes", body: "Specific edits for underselling sections." },
-                { title: "Top actions", body: "The fastest changes to improve your profile." },
-              ].map(({ title, body }) => (
-                <div key={title} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                  <div className="text-sm font-semibold text-slate-900">{title}</div>
-                  <div className="mt-0.5 text-xs text-slate-500">{body}</div>
-                </div>
-              ))}
-            </div>
+        {/* ── WHAT YOU GET (Bento) ── */}
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="space-y-7"
+        >
+          <div className="space-y-2">
+            <div className="section-label">What you get</div>
+            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
+              A diagnostic report,<br />
+              <span className="text-purple-700">not just a score.</span>
+            </h2>
+            <p className="max-w-md text-slate-600 leading-relaxed">
+              CVClinic uses Retrieval-Augmented Generation to match your CV against live job listings — then builds a ranked plan of exactly what to change and why.
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-            <SectionHeader
-              title="Reading scores"
-              description="Match signals, not hiring probabilities."
-            />
-            <div className="mt-4 space-y-2.5">
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5">
-                <div className="text-sm font-semibold text-emerald-900">Above 50</div>
-                <div className="mt-0.5 text-xs text-emerald-700">
-                  Strong overlap with the role.
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-2 gap-3"
+          >
+            {/* Job Match Score — large */}
+            <motion.div
+              variants={fadeUp}
+              className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="rounded-lg bg-purple-100 p-2">
+                    <Target className="h-4 w-4 text-purple-700" aria-hidden="true" />
+                  </div>
+                  <div className="font-semibold text-slate-900">Job Match Score</div>
                 </div>
+                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+                  Example output
+                </span>
               </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5">
-                <div className="text-sm font-semibold text-amber-900">40 – 50</div>
-                <div className="mt-0.5 text-xs text-amber-700">
-                  Partial fit. Missing key proof or skills.
-                </div>
+              <p className="mb-4 text-sm text-slate-500">
+                Exact semantic overlap between your CV and real open roles — not a keyword count.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { role: "React Developer", score: 81, colorBar: "bg-purple-600", colorText: "text-purple-700" },
+                  { role: "Frontend Developer", score: 74, colorBar: "bg-emerald-500", colorText: "text-emerald-700" },
+                  { role: "Full Stack Engineer", score: 58, colorBar: "bg-amber-400", colorText: "text-amber-700" },
+                ].map(({ role, score, colorBar, colorText }) => (
+                  <div key={role} className="flex items-center gap-3 text-sm">
+                    <div className="w-36 shrink-0 text-slate-600">{role}</div>
+                    <div className="flex-1 rounded-full bg-slate-100 h-2 overflow-hidden">
+                      <motion.div
+                        className={`h-2 rounded-full ${colorBar}`}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${score}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                      />
+                    </div>
+                    <div className={`w-9 text-right text-sm font-bold ${colorText}`}>{score}%</div>
+                  </div>
+                ))}
               </div>
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5">
-                <div className="text-sm font-semibold text-rose-900">Below 40</div>
-                <div className="mt-0.5 text-xs text-rose-700">
-                  Lower overlap. Useful to explore.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </motion.div>
 
-      {/* ── Right column: Upload card ── */}
-      <div>
+            {/* Skill Gaps */}
+            <motion.div variants={fadeUp} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="rounded-lg bg-amber-50 p-2 w-fit mb-3">
+                <Search className="h-4 w-4 text-amber-600" aria-hidden="true" />
+              </div>
+              <div className="font-semibold text-slate-900 mb-1">Skill Gaps</div>
+              <div className="text-xs leading-relaxed text-slate-500">
+                Missing skills turned into concrete projects you can show employers.
+              </div>
+            </motion.div>
+
+            {/* CV Fixes */}
+            <motion.div variants={fadeUp} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="rounded-lg bg-sky-50 p-2 w-fit mb-3">
+                <FileText className="h-4 w-4 text-sky-600" aria-hidden="true" />
+              </div>
+              <div className="font-semibold text-slate-900 mb-1">CV Fixes</div>
+              <div className="text-xs leading-relaxed text-slate-500">
+                Specific rewrites for underselling sections — actual edits, not vague advice.
+              </div>
+            </motion.div>
+
+            {/* Priority Action Plan */}
+            <motion.div variants={fadeUp} className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="rounded-lg bg-emerald-50 p-2 w-fit">
+                  <TrendingUp className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                </div>
+                <div className="font-semibold text-slate-900">Priority Action Plan</div>
+              </div>
+              <p className="text-sm text-slate-500 mb-3">
+                Ranked next steps ordered by market impact — know what to fix first, not a wall of bullet points.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Add TypeScript projects",
+                  "Quantify impact metrics",
+                  "Certify AWS basics",
+                  "Show CI/CD experience",
+                ].map((action, i) => (
+                  <span
+                    key={action}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                  >
+                    <span className="font-bold text-emerald-600">#{i + 1}</span>
+                    {action}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.section>
+
+        {/* ── HOW IT WORKS ── */}
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="space-y-7"
+        >
+          <div className="space-y-2">
+            <div className="section-label">How it works</div>
+            <h2 className="font-outfit text-3xl font-black text-slate-900 sm:text-4xl">
+              Three steps, no setup.
+            </h2>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            className="space-y-3"
+          >
+            {[
+              {
+                step: "01",
+                Icon: FileText,
+                title: "Upload your CV",
+                body: "Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.",
+                accent: "border-purple-200 text-purple-700 bg-purple-50",
+              },
+              {
+                step: "02",
+                Icon: Zap,
+                title: "RAG matches it to live jobs",
+                body: "We use Retrieval-Augmented Generation to search against live job listings from multiple sources and compute semantic similarity — not keyword counting.",
+                accent: "border-violet-200 text-violet-700 bg-violet-50",
+              },
+              {
+                step: "03",
+                Icon: CheckCircle2,
+                title: "Get your ranked action plan",
+                body: "Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — all in seconds.",
+                accent: "border-emerald-200 text-emerald-700 bg-emerald-50",
+              },
+            ].map(({ step, Icon, title, body, accent }) => (
+              <motion.div
+                key={step}
+                variants={fadeUp}
+                className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-black ${accent}`}>
+                  {step}
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-900">{title}</div>
+                  <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
+
+      </div>{/* end left column */}
+
+      {/* ─────────────── RIGHT: Sticky Upload Card ─────────────── */}
+      <div
+        ref={uploadRef}
+        className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
+      >
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle>Upload your CV</CardTitle>
-              <CardDescription>
-                We'll show the extracted text first, then run the full analysis.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            {/* Purple top accent bar */}
+            <div className="h-1 w-full bg-gradient-to-r from-purple-600 to-violet-500" />
+
+            <div className="p-6 space-y-5">
+              {/* Header */}
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="text-xs font-medium text-slate-500">Ready to analyze</span>
+                </div>
+                <h2 className="font-outfit text-xl font-black text-slate-900">Analyze your CV</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Get your match score and action plan in seconds.
+                </p>
+              </div>
+
+              <div className="h-px bg-slate-100" />
+
+              {/* Target role selector */}
               <div className="space-y-2">
-                <label htmlFor="target-role-select" className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
-                  Target Career Role (Optional)
+                <label
+                  htmlFor="target-role-select"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-500"
+                >
+                  Target Role{" "}
+                  <span className="font-normal normal-case tracking-normal text-slate-400">(optional)</span>
                 </label>
                 <select
                   id="target-role-select"
                   value={selectedRoleOption}
                   onChange={(e) => handleRoleOptionChange(e.target.value)}
                   disabled={uploading}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-black focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 >
-                  <option value="">-- Select Target Role (Defaults to best match) --</option>
+                  <option value="">-- Defaults to best match --</option>
                   {TARGET_ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
+                    <option key={role} value={role}>{role}</option>
                   ))}
                 </select>
 
@@ -250,72 +460,64 @@ export default function LandingPage() {
                     type="text"
                     value={customRoleText}
                     onChange={(e) => handleCustomRoleChange(e.target.value)}
-                    placeholder="e.g. Senior iOS Engineer, Cloud Architect..."
+                    placeholder="e.g. Senior iOS Engineer, Cloud Architect…"
                     disabled={uploading}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-black placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
                   />
                 )}
               </div>
 
+              {/* File dropzone */}
               <FileDropzone disabled={uploading} onFileSelected={onFileSelected} />
 
-              {filename ? (
-                <div className="rounded-lg border border-slate-200 bg-white p-4">
+              {/* Preview panel */}
+              {filename && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-semibold text-slate-900">
-                        {filename}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        Extracted text preview.
-                      </div>
+                      <div className="text-sm font-semibold text-slate-900">{filename}</div>
+                      <div className="mt-0.5 text-xs text-slate-500">Extracted text preview</div>
                     </div>
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
-                      size="sm"
                       onClick={() => setFile(null)}
+                      className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
                     >
-                      Change file
-                    </Button>
+                      Change
+                    </button>
                   </div>
 
-                  <Separator className="my-4" />
+                  <div className="h-px bg-slate-200" />
 
                   {uploading ? (
                     <div className="space-y-2">
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-5/6" />
-                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-2/3" />
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-5/6" />
+                      <Skeleton className="h-3 w-3/4" />
                     </div>
                   ) : preview ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                          <FileText className="h-4 w-4" aria-hidden="true" />
-                          Scroll to review before analysis.
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                          Review before analyzing
                         </div>
-                        <Button
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="sm"
                           onClick={() => setPreviewExpanded((c) => !c)}
+                          className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors"
                         >
                           {previewExpanded ? (
-                            <>
-                              <ChevronUp className="h-4 w-4" /> Collapse
-                            </>
+                            <><ChevronUp className="h-3.5 w-3.5" aria-hidden="true" /> Collapse</>
                           ) : (
-                            <>
-                              <ChevronDown className="h-4 w-4" /> Expand
-                            </>
+                            <><ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /> Expand</>
                           )}
-                        </Button>
+                        </button>
                       </div>
                       <pre
-                        className={`overflow-auto whitespace-pre-wrap break-words rounded-md bg-slate-50 p-3 text-sm leading-relaxed text-slate-700 ${
-                          previewExpanded ? "max-h-[32rem]" : "max-h-64"
+                        className={`overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white border border-slate-200 p-3 text-xs leading-relaxed text-slate-600 transition-all ${
+                          previewExpanded ? "max-h-64" : "max-h-36"
                         }`}
                         aria-label="Extracted CV text preview"
                       >
@@ -323,37 +525,51 @@ export default function LandingPage() {
                       </pre>
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-500">
-                      No preview yet. Re-upload if needed.
-                    </div>
+                    <div className="text-xs text-slate-500">No preview yet.</div>
                   )}
 
-                  {error ? (
-                    <div className="mt-3 text-sm text-rose-700">{error}</div>
-                  ) : null}
+                  {error && <div className="text-xs text-rose-600">{error}</div>}
                 </div>
-              ) : null}
+              )}
 
-              <Button
+              {/* Analyze button */}
+              <button
                 type="button"
-                className="w-full"
+                id="analyze-cv-btn"
                 disabled={!file || uploading}
                 onClick={() => {
                   if (!queueAnalysis()) return;
                   navigate("/analyzing");
                 }}
+                className="w-full rounded-xl bg-purple-700 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-purple-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Analyze CV
-              </Button>
+                {uploading ? "Uploading…" : "Analyze CV"}
+              </button>
 
-              <p className="text-xs leading-relaxed text-slate-400">
-                Your file is sent to the backend for analysis. Use a redacted CV if
-                you'd prefer not to share personal data.
+              <p className="text-center text-xs text-slate-400">
+                Processed securely. Use a redacted CV if you prefer not to share personal data.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          {/* Feature pills below card */}
+          <div className="mt-4 flex flex-wrap gap-2 justify-center">
+            {[
+              { label: "Live job data" },
+              { label: "AI-powered RAG" },
+              { label: "Results in seconds" },
+            ].map(({ label }) => (
+              <span
+                key={label}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500 shadow-sm"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </div>
+
     </div>
   );
 }
