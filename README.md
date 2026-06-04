@@ -1,6 +1,6 @@
 # CVClinic — RAG-Based Resume Advisor & Career Optimizer
 
-## 🚀 Overview
+##  Overview
 
 An AI-powered system that analyzes a user's CV and matches it with real-world job postings using a Retrieval-Augmented Generation (RAG) pipeline. The system provides evidence-based, actionable feedback tied to real job market data.
 
@@ -14,7 +14,7 @@ An AI-powered system that analyzes a user's CV and matches it with real-world jo
 
 ---
 
-## 🎯 Problem Statement
+##  Problem Statement
 
 Traditional CV analyzers provide generic feedback disconnected from real job requirements:
 * No evidence-based matching
@@ -24,7 +24,7 @@ Traditional CV analyzers provide generic feedback disconnected from real job req
 
 ---
 
-## 💡 Solution
+##  Solution
 
 This system retrieves actual job postings, scores the CV against them, and uses an LLM to generate:
 1. **Matched jobs** with evidence-based explanations
@@ -35,7 +35,7 @@ This system retrieves actual job postings, scores the CV against them, and uses 
 
 ---
 
-## 🧠 AI Architecture (RAG)
+##  AI Architecture (RAG)
 
 ### Retrieval & Scoring Pipeline
 1. **Job Retrieval & Cache**: Jobs are fetched from external APIs (e.g. Remotive) and cached locally for 1 hour to prevent redundant API calls.
@@ -64,7 +64,7 @@ Calculates an overall CV quality rating (0-100) based on four metrics:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Backend
 * **FastAPI** – REST API framework
@@ -88,7 +88,7 @@ See [backend/requirements.txt](backend/requirements.txt) for the full list.
 
 ---
 
-## 📋 API Endpoints
+##  API Endpoints
 
 ### 1. Upload CV
 **POST** `/cv/upload`  
@@ -235,7 +235,7 @@ Returns the number of cached CV analyses and disk usage.
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 - Python 3.13+
 - pip or venv
 
@@ -299,7 +299,7 @@ See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for detailed setup instructions.
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
 * [API.md](docs/API.md) – Detailed endpoint documentation
 * [AI_DESIGN.md](docs/AI_DESIGN.md) – RAG pipeline, scoring formula, post-processing
@@ -318,7 +318,7 @@ pytest backend/tests/
 
 ---
 
-## 📦 Future Enhancements
+##  Future Enhancements
 
 * Resume rewriting assistant
 * Portfolio optimization suggestions
@@ -329,6 +329,6 @@ pytest backend/tests/
 
 ---
 
-## ⚡ Project Goal
+##  Project Goal
 
 Build a real-world AI system that bridges the gap between user skills and job market demands using evidence-based retrieval and reasoning.
