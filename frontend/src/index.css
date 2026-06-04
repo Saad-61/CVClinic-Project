@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 :root {
   /* ── Eminence Purple Design System ── */
-  --background: 270 30% 97%;       /* lavender-tinted page bg */
+  --background: 270 30% 97%;
   --foreground: 270 25% 12%;
 
   --card: 0 0% 100%;
@@ -17,7 +17,7 @@
 
   --border: 270 18% 88%;
   --input: 270 18% 88%;
-  --ring: 276 60% 42%;             /* Eminence purple focus ring */
+  --ring: 276 60% 42%;
 
   /* Primary = Eminence #6B3FA0 → hsl(276, 43%, 44%) */
   --primary: 276 43% 44%;
@@ -26,7 +26,6 @@
   --secondary: 270 20% 93%;
   --secondary-foreground: 270 25% 20%;
 
-  /* Accent = lighter purple tint */
   --accent: 276 50% 96%;
   --accent-foreground: 276 43% 35%;
 
@@ -43,34 +42,70 @@ body {
   @apply bg-background text-foreground antialiased;
 }
 
-/* ── Page wash: warm lavender gradient background ── */
+/* ── Page background ── */
 .app-wash {
   background:
-    radial-gradient(1100px 700px at 60% -10%, hsl(276 60% 92% / 0.6), transparent 65%),
-    radial-gradient(800px 600px at 0% 80%, hsl(260 50% 94% / 0.5), transparent 60%),
+    radial-gradient(1100px 700px at 60% -10%, hsl(276 60% 92% / 0.55), transparent 65%),
+    radial-gradient(800px 600px at 0% 80%, hsl(260 50% 94% / 0.45), transparent 60%),
     hsl(270 30% 97%);
 }
 
-/* ── Smooth focus rings ── */
+/* ── Focus rings ── */
 *:focus-visible {
   outline: 2px solid hsl(276 43% 44%);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: hsl(276 60% 44% / 0.18);
+  background: hsl(276 60% 44% / 0.15);
 }
 
-/* ── Subtle card hover lift ── */
+/* ── Card hover lift ── */
 .card-hover {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 .card-hover:hover {
-  box-shadow: 0 8px 30px -6px hsl(276 43% 44% / 0.15);
+  box-shadow: 0 8px 30px -6px hsl(276 43% 44% / 0.12);
   transform: translateY(-1px);
 }
 
-/* ── Animated progress bar fill ── */
+/* ── Animated progress bar ── */
 @keyframes progress-fill {
   from { transform: translateX(-100%); }
+}
+
+/* ═══════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════ */
+
+.font-outfit {
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   LANDING PAGE UTILITIES
+   ═══════════════════════════════════════════════ */
+
+/* Section label — small uppercase purple pill */
+.section-label {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(276 43% 44%);
+  background: hsl(276 50% 96%);
+  border: 1px solid hsl(276 50% 88%);
+  border-radius: 9999px;
+  padding: 0.2rem 0.7rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════ */
+
+@keyframes float {
+  0%,  100% { transform: translateY(0px); }
+  50%        { transform: translateY(-12px); }
 }

@@ -1,4 +1,4 @@
-import { BookOpen, ArrowRight, Circle } from "lucide-react";
+import { BookOpen, Circle } from "lucide-react";
 import type { MissingSkill } from "../../types/cv";
 
 interface LearningRoadmapProps {
@@ -72,11 +72,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
                 {phaseIdx + 1}
               </div>
               <div className={`text-sm font-bold ${phase.color}`}>{phase.label}</div>
-              {phaseIdx < phases.length - 1 && (
-                <div className="ml-auto">
-                  <ArrowRight className="h-4 w-4 text-slate-300" />
-                </div>
-              )}
+
             </div>
 
             <div className="ml-3.5 border-l-2 border-dashed border-slate-200 pl-5 space-y-3">

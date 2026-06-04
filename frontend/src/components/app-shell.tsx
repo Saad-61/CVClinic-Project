@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* Logo mark — Custom CVClinic Logo */}
             <img src="/logo.png" alt="CVClinic Logo" className="h-8 w-8 rounded-lg object-contain bg-white border border-slate-100 shadow-sm" />
             <div className="leading-tight">
-              <div className="text-sm font-semibold tracking-tight text-slate-900">
+              <div className="text-sm font-outfit font-bold tracking-tight text-slate-900">
                 CVClinic
               </div>
               <div className="text-xs text-slate-500">AI-powered CV analysis</div>
