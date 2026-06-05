@@ -105,6 +105,50 @@ SKILL_KEYWORDS = [
     "llm",
     "large language model",
 
+    # Data visualization / BI tools
+    "tableau",
+    "power bi",
+    "powerbi",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    "looker",
+    "metabase",
+    "google data studio",
+    "excel",
+    "google sheets",
+
+    # Data engineering / ETL / warehouse
+    "etl",
+    "elt",
+    "airflow",
+    "apache airflow",
+    "dbt",
+    "spark",
+    "apache spark",
+    "hadoop",
+    "hive",
+    "kafka",
+    "apache kafka",
+    "snowflake",
+    "bigquery",
+    "redshift",
+    "data warehouse",
+    "data lake",
+    "data pipeline",
+    "data modeling",
+    "dbt core",
+    "prefect",
+    "luigi",
+
+    # Statistics / analysis
+    "statistics",
+    "statistical analysis",
+    "regression",
+    "a/b testing",
+    "hypothesis testing",
+    "r language",
+
     # DevOps / cloud / deployment
     "aws",
     "amazon web services",
@@ -298,6 +342,26 @@ SKILL_ALIASES = {
     "nosql":                    "mongodb",
     "version control":          "git",
     "source control":           "git",
+
+    # ── Data / BI / Analytics ──────────────────────────────────
+    "power bi":                 "power bi",
+    "ms excel":                 "excel",
+    "microsoft excel":          "excel",
+    "google sheets":            "google sheets",
+    "data studio":              "google data studio",
+    "looker studio":            "google data studio",
+    "apache spark":             "spark",
+    "apache kafka":             "kafka",
+    "apache airflow":           "airflow",
+    "dbt core":                 "dbt",
+    "a b testing":              "a/b testing",
+    "ab testing":               "a/b testing",
+    "statistical":              "statistics",
+    "data wrangling":           "data analysis",
+    "data cleaning":            "data analysis",
+    "r programming":            "r language",
+    "r studio":                 "r language",
+    "rstudio":                  "r language",
 }
 
 

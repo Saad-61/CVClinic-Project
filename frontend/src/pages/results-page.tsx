@@ -11,7 +11,7 @@ import {
   ExternalLink,
   Lightbulb,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Navigate, useNavigate } from "react-router-dom";
 import { QuickRewriteCard } from "../components/quick-rewrite-card";
@@ -96,6 +96,7 @@ export default function ResultsPage() {
   const [actionsSubTab, setActionsSubTab] = useState<"actions" | "upgrades" | "new-projects">("actions");
   const [skillsSubTab, setSkillsSubTab] = useState<"detail" | "roadmap">("detail");
 
+
   const stored = useMemo<StoredReport | null>(() => loadStoredReport(), []);
   const effective: {
     report: AnalyzeResponse;
@@ -140,6 +141,14 @@ export default function ResultsPage() {
     )
   );
 
+  const isJdMode     = !!effective.report.is_jd_mode;
+  const jdJobTitle   = effective.report.jd_job_title || "Target Role";
+
+  // If in JD mode and somehow landed on the hidden Jobs tab, reset to overview
+  useEffect(() => {
+    if (isJdMode && activeTab === "jobs") setActiveTab("overview");
+  }, [isJdMode, activeTab]);
+
   const createdLabel = formatDateTime(effective.createdAt);
   const rawJson = JSON.stringify(effective.report, null, 2);
   const cvText = effective.report.cv_text || "";
@@ -165,17 +174,21 @@ export default function ResultsPage() {
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
       {/* Centered navigation tabs right below header */}
       <div className="flex justify-center w-full">
-        <TabsList className="grid grid-cols-5 bg-slate-100 p-1.5 rounded-xl max-w-2xl w-full border border-slate-200/50 shadow-sm gap-1">
+        <TabsList className="grid bg-slate-100 p-1.5 rounded-xl max-w-2xl w-full border border-slate-200/50 shadow-sm gap-1"
+          style={{ gridTemplateColumns: isJdMode ? "repeat(4, minmax(0, 1fr))" : "repeat(5, minmax(0, 1fr))" }}
+        >
           <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
             <LayoutGrid className="h-3.5 w-3.5" /> Overview
           </TabsTrigger>
-          <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
-            <Briefcase className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Jobs</span>
-            <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
-              {jobsSorted.length}
-            </span>
-          </TabsTrigger>
+          {!isJdMode && (
+            <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+              <Briefcase className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Jobs</span>
+              <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+                {jobsSorted.length}
+              </span>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="actions" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
             <ListTodo className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Actions</span>
@@ -257,14 +270,20 @@ export default function ResultsPage() {
                       <ScoreRing score={resumeScore} />
                       <div className="space-y-1">
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          {effective.report.target_role ? "Selected Target Role" : "Inferred CV Profile"}
+                          {isJdMode
+                            ? "Analyzing for"
+                            : effective.report.target_role ? "Selected Target Role" : "Inferred CV Profile"}
                         </div>
                         <div className="text-base font-bold text-purple-700 leading-tight max-w-[200px]">
-                          {effective.report.target_role || analysis.inferred_role || "Software Engineer"}
+                          {isJdMode
+                            ? jdJobTitle
+                            : effective.report.target_role || analysis.inferred_role || "Software Engineer"}
                         </div>
                         <div className="text-[11px] text-slate-400 font-medium">
-                          {effective.report.target_role 
-                            ? "Specified before upload" 
+                          {isJdMode
+                            ? "Custom job description"
+                            : effective.report.target_role
+                            ? "Specified before upload"
                             : "Analyzed from your resume"}
                         </div>
                       </div>
@@ -272,9 +291,9 @@ export default function ResultsPage() {
                   )}
                   <div className="grid gap-3 sm:grid-cols-3 flex-1">
                     <StatTile
-                      label="Jobs matched"
-                      value={jobsSorted.length}
-                      sub={`${evaluatedCount} total evaluated`}
+                      label={isJdMode ? "Role analyzed" : "Jobs matched"}
+                      value={isJdMode ? jdJobTitle : jobsSorted.length}
+                      sub={isJdMode ? "Custom job description" : `${evaluatedCount} total evaluated`}
                     />
                     <StatTile
                       label="Best match"
@@ -305,6 +324,7 @@ export default function ResultsPage() {
                       </CardTitle>
                       <CardDescription>Your top matches by score.</CardDescription>
                     </div>
+                    {!isJdMode && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -315,6 +335,7 @@ export default function ResultsPage() {
                       See all {jobsSorted.length} jobs{" "}
                       <ChevronRight className="h-3.5 w-3.5" />
                     </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -426,8 +447,8 @@ export default function ResultsPage() {
           </TabFade>
         </TabsContent>
 
-        {/* ── Jobs Tab ── */}
-        <TabsContent value="jobs">
+        {/* ── Jobs Tab — hidden in JD mode ── */}
+        {!isJdMode && (<TabsContent value="jobs">
           <TabFade>
             <div className="mt-4">
               <Card>
@@ -538,6 +559,7 @@ export default function ResultsPage() {
             </div>
           </TabFade>
         </TabsContent>
+        )}{/* end !isJdMode jobs tab */}
 
         {/* ── Actions Tab ── */}
         <TabsContent value="actions">

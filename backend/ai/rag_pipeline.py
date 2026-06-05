@@ -146,6 +146,59 @@ class RAGPipeline:
         return final
 
 
+    def analyze_with_jd(self, cv_text: str, cv_links: list | None, job_description: str, job_title: str | None = None) -> dict:
+        """
+        JD-specific mode: skip the job database entirely.
+        Score the CV against the single user-provided job description using
+        the same hybrid scoring formula as retrieve_jobs_with_scores.
+        """
+        cv_embedding  = get_embedding(cv_text)
+        jd_embedding  = get_embedding(job_description)
+
+        # Cosine similarity — embeddings from get_embedding are L2-normalised
+        embedding_sim = float(np.dot(cv_embedding, jd_embedding))
+        # Clamp to [0, 1] to guard against floating-point drift
+        embedding_sim = max(0.0, min(1.0, embedding_sim))
+
+        cv_skills  = extract_skills(cv_text)
+        jd_text    = (job_title or "") + " " + job_description
+        jd_skills  = extract_skills(jd_text)
+        overlap    = len(set(cv_skills) & set(jd_skills))
+        matched    = list(set(cv_skills) & set(jd_skills))
+
+        final_score  = self.compute_final_score(embedding_sim, overlap, cv_skills, jd_skills)
+        resume_score = self.calculate_resume_score(cv_skills, cv_text, cv_links or [])
+        evidence     = self.generate_evidence(cv_skills, jd_skills, cv_text, job_description)
+
+        synthetic_job = {
+            "id":             "custom_jd",
+            "title":          job_title or "Target Role",
+            "description":    job_description,
+            "score":          final_score,
+            "overlap":        overlap,
+            "matched_skills": matched,
+            "evidence":       evidence,
+            "source":         "Custom JD",
+            "company_name":   "",
+            "location":       "",
+            "url":            "",
+            "priority":       overlap,
+        }
+
+        print(
+            f"[JD-Mode] title={job_title!r} jd_len={len(job_description)} "
+            f"sim={round(embedding_sim,3)} overlap={overlap} score={final_score}"
+        )
+
+        return {
+            "matched_jobs":  [synthetic_job],
+            "all_jobs":      [synthetic_job],
+            "links":         cv_links or [],
+            "resume_score":  resume_score,
+            "is_jd_mode":    True,
+            "jd_job_title":  job_title or "Target Role",
+        }
+
     def retrieve_jobs_with_scores(self, cv_text, cv_links=None, target_role=None):
         if self.vector_store is None:
             self.load_jobs()

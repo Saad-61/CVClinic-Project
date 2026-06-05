@@ -47,61 +47,85 @@ async def match_jobs(file: UploadFile = File(...)):
 @router.post("/analyze")
 async def analyze(
     file: UploadFile = File(...),
-    target_role: str | None = Form(None)
+    target_role: str | None = Form(None),
+    job_description: str | None = Form(None),
+    job_title: str | None = Form(None),
 ):
     file_path = save_file(file)
     text = extract_text_from_file(file_path)
     file_links = extract_links_from_file(file_path, text)
 
+    # Normalise JD inputs
+    jd_text  = (job_description or "").strip()[:4000] or None
+    jd_title = (job_title or "").strip() or None
+
     # ── Persistent disk cache check ────────────────────────────────────────
     role_key = (target_role or "").strip().lower()
-    h = cv_hash(text + "||role:" + role_key)
+    jd_key   = jd_text or ""
+    h = cv_hash(text + "||role:" + role_key + "||jd:" + jd_key)
     cached = get_cached_analysis(h)
     if cached is not None:
-        # Restore jooble_configured from current env (may differ between runs)
         cached["jooble_configured"] = bool(os.getenv("JOOBLE_API_KEY", "").strip())
         if "target_role" not in cached or cached["target_role"] is None:
             cached["target_role"] = target_role
         return cached
 
     # ── Full analysis ──────────────────────────────────────────────────────
-    rag_result = get_rag_pipeline().retrieve_jobs_with_scores(text, file_links, target_role=target_role)
-    jobs = rag_result["matched_jobs"]
-    all_jobs = rag_result.get("all_jobs", [])
-    links = list(dict.fromkeys([*(rag_result.get("links", [])), *file_links]))
-    resume_score = rag_result.get("resume_score", 0)
+    if jd_text:
+        # JD mode: skip the vector database entirely
+        rag_result = get_rag_pipeline().analyze_with_jd(
+            text, file_links, jd_text, job_title=jd_title
+        )
+    else:
+        # Normal mode: RAG against the live job database
+        rag_result = get_rag_pipeline().retrieve_jobs_with_scores(
+            text, file_links, target_role=target_role
+        )
 
-    # Extract skills once here and pass them through — avoids double extraction
+    jobs         = rag_result["matched_jobs"]
+    all_jobs     = rag_result.get("all_jobs", [])
+    links        = list(dict.fromkeys([*(rag_result.get("links", [])), *file_links]))
+    resume_score = rag_result.get("resume_score", 0)
+    is_jd_mode   = rag_result.get("is_jd_mode", False)
+    jd_job_title = rag_result.get("jd_job_title")
+
+    # Extract skills once and pass through — avoids double extraction
     cv_skills = extract_skills(text)
 
     try:
-        analysis = analyze_cv(text, jobs, links, cv_skills=cv_skills, target_role=target_role)
+        analysis = analyze_cv(
+            text, jobs, links, cv_skills=cv_skills,
+            target_role=jd_title or target_role,
+            job_description=jd_text,
+        )
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     response = {
-        "matched_jobs": jobs,
-        "all_jobs": all_jobs,
-        "links": links,
-        "resume_score": resume_score,
-        "analysis": analysis,
-        "cv_text": text,
+        "matched_jobs":      jobs,
+        "all_jobs":          all_jobs,
+        "links":             links,
+        "resume_score":      resume_score,
+        "analysis":          analysis,
+        "cv_text":           text,
         "jooble_configured": bool(os.getenv("JOOBLE_API_KEY", "").strip()),
-        "target_role": target_role,
+        "target_role":       target_role,
+        "is_jd_mode":        is_jd_mode,
+        "jd_job_title":      jd_job_title,
     }
 
     # ── Persist to disk cache ──────────────────────────────────────────────
     save_analysis(h, response)
 
-    # Save to history
+    # Save to history (non-critical)
     try:
         result_id = save_analysis_result(file.filename, response)
         response["result_id"] = result_id
     except Exception as e:
-        # Non-critical: if history saving fails, still return analysis
         print(f"Warning: Failed to save result to history: {e}")
 
     return response
+
 
 
 @router.get("/cache-info")

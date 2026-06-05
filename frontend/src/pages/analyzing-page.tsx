@@ -13,21 +13,29 @@ import {
 import { saveStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
 
-const LOADING_TIPS = [
+const LOADING_TIPS_DEFAULT = [
   "Extracting layout and text sections from your CV...",
-  "Searching and retrieval matching from 70+ jobs...",
+  "Searching and retrieving matching from live job listings...",
   "Scoring skill alignment and calculating match scores...",
   "Generating missing skill project ideas and action items..."
 ];
 
+const LOADING_TIPS_JD = [
+  "Extracting layout and text sections from your CV...",
+  "Embedding your CV and the job description for comparison...",
+  "Computing match score against your target role...",
+  "Generating role-specific skill gaps and action items..."
+];
+
 export default function AnalyzingPage() {
   const navigate = useNavigate();
-  const { analysisRequestId, clearPendingAnalysis, file, filename, setReport, targetRole } =
+  const { analysisRequestId, clearPendingAnalysis, file, filename, setReport, targetRole, jobDescription, jobTitle, analysisMode } =
     useCv();
   const controllerRef = useRef<AbortController | null>(null);
   const startedRequestRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tipIndex, setTipIndex] = useState(0);
+  const LOADING_TIPS = analysisMode === "specific-role" ? LOADING_TIPS_JD : LOADING_TIPS_DEFAULT;
 
   // Rotate loading tips every 3 seconds - separated to prevent double-render clear bugs
   useEffect(() => {
@@ -52,7 +60,7 @@ export default function AnalyzingPage() {
 
     const createdAt = new Date().toISOString();
 
-    analyzeCv(file, targetRole, controller.signal)
+    analyzeCv(file, targetRole, controller.signal, jobDescription || undefined, jobTitle || undefined)
       .then((report) => {
         setReport(report, filename || file.name, createdAt);
         saveStoredReport({ filename: filename || file.name, createdAt, report });
@@ -72,7 +80,7 @@ export default function AnalyzingPage() {
         controller.abort();
       }
     };
-  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole]);
+  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole, jobDescription, jobTitle]);
 
   return (
     <div className="mx-auto max-w-lg">

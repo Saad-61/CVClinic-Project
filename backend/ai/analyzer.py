@@ -53,6 +53,7 @@ def _build_structured_prompt(
     project_context: str,
     links: list,
     target_role: str | None = None,
+    job_description: str | None = None,
 ) -> str:
     """
     Sends structured data to the LLM plus a focused excerpt of the CV for projects.
@@ -69,7 +70,25 @@ def _build_structured_prompt(
         link_note += " LinkedIn link is present in CV — do NOT suggest adding LinkedIn.\n"
 
     target_role_section = ""
-    if target_role and target_role.strip():
+    if job_description and job_description.strip():
+        # JD mode: full job description injected — advice is role-specific
+        jd_preview = job_description.strip()[:3000]
+        role_label = (target_role or "the target role").strip()
+        target_role_section = f"""
+---
+TARGET JOB DESCRIPTION (pasted by candidate — analyse ONLY against this):
+Role: {role_label}
+
+{jd_preview}
+
+CRITICAL INSTRUCTION:
+All missing skills, CV fixes, top actions, and project ideas MUST be derived
+exclusively from the requirements stated in the job description above.
+Do NOT give generic advice. Every recommendation must directly map to a
+specific requirement in this job description.
+The candidate wants to know: "Am I a fit for THIS specific role?"
+"""
+    elif target_role and target_role.strip():
         target_role_section = f"""
 ---
 CANDIDATE TARGET CAREER ROLE:
@@ -193,6 +212,7 @@ def analyze_cv(
     cv_skills: list | None = None,
     projects: list | None = None,
     target_role: str | None = None,
+    job_description: str | None = None,
 ) -> dict:
     """
     Main CV analysis entry point.
@@ -267,7 +287,11 @@ def analyze_cv(
             project_context = cv_text[start:end].strip()
 
     # --- Build and send compact prompt ------------------------------------
-    prompt = _build_structured_prompt(cv_skills, structured_jobs, full_cv_text, project_context, links, target_role=target_role)
+    prompt = _build_structured_prompt(
+        cv_skills, structured_jobs, full_cv_text, project_context, links,
+        target_role=target_role,
+        job_description=job_description,
+    )
 
     try:
         response = generate_response(prompt, request_source="analysis")

@@ -92,6 +92,8 @@ export type AnalyzeResponse = {
   resume_score?: number;
   jooble_configured?: boolean;
   target_role?: string;
+  is_jd_mode?: boolean;
+  jd_job_title?: string;
 };
 
 export type StoredReport = {

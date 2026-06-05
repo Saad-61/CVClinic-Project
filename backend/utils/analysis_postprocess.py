@@ -34,8 +34,19 @@ def _section_confidence(items, required_fields):
 
 
 def postprocess_analysis(analysis):
+    # Gemini occasionally wraps its JSON output in a single-element array.
+    # Unwrap it before any further processing.
+    if isinstance(analysis, list):
+        if len(analysis) == 1 and isinstance(analysis[0], dict):
+            analysis = analysis[0]
+        else:
+            # Empty or multi-element list — return safe fallback
+            return {"error": "Unexpected list response from LLM", "job_matches": [],
+                    "missing_skills": [], "project_improvements": [], "cv_fixes": [], "top_actions": []}
+
     if not isinstance(analysis, dict):
-        return analysis
+        return {"error": f"Unexpected LLM response type: {type(analysis).__name__}", "job_matches": [],
+                "missing_skills": [], "project_improvements": [], "cv_fixes": [], "top_actions": []}
     if "error" in analysis:
         return analysis
 

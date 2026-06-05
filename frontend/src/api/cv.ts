@@ -35,12 +35,18 @@ export async function uploadCv(file: File, signal?: AbortSignal) {
   return (await response.json()) as UploadPreviewResponse;
 }
 
-export async function analyzeCv(file: File, targetRole?: string, signal?: AbortSignal) {
+export async function analyzeCv(
+  file: File,
+  targetRole?: string,
+  signal?: AbortSignal,
+  jobDescription?: string,
+  jobTitle?: string,
+) {
   const form = new FormData();
   form.append("file", file);
-  if (targetRole) {
-    form.append("target_role", targetRole);
-  }
+  if (targetRole) form.append("target_role", targetRole);
+  if (jobDescription) form.append("job_description", jobDescription);
+  if (jobTitle) form.append("job_title", jobTitle);
 
   const response = await fetch("/api/cv/analyze", {
     method: "POST",
