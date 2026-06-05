@@ -1,7 +1,7 @@
 """
 Persistent disk-based analysis cache.
 
-Key:   SHA-256 of the normalized CV text
+Key:   SHA-256 of the normalized CV text (+ role + JD if provided)
 Value: Full analysis response dict, stored as a JSON file.
 
 Location: backend/cache/analyses/<hash>.json

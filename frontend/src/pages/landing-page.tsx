@@ -3,12 +3,11 @@ import {
   ChevronUp,
   FileText,
   Target,
-  Zap,
   Search,
-  CheckCircle2,
   XCircle,
   Clock,
   TrendingUp,
+  Briefcase,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
@@ -54,7 +53,16 @@ export default function LandingPage() {
     queueAnalysis,
     targetRole,
     setTargetRole,
+    analysisMode,
+    setAnalysisMode,
+    jobDescription,
+    setJobDescription,
+    jobTitle,
+    setJobTitle,
   } = useCv();
+
+  const JD_MAX = 4000;
+  const jdIsValid = analysisMode === "specific-role" ? jobDescription.trim().length > 30 : true;
 
   const [uploading, setUploading] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(false);
@@ -355,8 +363,12 @@ export default function LandingPage() {
           <div className="space-y-2">
             <div className="section-label">How it works</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
-                Three steps, no setup.
-              </h2>
+              Two ways to get<br />
+              <span className="text-purple-700">your answer.</span>
+            </h2>
+            <p className="max-w-md text-slate-600 leading-relaxed">
+              Upload your CV and choose how you want to analyse it.
+            </p>
           </div>
 
           <motion.div
@@ -366,43 +378,94 @@ export default function LandingPage() {
             viewport={{ once: true, margin: "-40px" }}
             className="space-y-3"
           >
-            {[
-              {
-                step: "01",
-                Icon: FileText,
-                title: "Upload your CV",
-                body: "Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.",
-                accent: "border-purple-200 text-purple-700 bg-purple-50",
-              },
-              {
-                step: "02",
-                Icon: Zap,
-                title: "RAG matches it to live jobs",
-                body: "We use Retrieval-Augmented Generation to search against live job listings from multiple sources and compute semantic similarity — not keyword counting.",
-                accent: "border-violet-200 text-violet-700 bg-violet-50",
-              },
-              {
-                step: "03",
-                Icon: CheckCircle2,
-                title: "Get your ranked action plan",
-                body: "Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — all in seconds.",
-                accent: "border-emerald-200 text-emerald-700 bg-emerald-50",
-              },
-            ].map(({ step, Icon, title, body, accent }) => (
-              <motion.div
-                key={step}
-                variants={fadeUp}
-                className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-black ${accent}`}>
-                  {step}
+            {/* Step 1 — shared */}
+            <motion.div
+              variants={fadeUp}
+              className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-purple-200 text-sm font-black text-purple-700 bg-purple-50">
+                01
+              </div>
+              <div>
+                <div className="font-semibold text-slate-900">Upload your CV</div>
+                <div className="mt-1 text-sm leading-relaxed text-slate-500">
+                  Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.
                 </div>
-                <div>
-                  <div className="font-semibold text-slate-900">{title}</div>
-                  <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
+              </div>
+            </motion.div>
+
+            {/* Fork label */}
+            <motion.div variants={fadeUp} className="flex items-center gap-3 px-1">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">then choose</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </motion.div>
+
+            {/* Mode A & B side-by-side */}
+            <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+              {/* Mode A — Best Matches */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-xs font-black text-slate-700 bg-slate-50">
+                    02
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Search className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />
+                    <span className="text-sm font-bold text-slate-900">Best Matches</span>
+                  </div>
                 </div>
-              </motion.div>
-            ))}
+                <p className="text-sm leading-relaxed text-slate-600">
+                  We run your CV against our database of live job listings using RAG — and return ranked matches with a full score breakdown.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Ranked job matches", "Skill gap analysis", "Action plan"].map(tag => (
+                    <span key={tag} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mode B — Match a Job */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-xs font-black text-slate-700 bg-slate-50">
+                    02
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Briefcase className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />
+                    <span className="text-sm font-bold text-slate-900">Match a Job</span>
+                  </div>
+                </div>
+                <p className="text-sm leading-relaxed text-slate-600">
+                  Found a role on LinkedIn or anywhere else? Paste the job description and we'll score your CV <strong>exclusively against that posting</strong> — nothing else.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Your JD, your rules", "Role-specific gaps", "Targeted advice"].map(tag => (
+                    <span key={tag} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Step 3 — shared result */}
+            <motion.div
+              variants={fadeUp}
+              className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-200 text-sm font-black text-emerald-700 bg-emerald-50">
+                03
+              </div>
+              <div>
+                <div className="font-semibold text-slate-900">Get your ranked action plan</div>
+                <div className="mt-1 text-sm leading-relaxed text-slate-500">
+                  Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — tailored to whichever mode you chose.
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         </motion.section>
 
@@ -435,39 +498,133 @@ export default function LandingPage() {
 
               <div className="h-px bg-slate-100" />
 
-              {/* Target role selector */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="target-role-select"
-                  className="block font-outfit text-xl font-black text-slate-900"
+              {/* ── Mode toggle ── */}
+              <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-1 gap-1">
+                <button
+                  type="button"
+                  id="mode-best-matches"
+                  onClick={() => setAnalysisMode("best-matches")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                    analysisMode === "best-matches"
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
                 >
-                  Target Role{" "}
-                  <span className="font-normal normal-case tracking-normal text-slate-900">(optional)</span>
-                </label>
-                <select
-                  id="target-role-select"
-                  value={selectedRoleOption}
-                  onChange={(e) => handleRoleOptionChange(e.target.value)}
-                  disabled={uploading}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  <Search className="h-3.5 w-3.5" aria-hidden="true" />
+                  Best Matches
+                </button>
+                <button
+                  type="button"
+                  id="mode-specific-role"
+                  onClick={() => setAnalysisMode("specific-role")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                    analysisMode === "specific-role"
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
                 >
-                  <option value="">-- Defaults to best match --</option>
-                  {TARGET_ROLES.map((role) => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-
-                {selectedRoleOption === "Other (specify below)" && (
-                  <input
-                    type="text"
-                    value={customRoleText}
-                    onChange={(e) => handleCustomRoleChange(e.target.value)}
-                    placeholder="e.g. Senior iOS Engineer, Cloud Architect…"
-                    disabled={uploading}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
-                  />
-                )}
+                  <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
+                  Match a Job
+                </button>
               </div>
+
+              {/* ── Mode A: Best Matches — target role dropdown ── */}
+              {analysisMode === "best-matches" && (
+                <div className="space-y-2">
+                  <label
+                    htmlFor="target-role-select"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-500"
+                  >
+                    Target Role{" "}
+                    <span className="font-normal normal-case tracking-normal text-slate-400">(optional)</span>
+                  </label>
+                  <select
+                    id="target-role-select"
+                    value={selectedRoleOption}
+                    onChange={(e) => handleRoleOptionChange(e.target.value)}
+                    disabled={uploading}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  >
+                    <option value="">-- Defaults to best match --</option>
+                    {TARGET_ROLES.map((role) => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
+                  </select>
+                  {selectedRoleOption === "Other (specify below)" && (
+                    <input
+                      type="text"
+                      value={customRoleText}
+                      onChange={(e) => handleCustomRoleChange(e.target.value)}
+                      placeholder="e.g. Senior iOS Engineer, Cloud Architect…"
+                      disabled={uploading}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* ── Mode B: Specific Role — job title + JD textarea ── */}
+              {analysisMode === "specific-role" && (
+                <div className="space-y-3">
+                  {/* Explanation pill */}
+                  <div className="rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700">
+                    Paste a job description and we'll score your CV exclusively against it — no other jobs included.
+                  </div>
+
+                  {/* Job title (optional) */}
+                  <div>
+                    <label
+                      htmlFor="jd-job-title"
+                      className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"
+                    >
+                      Job Title{" "}
+                      <span className="font-normal normal-case tracking-normal text-slate-400">(optional)</span>
+                    </label>
+                    <input
+                      id="jd-job-title"
+                      type="text"
+                      value={jobTitle}
+                      onChange={(e) => setJobTitle(e.target.value)}
+                      placeholder="e.g. Senior React Developer at Stripe"
+                      disabled={uploading}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
+                    />
+                  </div>
+
+                  {/* Job description textarea */}
+                  <div>
+                    <div className="mb-1 flex items-center justify-between">
+                      <label
+                        htmlFor="jd-textarea"
+                        className="text-xs font-semibold uppercase tracking-wider text-slate-500"
+                      >
+                        Job Description <span className="text-rose-500">*</span>
+                      </label>
+                      <span className={`text-xs tabular-nums ${
+                        jobDescription.length > JD_MAX * 0.9 ? "text-amber-600" : "text-slate-400"
+                      }`}>
+                        {jobDescription.length}/{JD_MAX}
+                      </span>
+                    </div>
+                    <textarea
+                      id="jd-textarea"
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value.slice(0, JD_MAX))}
+                      placeholder="Paste the full job description here — responsibilities, requirements, preferred skills…"
+                      rows={7}
+                      disabled={uploading}
+                      className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-relaxed text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 disabled:opacity-50 resize-none transition-colors ${
+                        jobDescription.trim().length > 0 && jobDescription.trim().length < 30
+                          ? "border-amber-300 focus:border-amber-400 focus:ring-amber-300 bg-amber-50/30"
+                          : "border-slate-200 focus:border-purple-500 focus:ring-purple-500 bg-white"
+                      }`}
+                    />
+                    {jobDescription.trim().length > 0 && jobDescription.trim().length < 30 && (
+                      <p className="mt-1 text-xs text-amber-600">Please paste a more complete job description (at least 30 characters).</p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* File dropzone */}
               <FileDropzone disabled={uploading} onFileSelected={onFileSelected} />
@@ -538,14 +695,18 @@ export default function LandingPage() {
               <button
                 type="button"
                 id="analyze-cv-btn"
-                disabled={!file || uploading}
+                disabled={!file || uploading || !jdIsValid}
                 onClick={() => {
                   if (!queueAnalysis()) return;
                   navigate("/analyzing");
                 }}
                 className="w-full rounded-xl bg-purple-700 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-purple-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {uploading ? "Uploading…" : "Analyze CV"}
+                {uploading
+                  ? "Uploading…"
+                  : analysisMode === "specific-role"
+                  ? "Analyze Against This Job"
+                  : "Analyze CV"}
               </button>
 
               <p className="text-center text-xs text-slate-400">

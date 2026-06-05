@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import type { AnalyzeResponse } from "../types/cv";
 import { clearStoredReport } from "../lib/storage";
 
+export type AnalysisMode = "best-matches" | "specific-role";
+
 type CvState = {
   file: File | null;
   filename: string;
@@ -10,6 +12,9 @@ type CvState = {
   createdAt: string | null;
   analysisRequestId: number | null;
   targetRole: string;
+  analysisMode: AnalysisMode;
+  jobDescription: string;
+  jobTitle: string;
 };
 
 type CvActions = {
@@ -20,6 +25,9 @@ type CvActions = {
   clearPendingAnalysis: () => void;
   startOver: () => void;
   setTargetRole: (role: string) => void;
+  setAnalysisMode: (mode: AnalysisMode) => void;
+  setJobDescription: (jd: string) => void;
+  setJobTitle: (title: string) => void;
 };
 
 const CvContext = createContext<(CvState & CvActions) | null>(null);
@@ -32,6 +40,9 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [analysisRequestId, setAnalysisRequestId] = useState<number | null>(null);
   const [targetRole, setTargetRoleState] = useState("");
+  const [analysisMode, setAnalysisModeState] = useState<AnalysisMode>("best-matches");
+  const [jobDescription, setJobDescriptionState] = useState("");
+  const [jobTitle, setJobTitleState] = useState("");
 
   const setFile = useCallback((next: File | null) => {
     setFileState(next);
@@ -40,7 +51,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setReportState(null);
     setCreatedAt(null);
     setAnalysisRequestId(null);
-    setTargetRoleState("");
+    // Don't reset mode/JD fields when a file changes — user may want to re-upload
   }, []);
 
   const setPreview = useCallback((text: string, name?: string) => {
@@ -73,11 +84,26 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setCreatedAt(null);
     setAnalysisRequestId(null);
     setTargetRoleState("");
+    setAnalysisModeState("best-matches");
+    setJobDescriptionState("");
+    setJobTitleState("");
     clearStoredReport();
   }, []);
 
   const setTargetRole = useCallback((role: string) => {
     setTargetRoleState(role);
+  }, []);
+
+  const setAnalysisMode = useCallback((mode: AnalysisMode) => {
+    setAnalysisModeState(mode);
+  }, []);
+
+  const setJobDescription = useCallback((jd: string) => {
+    setJobDescriptionState(jd);
+  }, []);
+
+  const setJobTitle = useCallback((title: string) => {
+    setJobTitleState(title);
   }, []);
 
   const value = useMemo(
@@ -89,6 +115,9 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       analysisRequestId,
       targetRole,
+      analysisMode,
+      jobDescription,
+      jobTitle,
       setFile,
       setPreview,
       setReport,
@@ -96,6 +125,9 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       clearPendingAnalysis,
       startOver,
       setTargetRole,
+      setAnalysisMode,
+      setJobDescription,
+      setJobTitle,
     }),
     [
       file,
@@ -105,6 +137,9 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       createdAt,
       analysisRequestId,
       targetRole,
+      analysisMode,
+      jobDescription,
+      jobTitle,
       setFile,
       setPreview,
       setReport,
@@ -112,6 +147,9 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       clearPendingAnalysis,
       startOver,
       setTargetRole,
+      setAnalysisMode,
+      setJobDescription,
+      setJobTitle,
     ],
   );
 
