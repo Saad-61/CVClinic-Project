@@ -76,7 +76,7 @@ export function FileDropzone({
           handleFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
-        <div className="grid h-12 w-12 place-items-center rounded-full bg-purple-700 text-white shadow-md shadow-purple-200">
+        <div className="grid h-12 w-12 place-items-center rounded-full bg-purple-700 text-white shadow">
           <Upload className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="text-sm font-medium text-slate-900">

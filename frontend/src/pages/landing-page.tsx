@@ -34,7 +34,7 @@ const TARGET_ROLES = [
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: "easeOut" as const } },
 };
 
 const stagger = {
@@ -119,10 +119,24 @@ export default function LandingPage() {
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] lg:gap-16 lg:items-start">
 
       {/* ─────────────── LEFT: Narrative Story ─────────────── */}
-      <div className="space-y-24 pb-24">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.22,
+              delayChildren: 0.1,
+            }
+          }
+        }}
+        className="space-y-24 pb-24"
+      >
 
         {/* ── HERO ── */}
-        <section className="py-10 sm:py-14">
+        <motion.section variants={fadeUp} className="py-10 sm:py-14">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-semibold text-purple-700">
             CV Analysis · No account required
@@ -163,14 +177,11 @@ export default function LandingPage() {
           >
             Analyze My CV
           </button>
-        </section>
+        </motion.section>
 
         {/* ── THE PROBLEM ── */}
         <motion.section
           variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
           className="space-y-7"
         >
           <div className="space-y-2">
@@ -186,9 +197,6 @@ export default function LandingPage() {
 
           <motion.div
             variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
             className="grid gap-3"
           >
             {[
@@ -234,9 +242,6 @@ export default function LandingPage() {
         {/* ── WHAT YOU GET (Bento) ── */}
         <motion.section
           variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
           className="space-y-7"
         >
           <div className="space-y-2">
@@ -252,9 +257,6 @@ export default function LandingPage() {
 
           <motion.div
             variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 gap-3"
           >
             {/* Job Match Score — large */}
@@ -355,9 +357,6 @@ export default function LandingPage() {
         {/* ── HOW IT WORKS ── */}
         <motion.section
           variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
           className="space-y-7"
         >
           <div className="space-y-2">
@@ -373,9 +372,6 @@ export default function LandingPage() {
 
           <motion.div
             variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
             className="space-y-3"
           >
             {/* Step 1 — shared */}
@@ -469,7 +465,7 @@ export default function LandingPage() {
           </motion.div>
         </motion.section>
 
-      </div>{/* end left column */}
+      </motion.div>{/* end left column */}
 
       {/* ─────────────── RIGHT: Sticky Upload Card ─────────────── */}
       <div

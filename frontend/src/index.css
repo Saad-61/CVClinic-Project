@@ -5,29 +5,29 @@
 @tailwind utilities;
 
 :root {
-  /* ── Eminence Purple Design System ── */
-  --background: 270 30% 97%;
-  --foreground: 270 25% 12%;
+  /* ── Dark Grey & Eminence Purple Design System ── */
+  --background: 240 8% 8%; /* Clean dark grey bg */
+  --foreground: 240 10% 96%; /* Off-white text */
 
-  --card: 0 0% 100%;
-  --card-foreground: 270 25% 12%;
+  --card: 240 10% 9%; /* Slightly lighter dark grey for cards */
+  --card-foreground: 240 10% 96%;
 
-  --muted: 270 20% 93%;
-  --muted-foreground: 270 10% 48%;
+  --muted: 240 10% 14%;
+  --muted-foreground: 240 5% 65%;
 
-  --border: 270 18% 88%;
-  --input: 270 18% 88%;
-  --ring: 276 60% 42%;
+  --border: 240 10% 16%;
+  --input: 240 10% 16%;
+  --ring: 276 50% 60%; /* Eminence Purple for dark mode */
 
-  /* Primary = Eminence #6B3FA0 → hsl(276, 43%, 44%) */
-  --primary: 276 43% 44%;
+  /* Primary = Eminence Purple */
+  --primary: 276 50% 60%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 270 20% 93%;
-  --secondary-foreground: 270 25% 20%;
+  --secondary: 240 10% 14%;
+  --secondary-foreground: 0 0% 98%;
 
-  --accent: 276 50% 96%;
-  --accent-foreground: 276 43% 35%;
+  --accent: 276 50% 16%; /* Darker Eminence purple accent tint */
+  --accent-foreground: 276 50% 85%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
@@ -35,6 +35,8 @@
 
 html, body {
   height: 100%;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 body {
@@ -45,19 +47,18 @@ body {
 /* ── Page background ── */
 .app-wash {
   background:
-    radial-gradient(1100px 700px at 60% -10%, hsl(276 60% 92% / 0.55), transparent 65%),
-    radial-gradient(800px 600px at 0% 80%, hsl(260 50% 94% / 0.45), transparent 60%),
-    hsl(270 30% 97%);
+    radial-gradient(1200px 800px at 50% -10%, hsl(276 50% 15% / 0.4), transparent 70%),
+    hsl(240 8% 8%); /* Pure premium dark grey base without green tint */
 }
 
 /* ── Focus rings ── */
 *:focus-visible {
-  outline: 2px solid hsl(276 43% 44%);
+  outline: 2px solid hsl(276 50% 60%);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: hsl(276 60% 44% / 0.15);
+  background: hsl(276 50% 60% / 0.3);
 }
 
 /* ── Card hover lift ── */
@@ -65,7 +66,7 @@ body {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 .card-hover:hover {
-  box-shadow: 0 8px 30px -6px hsl(276 43% 44% / 0.12);
+  box-shadow: 0 8px 30px -6px hsl(276 50% 60% / 0.3);
   transform: translateY(-1px);
 }
 
@@ -93,9 +94,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: hsl(276 43% 44%);
-  background: hsl(276 50% 96%);
-  border: 1px solid hsl(276 50% 88%);
+  color: hsl(276 60% 75%);
+  background: hsl(276 50% 16%);
+  border: 1px solid hsl(276 50% 25%);
   border-radius: 9999px;
   padding: 0.35rem 0.9rem;
   margin-bottom: 0.5rem;
@@ -108,4 +109,138 @@ body {
 @keyframes float {
   0%,  100% { transform: translateY(0px); }
   50%        { transform: translateY(-12px); }
+}
+
+/* ═══════════════════════════════════════════════
+   DARK MODE UTILITY AND STATUS OVERRIDES
+   ═══════════════════════════════════════════════ */
+
+.text-slate-900 {
+  color: #f4f4f7 !important; /* "Your CV" and headings are now light grey/white */
+}
+.text-slate-800 {
+  color: #e4e4e9 !important;
+}
+.text-slate-700 {
+  color: #e2e8f0 !important;
+}
+.text-slate-600 {
+  color: #e2e8f0 !important; /* Match the lighter silver/grey color! */
+}
+.text-slate-500 {
+  color: #e2e8f0 !important; /* Match the lighter silver/grey color! */
+}
+.text-slate-400 {
+  color: #a1a1aa !important; /* Muted grey for hints/labels */
+}
+
+/* Overrides for background slate colors */
+.bg-slate-50 {
+  background-color: hsl(var(--muted)) !important;
+}
+.bg-slate-100 {
+  background-color: hsl(var(--muted)) !important;
+}
+.bg-slate-200 {
+  background-color: hsl(240 10% 15%) !important;
+}
+
+/* Overrides for border slate colors */
+.border-slate-100 {
+  border-color: hsl(var(--border)) !important;
+}
+.border-slate-200 {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Override hardcoded white background classes */
+.bg-white {
+  background-color: hsl(var(--card)) !important;
+}
+.bg-white\/75 {
+  background-color: hsla(var(--card) / 0.75) !important;
+}
+.bg-white\/60 {
+  background-color: hsla(var(--card) / 0.6) !important;
+}
+.bg-white\/80 {
+  background-color: hsla(var(--card) / 0.8) !important;
+}
+.hover\:bg-white\/40:hover {
+  background-color: hsla(var(--card) / 0.25) !important;
+}
+
+/* Redefined Eminence Purple Status Badges/Containers */
+.bg-purple-50 {
+  background-color: hsla(276, 50%, 44%, 0.15) !important;
+}
+.bg-purple-100 {
+  background-color: hsla(276, 50%, 44%, 0.3) !important;
+}
+.border-purple-200 {
+  border-color: hsla(276, 50%, 44%, 0.35) !important;
+}
+.border-purple-100 {
+  border-color: hsla(276, 50%, 44%, 0.25) !important;
+}
+.text-purple-700, .text-purple-800 {
+  color: hsl(276 60% 70%) !important; /* Vibrant Eminence Purple highlight */
+}
+.text-purple-600 {
+  color: hsl(276 60% 65%) !important;
+}
+
+/* Success status overrides (Emerald) */
+.bg-emerald-50 {
+  background-color: rgb(6 78 59 / 0.25) !important;
+}
+.border-emerald-200 {
+  border-color: rgb(16 185 129 / 0.35) !important;
+}
+.text-emerald-700 {
+  color: rgb(110 231 183) !important;
+}
+
+/* Warning status overrides (Amber) */
+.bg-amber-50 {
+  background-color: rgb(120 53 4 / 0.25) !important;
+}
+.border-amber-200 {
+  border-color: rgb(245 158 11 / 0.3) !important;
+}
+.text-amber-600 {
+  color: rgb(253 224 71) !important;
+}
+.text-amber-700 {
+  color: rgb(251 191 36) !important;
+}
+
+/* Problem status overrides (Rose) */
+.bg-rose-50 {
+  background-color: rgb(159 18 57 / 0.25) !important;
+}
+.border-rose-400 {
+  border-color: rgb(244 63 94 / 0.4) !important;
+}
+.text-rose-500 {
+  color: rgb(252 165 165) !important;
+}
+
+/* Info status overrides (Sky/Teal) */
+.bg-sky-50 {
+  background-color: rgb(8 47 73 / 0.25) !important;
+}
+.text-sky-600 {
+  color: rgb(125 211 252) !important;
+}
+
+/* Additional layout overrides */
+select, input, textarea {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+select:focus, input:focus, textarea:focus {
+  border-color: hsl(var(--ring)) !important;
 }
