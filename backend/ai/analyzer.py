@@ -140,12 +140,13 @@ TASKS & DETAILED INSTRUCTIONS:
    - You MUST propose EXACTLY 2 entries as new project ideas (project_type: "new"). 
    - You MUST propose EXACTLY 3 entries as existing projects to update (project_type: "existing").
    - For the 2 new projects:
+     * STRICT CRITICAL RULE: The proposed projects MUST be completely new, standalone project concepts from scratch that are NOT listed anywhere on the candidate's CV. Do NOT suggest containerizing, writing tests for, or adding features to projects already listed on the candidate's CV (e.g. do not suggest containerizing or testing their existing 'Student Management System' or 'Simple Portfolio Website'). Any extensions, containerizations, or test suites for existing CV projects belong strictly in the 'existing' projects updates.
      * Focus on critical technical gaps (e.g. Docker, Redis, CI/CD, testing frameworks like PyTest, message queues like RabbitMQ/Celery).
      * Propose a highly tailored, production-grade project title and details.
      * In "project_idea": Describe a solid architecture, the specific features, and exactly what tools/libraries to use. Write a detailed paragraph (2-3 sentences).
      * In "implementation": Give advanced step-by-step instructions and explicitly tell the candidate WHERE to look/what resources to read (e.g. "Follow the official Docker multi-stage build docs", "Refer to the FastAPI background tasks guide", "Check the Redis caching standard tutorials"). Write a detailed paragraph (3-4 sentences).
    - For the 3 existing project updates (project_type: "existing"):
-     * Select a project from the CV (e.g., BookYourShoot, ScoutVCT) and suggest adding a highly advanced feature that demonstrates the missing skill.
+     * Select a project from the CV (e.g., BookYourShoot, ScoutVCT, Student Management System) and suggest adding a highly advanced feature that demonstrates the missing skill.
 
 3. PROJECT IMPROVEMENTS — for existing projects only (Max 3 entries):
    - Read the candidate's existing projects (BookYourShoot, ScoutVCT, VisionBench) and suggest ADVANCED technical upgrades.

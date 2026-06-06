@@ -20,7 +20,7 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
   const difficulty = getDifficulty(skill.priority);
 
   return (
-    <div className="rounded-xl border-l-8 border-l-purple-500 border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+    <div className="rounded-xl border-l-4 border-l-purple-500 border border-border bg-card p-5 shadow-sm space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Badge variant="indigo" className="font-semibold">
           {skill.skill}
@@ -31,18 +31,18 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-slate-900 leading-tight">
+        <h4 className="text-sm font-bold text-white leading-tight">
           {skill.project || "Skill Starter Project"}
         </h4>
-        <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+        <p className="mt-1.5 text-xs text-white leading-relaxed">
           {skill.project_idea}
         </p>
       </div>
 
       {skill.implementation && (
-        <div className="rounded-lg bg-slate-50 p-3 text-xs border border-slate-100">
-          <div className="font-semibold text-slate-800 mb-1">How to implement:</div>
-          <p className="text-slate-600 leading-relaxed">{skill.implementation}</p>
+        <div className="text-xs space-y-1">
+          <div className="font-bold text-purple-400">How to implement:</div>
+          <p className="text-white leading-relaxed">{skill.implementation}</p>
         </div>
       )}
     </div>

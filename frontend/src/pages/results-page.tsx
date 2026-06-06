@@ -68,19 +68,19 @@ function StatTile({
   accent?: string;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+    <div className="flex flex-col gap-0.5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">
         {label}
       </div>
       <div
         className={`text-2xl font-bold tabular-nums leading-tight ${
-          accent ?? "text-slate-900"
+          accent ?? "text-white"
         }`}
       >
         {value}
       </div>
       {sub && (
-        <div className="text-[11px] text-slate-500 leading-tight truncate">{sub}</div>
+        <div className="text-[11px] text-slate-600 leading-tight truncate">{sub}</div>
       )}
     </div>
   );
@@ -174,39 +174,39 @@ export default function ResultsPage() {
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
       {/* Centered navigation tabs right below header */}
       <div className="flex justify-center w-full">
-        <TabsList className="grid bg-slate-100 p-1.5 rounded-xl max-w-2xl w-full border border-slate-200/50 shadow-sm gap-1"
+        <TabsList className="grid bg-muted p-1.5 rounded-xl max-w-2xl w-full border border-border/50 shadow-sm gap-1"
           style={{ gridTemplateColumns: isJdMode ? "repeat(4, minmax(0, 1fr))" : "repeat(5, minmax(0, 1fr))" }}
         >
-          <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+          <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-purple-400 data-[state=active]:shadow-sm">
             <LayoutGrid className="h-3.5 w-3.5" /> Overview
           </TabsTrigger>
           {!isJdMode && (
-            <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+            <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-purple-400 data-[state=active]:shadow-sm">
               <Briefcase className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Jobs</span>
-              <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+              <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700/50">
                 {jobsSorted.length}
               </span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="actions" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+          <TabsTrigger value="actions" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-purple-400 data-[state=active]:shadow-sm">
             <ListTodo className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Actions</span>
-            <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+            <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700/50">
               {topActions.length}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="skills" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+          <TabsTrigger value="skills" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-purple-400 data-[state=active]:shadow-sm">
             <GraduationCap className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Skills</span>
-            <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+            <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700/50">
               {missingSkills.length}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="cv-fixes" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm">
+          <TabsTrigger value="cv-fixes" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-purple-400 data-[state=active]:shadow-sm">
             <Wrench className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Fixes</span>
-            <span className="rounded-full bg-slate-200/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+            <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700/50">
               {quickRewriteCandidates.length}
             </span>
           </TabsTrigger>
@@ -301,15 +301,15 @@ export default function ResultsPage() {
                       sub={jobsSorted[0]?.title ?? ""}
                       accent={
                         jobsSorted[0]?.score && jobsSorted[0].score > 50
-                          ? "text-green-600"
-                          : "text-amber-600"
+                          ? "text-emerald-400"
+                          : "text-amber-400"
                       }
                     />
                     <StatTile
                       label="Skills gap"
                       value={missingSkills.length}
                       sub={`Top: ${highPrioritySkill}`}
-                      accent={missingSkills.length > 0 ? "text-rose-600" : "text-green-600"}
+                      accent={missingSkills.length > 0 ? "text-rose-400" : "text-emerald-400"}
                     />
                   </div>
                 </div>
@@ -365,7 +365,10 @@ export default function ResultsPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setActiveTab("actions")}
+                      onClick={() => {
+                        setActiveTab("actions");
+                        window.scrollTo({ top: 0, behavior: "instant" });
+                      }}
                       className="text-purple-600 hover:text-purple-700 text-xs"
                     >
                       Full plan <ChevronRight className="h-3.5 w-3.5" />
@@ -399,7 +402,10 @@ export default function ResultsPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setActiveTab("skills")}
+                      onClick={() => {
+                        setActiveTab("skills");
+                        window.scrollTo({ top: 0, behavior: "instant" });
+                      }}
                       className="text-purple-600 hover:text-purple-700 text-xs"
                     >
                       Full analysis <ChevronRight className="h-3.5 w-3.5" />
@@ -416,19 +422,19 @@ export default function ResultsPage() {
                             key={`ov-skill-${idx}`}
                             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${
                               p === "HIGH"
-                                ? "bg-red-50 text-red-700 border-red-200"
+                                ? "bg-rose-950/30 text-rose-300 border-rose-900/50"
                                 : p === "MEDIUM"
-                                ? "bg-amber-50 text-amber-700 border-amber-200"
-                                : "bg-slate-100 text-slate-600 border-slate-200"
+                                ? "bg-amber-950/30 text-amber-300 border-amber-900/50"
+                                : "bg-slate-800 text-slate-300 border-slate-700/50"
                             }`}
                           >
                             <span
                               className={`inline-block h-1.5 w-1.5 rounded-full ${
                                 p === "HIGH"
-                                  ? "bg-red-500"
+                                  ? "bg-rose-500"
                                   : p === "MEDIUM"
                                   ? "bg-amber-500"
-                                  : "bg-slate-400"
+                                  : "bg-slate-500"
                               }`}
                             />
                             {s.skill}
@@ -460,22 +466,22 @@ export default function ResultsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {effective.report.jooble_configured === false ? (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+                    <div className="rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-sm">
                       <div className="flex items-start gap-3">
-                        <Key className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                        <Key className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
                         <div>
-                          <div className="font-semibold text-amber-900">
+                          <div className="font-semibold text-amber-200">
                             Add Jooble for Pakistan-targeted jobs
                           </div>
-                          <p className="mt-1 text-amber-800">
+                          <p className="mt-1 text-amber-300">
                             Currently showing remote jobs
                             {jobSources.length ? ` from ${jobSources.join(" + ")}` : ""}.
                             Set{" "}
-                            <code className="rounded bg-amber-100 px-1 font-mono text-xs">
+                            <code className="rounded bg-amber-950/50 border border-amber-900/40 px-1 font-mono text-xs text-amber-300">
                               JOOBLE_API_KEY
                             </code>{" "}
                             in{" "}
-                            <code className="rounded bg-amber-100 px-1 font-mono text-xs">
+                            <code className="rounded bg-amber-950/50 border border-amber-900/40 px-1 font-mono text-xs text-amber-300">
                               backend/.env
                             </code>{" "}
                             to get real Pakistan-based listings.
@@ -484,7 +490,7 @@ export default function ResultsPage() {
                             href="https://jooble.org/api/about"
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 underline hover:text-amber-900"
+                            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400 underline hover:text-amber-200"
                           >
                             Get free Jooble API key <ExternalLink className="h-3 w-3" />
                           </a>
@@ -492,14 +498,14 @@ export default function ResultsPage() {
                       </div>
                     </div>
                   ) : effective.report.jooble_configured === true ? (
-                    <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm">
+                    <div className="rounded-xl border border-emerald-900/30 bg-emerald-950/20 p-3 text-sm">
                       <div className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" />
                         <div>
-                          <div className="font-semibold text-green-800">
+                          <div className="font-semibold text-emerald-200">
                             Searching all connected platforms
                           </div>
-                          <p className="text-green-700 mt-0.5">
+                          <p className="text-emerald-300 mt-0.5">
                             Sourcing and ranking jobs from: {jobSources.length ? jobSources.join(", ") : "Jooble, Remotive, Jobicy, Arbeitnow, Adzuna"}.
                           </p>
                         </div>
@@ -508,13 +514,13 @@ export default function ResultsPage() {
                   ) : null}
 
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-green-50 border border-green-200 px-2.5 py-1 font-semibold text-green-700">
+                    <span className="rounded-full bg-emerald-950/30 border border-emerald-900/50 px-2.5 py-1 font-semibold text-emerald-300">
                       Above 50% = strong
                     </span>
-                    <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 font-semibold text-amber-700">
+                    <span className="rounded-full bg-amber-950/30 border border-amber-900/50 px-2.5 py-1 font-semibold text-amber-300">
                       40–50% = workable
                     </span>
-                    <span className="rounded-full bg-rose-50 border border-rose-200 px-2.5 py-1 font-semibold text-rose-700">
+                    <span className="rounded-full bg-rose-950/30 border border-rose-900/50 px-2.5 py-1 font-semibold text-rose-300">
                       Below 40% = weak
                     </span>
                   </div>
@@ -566,14 +572,14 @@ export default function ResultsPage() {
           <TabFade>
             <div className="space-y-4 mt-4">
               {/* Sub-tab pills for Actions */}
-              <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl w-fit border border-slate-200/50 shadow-sm">
+              <div className="flex flex-wrap gap-1.5 bg-muted p-1 rounded-xl w-fit border border-border/50 shadow-sm">
                 <button
                   type="button"
                   onClick={() => setActionsSubTab("actions")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "actions"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                      ? "bg-card text-purple-400 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-card/40"
                   }`}
                 >
                   This Week's Actions
@@ -583,8 +589,8 @@ export default function ResultsPage() {
                   onClick={() => setActionsSubTab("upgrades")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "upgrades"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                      ? "bg-card text-purple-400 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-card/40"
                   }`}
                 >
                   Project Upgrades
@@ -594,8 +600,8 @@ export default function ResultsPage() {
                   onClick={() => setActionsSubTab("new-projects")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "new-projects"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                      ? "bg-card text-purple-400 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-card/40"
                   }`}
                 >
                   New Project Ideas
@@ -689,14 +695,14 @@ export default function ResultsPage() {
           <TabFade>
             <div className="space-y-4 mt-4">
               {/* Sub-tab pills for Skills */}
-              <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl w-fit border border-slate-200/50 shadow-sm">
+              <div className="flex flex-wrap gap-1.5 bg-muted p-1 rounded-xl w-fit border border-border/50 shadow-sm">
                 <button
                   type="button"
                   onClick={() => setSkillsSubTab("detail")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     skillsSubTab === "detail"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                      ? "bg-card text-purple-400 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-card/40"
                   }`}
                 >
                   Skills Gap Detail
@@ -706,8 +712,8 @@ export default function ResultsPage() {
                   onClick={() => setSkillsSubTab("roadmap")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     skillsSubTab === "roadmap"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40"
+                      ? "bg-card text-purple-400 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-card/40"
                   }`}
                 >
                   Learning Roadmap
@@ -726,7 +732,7 @@ export default function ResultsPage() {
                   <CardContent className="space-y-3">
                     {missingSkills.length ? (
                       missingSkills.map((s, idx) => (
-                        <SkillCard key={`sk-${idx}`} skill={s} idx={idx} />
+                        <SkillCard key={`sk-${idx}`} skill={s} idx={idx} jobs={jobsSorted} />
                       ))
                     ) : (
                       <div className="text-sm text-slate-500">

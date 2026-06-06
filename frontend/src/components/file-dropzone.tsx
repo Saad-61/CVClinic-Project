@@ -47,9 +47,9 @@ export function FileDropzone({
       <label
         htmlFor={inputId}
         className={cn(
-          "group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-purple-200 bg-white px-5 py-8 text-center transition-colors hover:border-purple-400 hover:bg-purple-50/40",
-          dragActive && "border-purple-500 bg-purple-50/60",
-          disabled && "cursor-not-allowed opacity-60 hover:bg-white hover:border-purple-200",
+          "group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-purple-800/40 bg-card px-5 py-8 text-center transition-colors hover:border-purple-500/80 hover:bg-purple-950/20",
+          dragActive && "border-purple-500 bg-purple-950/30",
+          disabled && "cursor-not-allowed opacity-60 hover:bg-card hover:border-purple-800/40",
         )}
         onClick={(e) => {
           if (disabled) e.preventDefault();

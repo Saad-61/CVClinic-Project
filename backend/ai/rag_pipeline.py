@@ -61,19 +61,27 @@ class RAGPipeline:
         embedding_score = embedding_similarity * 100
 
         # Skill overlap: fraction of job skills the CV covers (0-1)
+        # Calibrated: treat matching 75% of job skills as 100% skill match.
+        # Normalize against at least 4 skills to avoid small-denominator inflation.
         job_skill_count = max(len(job_skills), 1)
-        overlap_ratio = min(overlap / job_skill_count, 1.0)
+        overlap_ratio = min(overlap / max(job_skill_count * 0.75, 4.0), 1.0)
         overlap_score = overlap_ratio * 100
 
         # 50/50 blend
         raw = (0.5 * embedding_score) + (0.5 * overlap_score)
 
         # Mild calibration stretch so strong matches reach 75-85%
-        calibrated = min(raw * 1.3, 100)
+        calibrated = min(raw * 1.15, 100)
 
-        # Heavy penalty for zero skill overlap
+        # Apply multiplier penalty based on absolute overlap count to ensure realism
         if overlap == 0:
-            calibrated *= 0.55
+            calibrated *= 0.35
+        elif overlap == 1:
+            calibrated *= 0.60
+        elif overlap == 2:
+            calibrated *= 0.80
+        elif overlap == 3:
+            calibrated *= 0.92
 
         return round(calibrated, 2)
 
@@ -103,36 +111,36 @@ class RAGPipeline:
           Excellent   90-100 : everything — depth, breadth, impact, proof
 
         Buckets:
-          Skill depth    : max 35 pts  (7 canonical skills = max)
-          Project proof  : max 30 pts  (8 keyword hits = max)
+          Skill depth    : max 35 pts  (13 canonical skills = max)
+          Project proof  : max 30 pts  (14 keyword hits = max)
           Link presence  : max 20 pts  (3 links = max)
-          Impact signals : max 15 pts  (4 impact words = max)
+          Impact signals : max 15 pts  (7 impact words = max)
         """
         text_lower = cv_text.lower()
 
-        # Skill depth: 35 pts — normalized to 7 distinct skills
-        skill_score = min(len(cv_skills) / 7 * 35, 35)
+        # Skill depth: 35 pts — normalized to 13 distinct skills
+        skill_score = min(len(cv_skills) / 13 * 35, 35)
 
-        # Project/experience evidence: 30 pts
+        # Project/experience evidence: 30 pts — normalized to 14 keyword hits
         project_keywords = [
             "project", "built", "developed", "implemented",
             "designed", "created", "engineered", "launched",
         ]
         project_mentions = sum(text_lower.count(kw) for kw in project_keywords)
-        project_score = min(project_mentions / 8 * 30, 30)
+        project_score = min(project_mentions / 14 * 30, 30)
 
         # Links / proof: 20 pts — 3 links = max
         links = cv_links if cv_links is not None else extract_links(cv_text)
         link_score = min(len(links) / 3 * 20, 20)
 
-        # Impact signals: 15 pts — measurable outcome words
+        # Impact signals: 15 pts — 7 outcome words = max
         impact_words = [
             "improved", "reduced", "increased", "automated", "deployed",
             "scaled", "optimised", "optimized", "achieved", "awarded",
             "saved", "boosted", "accelerated", "delivered",
         ]
         impact_count = sum(text_lower.count(w) for w in impact_words)
-        impact_score = min(impact_count / 4 * 15, 15)
+        impact_score = min(impact_count / 7 * 15, 15)
 
         raw = skill_score + project_score + link_score + impact_score
         final = round(min(raw, 100), 2)
@@ -224,8 +232,9 @@ class RAGPipeline:
         for i, idx in enumerate(indices[0]):
             job = self.vector_store.data[idx]
 
-            # --- normalized embedding similarity (0-1 range) ---
-            embedding_similarity = float(1 / (1 + distances[0][i]))
+            # --- Convert L2 distance squared to Cosine Similarity ---
+            distance = float(distances[0][i])
+            embedding_similarity = max(0.0, min(1.0, 1.0 - 0.5 * distance))
 
             # extract job skills
             job_text = job.get("title", "") + " " + job.get("description", "")

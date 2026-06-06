@@ -73,7 +73,7 @@ export function ScoreRing({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="hsl(270 20% 93%)"
+            stroke="hsl(var(--border))"
             strokeWidth={strokeWidth}
           />
           {/* Animated arc — color tracks motionScore */}

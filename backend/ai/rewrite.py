@@ -90,7 +90,7 @@ RULES:
 - If information is missing, improve phrasing and structure using only supported details.
 - Return replacement-ready content the user can paste directly into their CV.
 - If output mode is plain text, return clean resume-ready text only.
-- If output mode is latex, return a LaTeX-friendly snippet only, with escaped special characters.
+- If output mode is latex, you MUST generate valid LaTeX code with proper LaTeX formatting (e.g. use \begin{{itemize}} and \item for bulleted lists, \textbf{{...}} for bold headings/keywords, wrap in \begin{{itemize}}...\end{{itemize}}, and format quotation marks using LaTeX syntax like ``quotes'' instead of straight quotes "quotes") and ensure special characters (like %, &, $, _, etc.) are escaped (e.g. \%, \&, \$, \_). It must be pasteable directly into a LaTeX document.
 - Do not include markdown fences.
 - Add a short paste note explaining where to place the rewrite.
 

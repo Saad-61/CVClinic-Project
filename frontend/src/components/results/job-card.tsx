@@ -21,20 +21,20 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
   const [coverError, setCoverError] = useState<string | null>(null);
 
   const barColor =
-    pct > 50 ? "bg-green-500" : pct >= 40 ? "bg-amber-400" : "bg-rose-400";
+    pct > 50 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-rose-500";
   const textColor =
-    pct > 50 ? "text-green-600" : pct >= 40 ? "text-amber-500" : "text-rose-500";
+    pct > 50 ? "text-emerald-400" : pct >= 40 ? "text-amber-400" : "text-rose-400";
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="font-semibold text-slate-900 leading-snug">{job.title}</div>
+          <div className="font-semibold text-white leading-snug">{job.title}</div>
           {job.company_name && (
-            <div className="mt-0.5 text-xs text-slate-500">{job.company_name}</div>
+            <div className="mt-0.5 text-xs text-slate-600">{job.company_name}</div>
           )}
           {(job.location || job.source) && (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
               {job.location && (
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
@@ -42,7 +42,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
                 </span>
               )}
               {job.source && (
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+                <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-slate-800">
                   {job.source}
                 </span>
               )}
@@ -57,7 +57,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       </div>
 
       {showScore && (
-        <div className="mt-2 h-1.5 w-full rounded-full bg-slate-100">
+        <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
           <div
             className={`h-1.5 rounded-full transition-all duration-700 ${barColor}`}
             style={{ width: `${Math.max(pct, 4)}%` }}
@@ -70,7 +70,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 border border-purple-100"
+              className="rounded-md bg-purple-950/30 px-2 py-0.5 text-xs font-medium text-purple-300 border border-purple-800/40"
             >
               {s}
             </span>
@@ -147,19 +147,19 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       ) : null}
 
       {!compact && coverLetter ? (
-        <div className="mt-3 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+        <div className="mt-3 rounded-xl border border-purple-900/40 bg-gradient-to-br from-purple-950/20 to-indigo-950/20 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-purple-600" />
-              <div className="text-sm font-semibold text-purple-900">Cover Letter Draft</div>
+              <Mail className="h-4 w-4 text-purple-400" />
+              <div className="text-sm font-semibold text-purple-200">Cover Letter Draft</div>
             </div>
             <CopyButton value={coverLetter} label="Copy" />
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-white">
             {coverLetter}
           </p>
           {coverNote ? (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-600">
               <span className="font-semibold">Note:</span> {coverNote}
             </p>
           ) : null}
