@@ -1,0 +1,36 @@
+name: Sync Backend to Hugging Face Spaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Configure Git
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          # We need to push ONLY the contents of the backend folder to HF
+          # because the Dockerfile must be in the root of the HF repository.
+          cd backend
+          git init
+          git checkout -b main
+          git add .
+          git commit -m "Deploy backend from GitHub Actions"
+          
+          # Force push to Hugging Face Space
+          git remote add hf https://Saad61:$HF_TOKEN@huggingface.co/spaces/Saad61/cvclinic-backend
+          git push --force hf main
