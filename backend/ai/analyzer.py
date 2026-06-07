@@ -173,6 +173,8 @@ RULES:
 - Be specific: name projects, technologies, exact deliverables
 - Do NOT invent projects, metrics, links, or technologies not found in the excerpt or skills list
 - Use the full CV details when proposing top actions, project improvements, and new projects.
+- Do NOT suggest moving technologies or tools to a section they are already in (e.g. if a tool is already under 'Databases & Cloud', do not recommend moving it there).
+- Double check the candidate's existing sections and categories to ensure your CV fixes do not recommend changes the candidate has already implemented.
 - missing_skills: EXACTLY 2 "new" project entries, and EXACTLY 3 "existing" project entries (5 entries total).
 - project_improvements: max 3 entries
 - cv_fixes: max 3 entries

@@ -52,9 +52,10 @@ def _generate_with_groq(prompt: str, model_name: str) -> str:
         json={
             "model": model_name,
             "messages": [
-                {"role": "system", "content": "Return strict JSON only. Do not wrap the answer in markdown fences."},
+                {"role": "system", "content": "Return strict JSON only. Do not wrap the answer in markdown fences. The JSON must contain the keys expected in the user prompt schema."},
                 {"role": "user", "content": prompt},
             ],
+            "response_format": {"type": "json_object"},
             "temperature": 0.2,
         },
         timeout=90,
@@ -223,12 +224,17 @@ def generate_response(prompt: str, request_source: str = "unknown"):
                 _log_llm_event(request_source, f"Skipping gemini provider: {exc}")
                 continue
 
+            from google.genai import types
             for model_name in candidates:
                 try:
                     _log_llm_event(request_source, f"Trying gemini model {model_name}")
                     response = _client.models.generate_content(
                         model=model_name,
                         contents=prompt,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            temperature=0.2,
+                        ),
                     )
 
                     text = getattr(response, "text", "") or ""

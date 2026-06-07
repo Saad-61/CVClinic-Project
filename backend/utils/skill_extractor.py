@@ -71,6 +71,7 @@ SKILL_KEYWORDS = [
     "mongodb",
     "redis",
     "supabase",
+    "duckdb",
     "firebase",
     "mariadb",
     "dynamodb",

@@ -242,9 +242,10 @@ export default function ResultsPage() {
                   href={link}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700 hover:bg-slate-100 transition-colors max-w-full"
                 >
-                  {safeUrlLabel(link)} <ExternalLink className="h-3 w-3" />
+                  <span className="truncate">{safeUrlLabel(link)}</span>
+                  <ExternalLink className="h-3 w-3 shrink-0" />
                 </a>
               ))}
             </div>
