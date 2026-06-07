@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 import numpy as np
 
@@ -7,6 +8,59 @@ from ai.vector_store import VectorStore
 from services.job_cache import get_cached_jobs
 from utils.skill_extractor import extract_skills
 from utils.link_extractor import extract_links
+
+
+def _detect_seniority(text: str, title: str = "") -> str:
+    """
+    Detects seniority level: 'principal', 'senior', 'mid', or 'junior'.
+    """
+    text_lower = (title + " " + text).lower()
+    
+    # Principal / Staff / Executive keywords
+    if any(w in text_lower for w in ["principal", "staff", "architect", "director", "vp", "head of", "chief", "cto", "cio"]):
+        return "principal"
+        
+    # Senior / Lead keywords
+    if any(w in text_lower for w in ["senior", "sr.", "lead engineer", "lead developer", "team lead", "tech lead", "engineering manager", "product manager", "project manager"]):
+        return "senior"
+        
+    # Junior / Entry / Intern keywords
+    if any(w in text_lower for w in ["junior", "jr.", "intern", "entry", "associate", "student", "graduate", "fresh", "final-year", "final year"]):
+        return "junior"
+        
+    return "mid"
+
+
+def _compute_seniority_penalty(cv_seniority: str, job_seniority: str) -> float:
+    """
+    Returns a multiplier (0.0 to 1.0) based on seniority alignment.
+    """
+    levels = {"junior": 1, "mid": 2, "senior": 3, "principal": 4}
+    cv_val = levels.get(cv_seniority, 2)
+    job_val = levels.get(job_seniority, 2)
+    
+    # If candidate meets or exceeds job seniority, no penalty
+    if cv_val >= job_val:
+        if cv_val - job_val >= 2:
+            return 0.90  # minor penalty for severe overqualification
+        return 1.0
+        
+    # Underqualified cases
+    diff = job_val - cv_val
+    if diff == 1:
+        if job_seniority == "mid":
+            return 0.85
+        elif job_seniority == "senior":
+            return 0.80
+        return 0.85
+    elif diff == 2:
+        if job_seniority == "senior":
+            return 0.60
+        return 0.70
+    elif diff >= 3:
+        return 0.45
+        
+    return 1.0
 
 
 class RAGPipeline:
@@ -49,41 +103,42 @@ class RAGPipeline:
 
         return results
 
-    def compute_final_score(self, embedding_similarity, overlap, cv_skills, job_skills):
+    def compute_final_score(self, embedding_similarity, overlap, cv_skills, job_skills, cv_text=None, job_text=None, job_title=None):
         """
         Hybrid scoring formula:
           - 50% embedding similarity
           - 50% skill overlap (normalized against actual job skill count)
-
-        Calibrated to hit desired bands:
-          Poor   0-35 | Average 35-55 | Good 55-75 | Excellent 75-90 | Near-perfect 90-100
         """
         embedding_score = embedding_similarity * 100
 
         # Skill overlap: fraction of job skills the CV covers (0-1)
-        # Calibrated: treat matching 75% of job skills as 100% skill match.
-        # Normalize against at least 4 skills to avoid small-denominator inflation.
         job_skill_count = max(len(job_skills), 1)
-        overlap_ratio = min(overlap / max(job_skill_count * 0.75, 4.0), 1.0)
+        overlap_ratio = min(overlap / job_skill_count, 1.0)
         overlap_score = overlap_ratio * 100
 
         # 50/50 blend
-        raw = (0.5 * embedding_score) + (0.5 * overlap_score)
+        score = (0.5 * embedding_score) + (0.5 * overlap_score)
 
-        # Mild calibration stretch so strong matches reach 75-85%
-        calibrated = min(raw * 1.15, 100)
-
-        # Apply multiplier penalty based on absolute overlap count to ensure realism
+        # Apply stricter penalties based on absolute overlap count to ensure realism
         if overlap == 0:
-            calibrated *= 0.35
+            score *= 0.15
         elif overlap == 1:
-            calibrated *= 0.60
+            score *= 0.40
         elif overlap == 2:
-            calibrated *= 0.80
+            score *= 0.65
         elif overlap == 3:
-            calibrated *= 0.92
+            score *= 0.80
+        elif overlap == 4:
+            score *= 0.90
 
-        return round(calibrated, 2)
+        # Apply seniority mismatch penalty if text is provided
+        if cv_text is not None and (job_text is not None or job_title is not None):
+            cv_seniority = _detect_seniority(cv_text)
+            job_seniority = _detect_seniority(job_text or "", job_title or "")
+            seniority_penalty = _compute_seniority_penalty(cv_seniority, job_seniority)
+            score *= seniority_penalty
+
+        return round(min(score, 100.0), 2)
 
     def generate_evidence(self, cv_skills, job_skills, cv_text, job_text):
         """
@@ -99,56 +154,98 @@ class RAGPipeline:
             return evidence
         return "Semantic match on job description"
 
-    def calculate_resume_score(self, cv_skills, cv_text, cv_links=None):
+    def calculate_resume_score(self, cv_skills, cv_text, cv_links=None, best_match_score=None):
         """
         Calculate overall resume quality score (0-100).
-
-        Target bands:
-          Needs Work  0-35   : sparse CV, few skills, no proof
-          Fair        35-55  : some skills, weak proof or no links
-          Good        55-75  : solid skills + projects
-          Strong      75-90  : skills + projects + links
-          Excellent   90-100 : everything — depth, breadth, impact, proof
-
-        Buckets:
-          Skill depth    : max 35 pts  (13 canonical skills = max)
-          Project proof  : max 30 pts  (14 keyword hits = max)
-          Link presence  : max 20 pts  (3 links = max)
-          Impact signals : max 15 pts  (7 impact words = max)
         """
         text_lower = cv_text.lower()
 
-        # Skill depth: 35 pts — normalized to 13 distinct skills
-        skill_score = min(len(cv_skills) / 13 * 35, 35)
+        # Skill depth: 25 pts — normalized to 20 distinct skills
+        skill_score = min(len(cv_skills) / 20 * 25, 25)
 
-        # Project/experience evidence: 30 pts — normalized to 14 keyword hits
+        # Project/experience evidence: 20 pts — normalized to 24 keyword hits
         project_keywords = [
-            "project", "built", "developed", "implemented",
-            "designed", "created", "engineered", "launched",
+            "project", "projects", "built", "build", "building",
+            "developed", "develop", "developing", "developer",
+            "implemented", "implement", "implementing", "implementation",
+            "designed", "design", "designing", "designer",
+            "created", "create", "creating", "creation",
+            "engineered", "engineer", "engineering",
+            "launched", "launch", "launching",
+            "led", "lead", "leading", "leader",
+            "managed", "manage", "managing", "manager",
+            "experience", "experiences", "worked", "working", "work"
         ]
-        project_mentions = sum(text_lower.count(kw) for kw in project_keywords)
-        project_score = min(project_mentions / 14 * 30, 30)
+        project_mentions = 0
+        for kw in project_keywords:
+            project_mentions += len(re.findall(rf"\b{re.escape(kw)}\b", text_lower))
+        project_score = min(project_mentions / 24 * 20, 20)
 
-        # Links / proof: 20 pts — 3 links = max
+        # Links / proof: 10 pts — 2 links = max
         links = cv_links if cv_links is not None else extract_links(cv_text)
-        link_score = min(len(links) / 3 * 20, 20)
+        link_score = min(len(links) / 2 * 10, 10)
 
-        # Impact signals: 15 pts — 7 outcome words = max
-        impact_words = [
-            "improved", "reduced", "increased", "automated", "deployed",
-            "scaled", "optimised", "optimized", "achieved", "awarded",
-            "saved", "boosted", "accelerated", "delivered",
+        # Impact signals: 15 pts — 12 hits = max (words count 1, numeric metrics count 2)
+        impact_keywords = [
+            "improved", "improve", "improving", "improvement", "improvements",
+            "reduced", "reduce", "reducing", "reduction", "reductions",
+            "increased", "increase", "increasing", "growth",
+            "automated", "automate", "automating", "automation",
+            "deployed", "deploy", "deploying", "deployment", "deployments",
+            "scaled", "scale", "scaling", "scalability",
+            "optimised", "optimise", "optimising", "optimized", "optimize", "optimizing", "optimization", "optimizations",
+            "achieved", "achieve", "achieving", "achievement", "achievements",
+            "awarded", "award", "awards",
+            "saved", "save", "saving", "savings",
+            "boosted", "boost", "boosting",
+            "accelerated", "accelerate", "accelerating",
+            "delivered", "deliver", "delivering", "delivery",
+            "revenue", "profit", "efficiency", "performance"
         ]
-        impact_count = sum(text_lower.count(w) for w in impact_words)
-        impact_score = min(impact_count / 7 * 15, 15)
+        impact_count = 0
+        for kw in impact_keywords:
+            impact_count += len(re.findall(rf"\b{re.escape(kw)}\b", text_lower))
 
-        raw = skill_score + project_score + link_score + impact_score
+        metric_matches = re.findall(r"\b\d+(?:\.\d+)?%|\$\d+(?:\.\d+)?\s*[kKmMbB]?\b|\b\d+\s*[kKmM]\+?\b", cv_text)
+        metric_count = len(metric_matches)
+
+        total_impact_points = impact_count + (metric_count * 2)
+        impact_score = min(total_impact_points / 12 * 15, 15)
+
+        # Education & Seniority depth: 10 pts
+        has_phd = any(re.search(rf"\b{re.escape(w)}\b", text_lower) for w in ["phd", "ph.d", "doctorate", "doctor of philosophy"])
+        has_masters = any(re.search(rf"\b{re.escape(w)}\b", text_lower) for w in ["master", "masters", "ms", "m.s.", "msc", "m.sc", "postgraduate"])
+        has_bachelors = any(re.search(rf"\b{re.escape(w)}\b", text_lower) for w in ["bachelor", "bachelors", "bs", "b.s.", "bsc", "b.sc", "undergraduate", "university", "college"])
+
+        education_pts = 3  # default
+        if has_phd:
+            education_pts = 10
+        elif has_masters:
+            education_pts = 8
+        elif has_bachelors:
+            education_pts = 6
+
+        cv_seniority = _detect_seniority(cv_text)
+        if cv_seniority in ["senior", "principal"] and education_pts < 10:
+            education_pts = min(education_pts + 4, 10)
+
+        education_score = education_pts
+
+        # Target Role/Job Alignment: 20 pts
+        if best_match_score is not None:
+            alignment_score = (best_match_score / 100) * 20
+        else:
+            alignment_score = 10  # default baseline if no job context is present
+
+        raw = skill_score + project_score + link_score + impact_score + education_score + alignment_score
         final = round(min(raw, 100), 2)
         print(
             f"[ResumeScore] skills={len(cv_skills)} skill_pts={round(skill_score,1)} "
             f"proj_mentions={project_mentions} proj_pts={round(project_score,1)} "
             f"links={len(links)} link_pts={round(link_score,1)} "
-            f"impact={impact_count} impact_pts={round(impact_score,1)} "
+            f"impact={total_impact_points} (kw={impact_count}, metrics={metric_count}) impact_pts={round(impact_score,1)} "
+            f"edu_pts={round(education_score,1)} "
+            f"alignment_pts={round(alignment_score,1)} "
             f"TOTAL={final}"
         )
         return final
@@ -174,8 +271,11 @@ class RAGPipeline:
         overlap    = len(set(cv_skills) & set(jd_skills))
         matched    = list(set(cv_skills) & set(jd_skills))
 
-        final_score  = self.compute_final_score(embedding_sim, overlap, cv_skills, jd_skills)
-        resume_score = self.calculate_resume_score(cv_skills, cv_text, cv_links or [])
+        final_score  = self.compute_final_score(
+            embedding_sim, overlap, cv_skills, jd_skills,
+            cv_text=cv_text, job_text=job_description, job_title=job_title
+        )
+        resume_score = self.calculate_resume_score(cv_skills, cv_text, cv_links or [], best_match_score=final_score)
         evidence     = self.generate_evidence(cv_skills, jd_skills, cv_text, job_description)
 
         synthetic_job = {
@@ -225,7 +325,6 @@ class RAGPipeline:
 
         # extract structured skills
         cv_skills = extract_skills(cv_text)
-        resume_score = self.calculate_resume_score(cv_skills, cv_text, links)
 
         results = []
 
@@ -245,7 +344,10 @@ class RAGPipeline:
             matched_skills = list(set(cv_skills) & set(job_skills))
 
             # --- HYBRID SCORING ---
-            final_score = self.compute_final_score(embedding_similarity, overlap, cv_skills, job_skills)
+            final_score = self.compute_final_score(
+                embedding_similarity, overlap, cv_skills, job_skills,
+                cv_text=cv_text, job_text=job.get("description", ""), job_title=job.get("title", "")
+            )
             
             # Generate evidence
             evidence = self.generate_evidence(cv_skills, job_skills, cv_text, job_text)
@@ -272,6 +374,10 @@ class RAGPipeline:
         # Fallback: if nothing overlaps, return top 2 by score
         if not filtered_results:
             filtered_results = results[:2]
+
+        # Couple resume score to the best matched job's score
+        best_match_score = filtered_results[0]["score"] if filtered_results else 0.0
+        resume_score = self.calculate_resume_score(cv_skills, cv_text, links, best_match_score=best_match_score)
 
         return {
             "matched_jobs": filtered_results,

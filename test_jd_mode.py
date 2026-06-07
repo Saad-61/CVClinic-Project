@@ -57,9 +57,9 @@ print("JD MODE INTEGRATION TESTS")
 print("=" * 70)
 
 for jd_title, jd_text in JOBS:
-    print(f"\n{'─'*70}")
+    print(f"\n{'-'*70}")
     print(f"JD: {jd_title}")
-    print(f"{'─'*70}")
+    print(f"{'-'*70}")
 
     for cv_name, cv_path in CVS:
         try:
