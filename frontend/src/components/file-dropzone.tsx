@@ -47,9 +47,9 @@ export function FileDropzone({
       <label
         htmlFor={inputId}
         className={cn(
-          "group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-purple-800/40 bg-card px-5 py-8 text-center transition-colors hover:border-purple-500/80 hover:bg-purple-950/20",
-          dragActive && "border-purple-500 bg-purple-950/30",
-          disabled && "cursor-not-allowed opacity-60 hover:bg-card hover:border-purple-800/40",
+          "group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-800 bg-card px-5 py-8 text-center transition-colors hover:border-[#B6ABFF]/50 hover:bg-[#B6ABFF]/5",
+          dragActive && "border-[#9e59d9] bg-[#9e59d9]/10",
+          disabled && "cursor-not-allowed opacity-60 hover:bg-card hover:border-zinc-800",
         )}
         onClick={(e) => {
           if (disabled) e.preventDefault();
@@ -76,16 +76,16 @@ export function FileDropzone({
           handleFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
-        <div className="grid h-12 w-12 place-items-center rounded-full bg-purple-700 text-white shadow">
+        <div className="grid h-12 w-12 place-items-center rounded-full bg-zinc-800 text-white shadow transition-colors group-hover:bg-[#9e59d9] group-hover:text-white">
           <Upload className="h-4 w-4" aria-hidden="true" />
         </div>
-        <div className="text-sm font-medium text-slate-900">
+        <div className="text-sm font-medium text-zinc-200">
           Drop your CV here
         </div>
-        <div className="text-xs text-slate-500">
+        <div className="text-xs text-zinc-400">
           PDF or DOCX • up to 10MB
         </div>
-        <div className="mt-2 text-xs font-medium text-purple-700 underline-offset-4 group-hover:underline">
+        <div className="mt-2 text-xs font-medium text-[#af6eeb] underline-offset-4 group-hover:underline">
           Or browse files
         </div>
         <input
@@ -101,7 +101,7 @@ export function FileDropzone({
       {error ? (
         <div className="text-sm text-rose-700">{error}</div>
       ) : (
-        <div className="text-xs text-slate-500">
+        <div className="text-xs text-zinc-400">
           Tip: if preview looks wrong, re-upload the file.
         </div>
       )}

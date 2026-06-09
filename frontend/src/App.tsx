@@ -8,7 +8,7 @@ import ResultsPage from "./pages/results-page";
 export default function App() {
   return (
     <CvProvider>
-      <div className="app-wash min-h-screen">
+      <div className="app-theme-bg min-h-screen">
         <AppShell>
           <Routes>
             <Route path="/" element={<LandingPage />} />

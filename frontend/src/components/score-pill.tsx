@@ -38,7 +38,7 @@ export function ScorePill({
         {label}
       </span>
       {/* Custom bar using the same color system as job cards */}
-      <div className="relative h-2 w-28 overflow-hidden rounded-full bg-slate-100">
+      <div className="relative h-2 w-28 overflow-hidden rounded-full bg-zinc-800">
         <div
           className={cn("h-full rounded-full transition-all", barColor)}
           style={{ width: `${pct}%` }}

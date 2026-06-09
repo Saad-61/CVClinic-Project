@@ -3,13 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { analyzeCv } from "../api/cv";
 import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
 import { saveStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
 
@@ -83,17 +76,21 @@ export default function AnalyzingPage() {
   }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole, jobDescription, jobTitle]);
 
   return (
-    <div className="mx-auto max-w-lg">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>Analyzing your CV</CardTitle>
-              <CardDescription className="mt-1">
-                <span className="text-slate-500 font-medium text-xs truncate max-w-[240px] block">
-                  File: {filename || file?.name}
-                </span>
-              </CardDescription>
+    <div className="mx-auto max-w-lg py-10">
+      {/* Premium glowing card wrapper */}
+      <div className="relative rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-8 shadow-2xl overflow-hidden">
+        {/* Decorative background glow behind the card content */}
+        <div className="absolute -top-12 -left-12 h-36 w-36 rounded-full bg-[#9e59d9]/10 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-12 -right-12 h-36 w-36 rounded-full bg-[#B6ABFF]/05 blur-2xl pointer-events-none" />
+
+        <div className="relative space-y-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="section-label">System Active</div>
+              <h2 className="font-outfit text-2xl font-black text-white">Analyzing your CV</h2>
+              <div className="text-xs text-slate-400 font-medium truncate max-w-[220px]">
+                File: {filename || file?.name}
+              </div>
             </div>
             <Button
               type="button"
@@ -104,39 +101,46 @@ export default function AnalyzingPage() {
                 clearPendingAnalysis();
                 navigate("/", { replace: true });
               }}
+              className="border-zinc-800 text-slate-400 hover:text-white hover:border-[#9e59d9]"
             >
               <XCircle className="h-4 w-4" />
               Cancel
             </Button>
           </div>
-        </CardHeader>
 
-        <CardContent className="pb-6">
+          <div className="h-px bg-border/60" />
+
           {error ? (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm">
-              <p className="text-rose-800">{error}</p>
-              <div className="mt-3">
-                <Button
-                  type="button"
-                  variant="default"
-                  onClick={() => navigate("/", { replace: true })}
-                >
-                  Back to upload
-                </Button>
-              </div>
+            <div className="rounded-xl border border-rose-900/40 bg-rose-950/20 p-5 text-sm space-y-4">
+              <p className="text-rose-200 leading-relaxed font-medium">{error}</p>
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => navigate("/", { replace: true })}
+                className="w-full bg-[#9e59d9] hover:bg-[#8346b9] text-white"
+              >
+                Back to upload
+              </Button>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-14 px-4 text-center space-y-6">
-              <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
-              <div className="space-y-1.5 max-w-xs">
-                <p className="text-sm font-semibold text-slate-800 transition-all duration-300 min-h-[40px] flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-10 px-4 text-center space-y-8">
+              {/* Spinner wrapper with pulse animation and gradient ring */}
+              <div className="relative flex items-center justify-center">
+                <div className="absolute h-20 w-20 rounded-full border border-[#9e59d9]/25 animate-ping duration-1000" />
+                <div className="absolute h-16 w-16 rounded-full bg-gradient-to-tr from-[#9e59d9]/20 to-[#B6ABFF]/10 blur" />
+                <Loader2 className="h-12 w-12 animate-spin text-[#af6eeb] relative z-10" />
+              </div>
+
+              {/* Progress tip card */}
+              <div className="w-full max-w-sm rounded-xl bg-zinc-900/40 border border-border/50 px-5 py-4 min-h-[80px] flex items-center justify-center">
+                <p className="text-sm font-semibold text-zinc-200 transition-all duration-300 leading-relaxed">
                   {LOADING_TIPS[tipIndex]}
                 </p>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

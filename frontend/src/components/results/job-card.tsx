@@ -70,7 +70,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-purple-950/30 px-2 py-0.5 text-xs font-medium text-purple-300 border border-purple-800/40"
+              className="rounded-md bg-[#B6ABFF]/10 px-2 py-0.5 text-xs font-medium text-[#B6ABFF] border border-[#B6ABFF]/20"
             >
               {s}
             </span>
@@ -85,7 +85,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               href={job.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-600 px-3 py-1 text-xs font-semibold text-white hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full border border-transparent bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-[#904cc9] transition-colors"
             >
               Apply <ExternalLink className="h-3 w-3" />
             </a>
@@ -96,7 +96,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               size="sm"
               variant="outline"
               disabled={coverLoading || !!coverLetter}
-              className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
+              className="border-zinc-800 text-[#af6eeb] hover:bg-[#9e59d9]/10 hover:text-white hover:border-[#9e59d9]"
               onClick={async () => {
                 if (coverLetter) return;
                 setCoverError(null);
@@ -147,11 +147,11 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       ) : null}
 
       {!compact && coverLetter ? (
-        <div className="mt-3 rounded-xl border border-purple-900/40 bg-gradient-to-br from-purple-950/20 to-indigo-950/20 p-4">
+        <div className="mt-3 rounded-xl border border-[#9e59d9]/30 bg-gradient-to-br from-[#9e59d9]/10 to-[#B6ABFF]/5 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-purple-400" />
-              <div className="text-sm font-semibold text-purple-200">Cover Letter Draft</div>
+              <Mail className="h-4 w-4 text-[#B6ABFF]" />
+              <div className="text-sm font-semibold text-zinc-100">Cover Letter Draft</div>
             </div>
             <CopyButton value={coverLetter} label="Copy" />
           </div>

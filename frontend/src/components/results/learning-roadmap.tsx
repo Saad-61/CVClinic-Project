@@ -23,7 +23,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
     {
       label: "Phase 1 — High Priority",
       color: "text-rose-400",
-      bg: "bg-slate-200",
+      bg: "bg-zinc-900/50",
       border: "border-border",
       dot: "bg-rose-500",
       items: high,
@@ -31,17 +31,17 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
     {
       label: "Phase 2 — Medium Priority",
       color: "text-amber-400",
-      bg: "bg-slate-200",
+      bg: "bg-zinc-900/50",
       border: "border-border",
       dot: "bg-amber-500",
       items: medium,
     },
     {
       label: "Phase 3 — Lower Priority",
-      color: "text-slate-300",
-      bg: "bg-slate-200",
+      color: "text-zinc-300",
+      bg: "bg-zinc-900/50",
       border: "border-border",
-      dot: "bg-slate-500",
+      dot: "bg-zinc-500",
       items: low,
     },
   ].filter((p) => p.items.length > 0);
@@ -51,12 +51,12 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-700 shadow-sm">
-          <BookOpen className="h-4 w-4 text-white" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
+          <BookOpen className="h-4 w-4 text-primary-foreground" />
         </div>
         <div>
           <div className="font-bold text-white text-base">Learning Roadmap</div>
-          <div className="text-xs text-slate-600">
+          <div className="text-xs text-zinc-400">
             Your personalised skill-building path, ordered by market impact
           </div>
         </div>
@@ -74,7 +74,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
               <div className={`text-sm font-bold ${phase.color}`}>{phase.label}</div>
             </div>
 
-            <div className="ml-3.5 border-l-2 border-dashed border-slate-800 pl-5 space-y-3">
+            <div className="ml-3.5 border-l-2 border-dashed border-border pl-5 space-y-3">
               {phase.items.map((skill, idx) => {
                 const isNew =
                   String(skill.project_type || "").toLowerCase() === "new";
@@ -89,7 +89,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
                       </div>
                       <div className="flex gap-1.5">
                         <span
-                          className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-black border border-slate-700/20 shadow-sm uppercase tracking-wide"
+                          className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-zinc-300 border border-slate-700/20 shadow-sm uppercase tracking-wide"
                         >
                           {isNew ? "New project" : "Add to existing"}
                         </span>
@@ -98,13 +98,13 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
 
                     {skill.why && (
                       <p className="mt-1.5 text-sm text-white">
-                        <span className="font-bold text-slate-200">Why: </span>
+                        <span className="font-bold text-zinc-200">Why: </span>
                         {skill.why}
                       </p>
                     )}
 
                     {(skill.project || skill.project_idea) && (
-                      <div className="mt-2 rounded-lg bg-slate-100 border border-slate-700/20 px-3 py-2 text-sm text-white">
+                      <div className="mt-2 rounded-lg bg-muted border border-slate-700/20 px-3 py-2 text-sm text-white">
                         {skill.project && (
                           <div>
                             <span className={`font-bold ${phase.color}`}>

@@ -120,17 +120,17 @@ export function QuickRewriteCard({
   };
 
   return (
-    <Card className="border-slate-200 bg-white">
+    <Card className="border-border bg-card">
       <CardContent className="space-y-4 p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="text-sm font-semibold text-slate-900">{candidate.section}</div>
+              <div className="text-sm font-semibold text-white">{candidate.section}</div>
               <Badge variant={candidate.source === "cv_fix" ? "indigo" : "slate"}>
                 {candidate.source === "cv_fix" ? "From CV fix" : "Promoted from action"}
               </Badge>
             </div>
-            <p className="mt-2 text-sm text-slate-700">{candidate.fix}</p>
+            <p className="mt-2 text-sm text-zinc-300">{candidate.fix}</p>
           </div>
           <Button type="button" onClick={() => requestFormat("plain")}>
             {loadingFormat === "plain" ? (
@@ -143,29 +143,29 @@ export function QuickRewriteCard({
         </div>
 
         {candidate.why ? (
-          <p className="text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">Why:</span> {candidate.why}
+          <p className="text-sm text-zinc-400">
+            <span className="font-semibold text-zinc-200">Why:</span> {candidate.why}
           </p>
         ) : null}
         {candidate.how ? (
-          <p className="text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">Guidance:</span> {candidate.how}
+          <p className="text-sm text-zinc-400">
+            <span className="font-semibold text-zinc-200">Guidance:</span> {candidate.how}
           </p>
         ) : null}
 
         {sourceSection ? (
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <div className="rounded-lg border border-border bg-muted p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Source section
             </div>
-            <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
+            <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-300">
               {sourceSection}
             </pre>
           </div>
         ) : null}
 
         {open ? (
-          <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="space-y-4 rounded-xl border border-border bg-muted/50 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -190,22 +190,22 @@ export function QuickRewriteCard({
             </div>
 
             {loadingFormat === activeFormat ? (
-              <div className="flex items-center gap-2 text-sm text-slate-600">
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Drafting your {activeFormat === "latex" ? "LaTeX" : "plain text"} rewrite...
               </div>
             ) : null}
 
-            {error ? <div className="text-sm text-rose-700">{error}</div> : null}
+            {error ? <div className="text-sm text-rose-400">{error}</div> : null}
 
             {current?.rewritten_text ? (
               <>
-                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-4 text-sm leading-relaxed text-slate-700">
+                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-card border border-border p-4 text-sm leading-relaxed text-zinc-200">
                   {current.rewritten_text}
                 </pre>
                 {current.notes ? (
-                  <p className="text-sm text-slate-600">
-                    <span className="font-semibold text-slate-900">Paste note:</span>{" "}
+                  <p className="text-sm text-zinc-400">
+                    <span className="font-semibold text-zinc-200">Paste note:</span>{" "}
                     {current.notes}
                   </p>
                 ) : null}

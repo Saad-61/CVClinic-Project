@@ -17,7 +17,7 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
       case "MEDIUM":
         return "border-l-4 border-l-amber-500/80";
       default:
-        return "border-l-4 border-l-slate-400/80";
+        return "border-l-4 border-l-zinc-500/80";
     }
   };
 
@@ -28,7 +28,7 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
       case "MEDIUM":
         return "text-amber-400";
       default:
-        return "text-slate-400";
+        return "text-zinc-400";
     }
   };
 
@@ -56,18 +56,18 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
                   ? "bg-rose-950/40 text-rose-300"
                   : priority === "MEDIUM"
                   ? "bg-amber-950/40 text-amber-300"
-                  : "bg-slate-850 text-slate-300"
+                  : "bg-zinc-800 text-zinc-300"
               }`}
             >
               {priority}
             </span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-black border border-slate-700/20 shadow-sm">
+            <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-300 border border-zinc-700/20 shadow-sm">
               {isNew ? "New project" : "Add to existing"}
             </span>
           </div>
         </div>
         {skill.project ? (
-          <span className="shrink-0 rounded-md bg-slate-800 px-2 py-1 text-xs font-bold text-black border border-slate-700/20 shadow-sm">
+          <span className="shrink-0 rounded-md bg-zinc-800 px-2 py-1 text-xs font-bold text-zinc-300 border border-zinc-700/20 shadow-sm">
             {skill.project}
           </span>
         ) : null}
@@ -76,17 +76,17 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
       <div className="mt-4 space-y-3">
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-400 font-medium">Market Demand</span>
+            <span className="text-zinc-400 font-medium">Market Demand</span>
             <span className={`font-semibold ${labelColorClass}`}>{demandPercent}% of matched roles</span>
           </div>
-          <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700/30">
+          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/30">
             <div
               className={`h-full rounded-full ${
                 priority === "HIGH"
                   ? "bg-rose-500"
                   : priority === "MEDIUM"
                   ? "bg-amber-500"
-                  : "bg-slate-500"
+                  : "bg-zinc-500"
               }`}
               style={{ width: `${demandPercent}%` }}
             />

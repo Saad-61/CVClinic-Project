@@ -5,29 +5,29 @@
 @tailwind utilities;
 
 :root {
-  /* ── Dark Grey & Eminence Purple Design System ── */
-  --background: 240 8% 8%; /* Clean dark grey bg */
-  --foreground: 240 10% 96%; /* Off-white text */
+  /* ── Dark Charcoal, Purple & Lavender Design System ── */
+  --background: 200 7% 8%; /* Dark charcoal #141617 */
+  --foreground: 0 0% 100%; /* Pure white #FFFFFF */
 
-  --card: 240 10% 9%; /* Slightly lighter dark grey for cards */
-  --card-foreground: 240 10% 96%;
+  --card: 200 7% 10%; /* Elevated charcoal container #1A1C1E */
+  --card-foreground: 0 0% 100%;
 
-  --muted: 240 10% 14%;
-  --muted-foreground: 240 5% 65%;
+  --muted: 200 7% 12%; /* #17191A */
+  --muted-foreground: 240 5% 65%; /* Muted zinc-400 */
 
-  --border: 240 10% 16%;
-  --input: 240 10% 16%;
-  --ring: 276 50% 60%; /* Eminence Purple for dark mode */
+  --border: 240 5% 16%; /* Zinc-800 equivalent #27272A */
+  --input: 240 5% 16%;
+  --ring: 276 60% 62%; /* Eminence Purple #9e59d9 focus outline */
 
   /* Primary = Eminence Purple */
-  --primary: 276 50% 60%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 276 60% 62%;
+  --primary-foreground: 0 0% 100%; /* White text on purple buttons for accessibility */
 
-  --secondary: 240 10% 14%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary: 240 5% 16%;
+  --secondary-foreground: 0 0% 100%;
 
-  --accent: 276 50% 16%; /* Darker Eminence purple accent tint */
-  --accent-foreground: 276 50% 85%;
+  --accent: 248 100% 84%; /* Lavender #B6ABFF */
+  --accent-foreground: 276 60% 20%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
@@ -45,20 +45,21 @@ body {
 }
 
 /* ── Page background ── */
+.app-theme-bg {
+  background-color: hsl(var(--background)) !important;
+}
 .app-wash {
-  background:
-    radial-gradient(1200px 800px at 50% -10%, hsl(276 50% 15% / 0.4), transparent 70%),
-    hsl(240 8% 8%); /* Pure premium dark grey base without green tint */
+  background-color: hsl(var(--background)) !important;
 }
 
 /* ── Focus rings ── */
 *:focus-visible {
-  outline: 2px solid hsl(276 50% 60%);
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
 ::selection {
-  background: hsl(276 50% 60% / 0.3);
+  background: hsl(var(--ring) / 0.25);
 }
 
 /* ── Card hover lift ── */
@@ -66,7 +67,7 @@ body {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 .card-hover:hover {
-  box-shadow: 0 8px 30px -6px hsl(276 50% 60% / 0.3);
+  box-shadow: 0 8px 30px -6px hsl(var(--ring) / 0.2);
   transform: translateY(-1px);
 }
 
@@ -87,16 +88,16 @@ body {
    LANDING PAGE UTILITIES
    ═══════════════════════════════════════════════ */
 
-/* Section label — small uppercase purple pill */
+/* Section label — small uppercase lavender pill */
 .section-label {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: hsl(276 60% 75%);
-  background: hsl(276 50% 16%);
-  border: 1px solid hsl(276 50% 25%);
+  color: hsl(var(--ring));
+  background: hsl(var(--ring) / 0.1);
+  border: 1px solid hsl(var(--ring) / 0.2);
   border-radius: 9999px;
   padding: 0.35rem 0.9rem;
   margin-bottom: 0.5rem;
@@ -170,24 +171,24 @@ body {
   background-color: hsla(var(--card) / 0.25) !important;
 }
 
-/* Redefined Eminence Purple Status Badges/Containers */
+/* Redefined Lavender Status Badges/Containers */
 .bg-purple-50 {
-  background-color: hsla(276, 50%, 44%, 0.15) !important;
+  background-color: hsla(248, 100%, 84%, 0.1) !important;
 }
 .bg-purple-100 {
-  background-color: hsla(276, 50%, 44%, 0.3) !important;
+  background-color: hsla(248, 100%, 84%, 0.18) !important;
 }
 .border-purple-200 {
-  border-color: hsla(276, 50%, 44%, 0.35) !important;
+  border-color: hsla(248, 100%, 84%, 0.25) !important;
 }
 .border-purple-100 {
-  border-color: hsla(276, 50%, 44%, 0.25) !important;
+  border-color: hsla(248, 100%, 84%, 0.15) !important;
 }
 .text-purple-700, .text-purple-800 {
-  color: hsl(276 60% 70%) !important; /* Vibrant Eminence Purple highlight */
+  color: hsl(248 100% 84%) !important; /* Vibrant Lavender highlight */
 }
 .text-purple-600 {
-  color: hsl(276 60% 65%) !important;
+  color: hsl(248 100% 80%) !important;
 }
 
 /* Success status overrides (Emerald) */
@@ -282,4 +283,33 @@ select:focus, input:focus, textarea:focus {
 .text-violet-600 {
   color: rgb(196 181 253) !important;
 }
+
+/* ── Refined Theme & Contrast Overrides for Inverted Slate Palette ── */
+.text-slate-300, .hover\:text-slate-300:hover {
+  color: #cbd5e1 !important; /* Legible silver/grey for standard slate-300 usage */
+}
+.text-slate-200, .hover\:text-slate-200:hover {
+  color: #e2e8f0 !important; /* Legible light grey for standard slate-200 usage */
+}
+.bg-slate-700, .bg-slate-800, .bg-slate-850 {
+  background-color: hsl(var(--muted)) !important; /* Ensure badges use dark charcoal background */
+}
+[class*="border-slate-"] {
+  border-color: hsl(var(--border) / 0.4) !important; /* Enforce dark theme borders for slate lists/badges */
+}
+
+/* Ensure warning and error status container text remains light and legible */
+.text-rose-800, .text-rose-900, .text-red-800, .text-red-900, .text-amber-800, .text-amber-900 {
+  color: #f4f4f7 !important;
+}
+.border-rose-200 {
+  border-color: rgb(244 63 94 / 0.4) !important;
+}
+.bg-rose-50 {
+  background-color: rgb(159 18 57 / 0.2) !important;
+}
+.bg-amber-50 {
+  background-color: rgb(120 53 4 / 0.2) !important;
+}
+
 

@@ -138,7 +138,7 @@ export default function LandingPage() {
         {/* ── HERO ── */}
         <motion.section variants={fadeUp} className="py-10 sm:py-14">
           {/* Badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-semibold text-purple-700">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#B6ABFF]/20 bg-[#B6ABFF]/10 px-3.5 py-1.5 text-xs font-semibold text-[#B6ABFF]">
             CV Analysis · No account required
           </div>
 
@@ -147,7 +147,7 @@ export default function LandingPage() {
             Your CV,<br />
             finally matched<br />
             to{" "}
-            <span className="text-purple-700">real jobs.</span>
+            <span className="text-[#af6eeb]">real jobs.</span>
           </h1>
 
           <p className="mb-10 max-w-[440px] text-lg leading-relaxed text-slate-600">
@@ -155,25 +155,25 @@ export default function LandingPage() {
           </p>
 
           {/* Prominent scroll indicator (desktop only) */}
-          <div className="hidden lg:inline-flex items-center gap-4 rounded-2xl border-2 border-purple-200 bg-purple-50 px-6 py-4">
+          <div className="hidden lg:inline-flex items-center gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 px-6 py-4">
             <div className="flex flex-col items-center gap-0.5">
               <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}>
-                <ChevronDown className="h-6 w-6 text-purple-600" aria-hidden="true" />
+                <ChevronDown className="h-6 w-6 text-[#af6eeb]" aria-hidden="true" />
               </motion.div>
               <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.05, repeat: Infinity, ease: 'easeInOut', delay: 0.12 }}>
-                <ChevronDown className="h-5 w-5 text-purple-400" aria-hidden="true" />
+                <ChevronDown className="h-5 w-5 text-[#B6ABFF]" aria-hidden="true" />
               </motion.div>
             </div>
             <div>
-              <div className="text-sm font-bold text-purple-800">Scroll to discover your gaps</div>
-              <div className="text-xs text-purple-500 mt-0.5">See what the analysis covers before you upload</div>
+              <div className="text-sm font-bold text-zinc-100">Scroll to discover your gaps</div>
+              <div className="text-xs text-zinc-400 mt-0.5">See what the analysis covers before you upload</div>
             </div>
           </div>
 
           {/* Mobile CTA */}
           <button
             onClick={() => uploadRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-700 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-purple-800 transition-colors lg:hidden"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow hover:bg-[#904cc9] transition-colors lg:hidden"
           >
             Analyze My CV
           </button>
@@ -248,7 +248,7 @@ export default function LandingPage() {
             <div className="section-label">What you get</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               A diagnostic report,<br />
-              <span className="text-purple-700">not just a score.</span>
+              <span className="text-[#B6ABFF]">not just a score.</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               CVClinic uses Retrieval-Augmented Generation to match your CV against live job listings — then builds a ranked plan of exactly what to change and why.
@@ -266,8 +266,8 @@ export default function LandingPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="rounded-lg bg-purple-100 p-2">
-                    <Target className="h-4 w-4 text-purple-700" aria-hidden="true" />
+                  <div className="rounded-lg bg-[#B6ABFF]/15 p-2">
+                    <Target className="h-4 w-4 text-[#B6ABFF]" aria-hidden="true" />
                   </div>
                   <div className="font-semibold text-slate-900">Job Match Score</div>
                 </div>
@@ -280,7 +280,7 @@ export default function LandingPage() {
               </p>
               <div className="space-y-3">
                 {[
-                  { role: "React Developer", score: 81, colorBar: "bg-purple-600", colorText: "text-purple-700" },
+                  { role: "React Developer", score: 81, colorBar: "bg-primary", colorText: "text-[#af6eeb]" },
                   { role: "Frontend Developer", score: 74, colorBar: "bg-emerald-500", colorText: "text-emerald-700" },
                   { role: "Full Stack Engineer", score: 58, colorBar: "bg-amber-400", colorText: "text-amber-700" },
                 ].map(({ role, score, colorBar, colorText }) => (
@@ -363,7 +363,7 @@ export default function LandingPage() {
             <div className="section-label">How it works</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               Two ways to get<br />
-              <span className="text-purple-700">your answer.</span>
+              <span className="text-[#af6eeb]">your answer.</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               Upload your CV and choose how you want to analyse it.
@@ -379,7 +379,7 @@ export default function LandingPage() {
               variants={fadeUp}
               className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-purple-200 text-sm font-black text-purple-700 bg-purple-50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#B6ABFF]/30 text-sm font-black text-[#B6ABFF] bg-[#B6ABFF]/10">
                 01
               </div>
               <div>
@@ -407,7 +407,7 @@ export default function LandingPage() {
                     02
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Search className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />
+                    <Search className="h-3.5 w-3.5 text-[#B6ABFF]" aria-hidden="true" />
                     <span className="text-sm font-bold text-slate-900">Best Matches</span>
                   </div>
                 </div>
@@ -430,7 +430,7 @@ export default function LandingPage() {
                     02
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Briefcase className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />
+                    <Briefcase className="h-3.5 w-3.5 text-[#B6ABFF]" aria-hidden="true" />
                     <span className="text-sm font-bold text-slate-900">Match a Job</span>
                   </div>
                 </div>
@@ -500,10 +500,10 @@ export default function LandingPage() {
                   type="button"
                   id="mode-best-matches"
                   onClick={() => setAnalysisMode("best-matches")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all ${
                     analysisMode === "best-matches"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-slate-400 hover:text-slate-300"
                   }`}
                 >
                   <Search className="h-3.5 w-3.5" aria-hidden="true" />
@@ -513,10 +513,10 @@ export default function LandingPage() {
                   type="button"
                   id="mode-specific-role"
                   onClick={() => setAnalysisMode("specific-role")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all ${
                     analysisMode === "specific-role"
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-slate-400 hover:text-slate-300"
                   }`}
                 >
                   <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
@@ -539,7 +539,7 @@ export default function LandingPage() {
                     value={selectedRoleOption}
                     onChange={(e) => handleRoleOptionChange(e.target.value)}
                     disabled={uploading}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-[#9e59d9] focus:outline-none focus:ring-1 focus:ring-[#9e59d9]/30 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                   >
                     <option value="">-- Defaults to best match --</option>
                     {TARGET_ROLES.map((role) => (
@@ -553,7 +553,7 @@ export default function LandingPage() {
                       onChange={(e) => handleCustomRoleChange(e.target.value)}
                       placeholder="e.g. Senior iOS Engineer, Cloud Architect…"
                       disabled={uploading}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#9e59d9] focus:outline-none focus:ring-1 focus:ring-[#9e59d9]/30 disabled:opacity-50 transition-colors"
                     />
                   )}
                 </div>
@@ -563,7 +563,7 @@ export default function LandingPage() {
               {analysisMode === "specific-role" && (
                 <div className="space-y-3">
                   {/* Explanation pill */}
-                  <div className="rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700">
+                  <div className="rounded-lg border border-[#B6ABFF]/20 bg-[#B6ABFF]/10 px-3 py-2 text-xs text-[#B6ABFF]">
                     Paste a job description and we'll score your CV exclusively against it — no other jobs included.
                   </div>
 
@@ -583,7 +583,7 @@ export default function LandingPage() {
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g. Senior React Developer at Stripe"
                       disabled={uploading}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 transition-colors"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#9e59d9] focus:outline-none focus:ring-1 focus:ring-[#9e59d9]/30 disabled:opacity-50 transition-colors"
                     />
                   </div>
 
@@ -612,7 +612,7 @@ export default function LandingPage() {
                       className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-relaxed text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 disabled:opacity-50 resize-none transition-colors ${
                         jobDescription.trim().length > 0 && jobDescription.trim().length < 30
                           ? "border-amber-300 focus:border-amber-400 focus:ring-amber-300 bg-amber-50/30"
-                          : "border-slate-200 focus:border-purple-500 focus:ring-purple-500 bg-white"
+                          : "border-slate-200 focus:border-[#9e59d9] focus:ring-[#9e59d9]/30 bg-white"
                       }`}
                     />
                     {jobDescription.trim().length > 0 && jobDescription.trim().length < 30 && (
@@ -655,7 +655,7 @@ export default function LandingPage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                           <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                           Review before analyzing
                         </div>
                         <button
@@ -696,7 +696,7 @@ export default function LandingPage() {
                   if (!queueAnalysis()) return;
                   navigate("/analyzing");
                 }}
-                className="w-full rounded-xl bg-purple-700 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-purple-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-xl bg-primary px-6 py-3.5 text-sm font-extrabold text-primary-foreground shadow-sm transition-all hover:bg-[#904cc9] hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {uploading
                   ? "Uploading…"
