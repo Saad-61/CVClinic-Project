@@ -8,6 +8,7 @@ from services.cv_parser import extract_text_from_file, extract_links_from_file
 from services.analysis_cache import cv_hash, get_cached_analysis, save_analysis, cache_info
 from utils.file_handler import save_file
 from utils.skill_extractor import extract_skills
+from utils.cv_validator import validate_cv_text
 from ai.analyzer import analyze_cv
 import os
 
@@ -27,6 +28,7 @@ def get_rag_pipeline() -> RAGPipeline:
 async def upload_cv(file: UploadFile = File(...)):
     file_path = save_file(file)
     text = extract_text_from_file(file_path)
+    validate_cv_text(text)
 
     return {
         "filename": file.filename,
@@ -37,6 +39,7 @@ async def upload_cv(file: UploadFile = File(...)):
 async def match_jobs(file: UploadFile = File(...)):
     file_path = save_file(file)
     text = extract_text_from_file(file_path)
+    validate_cv_text(text)
 
     jobs = get_rag_pipeline().retrieve_jobs(text)
 
@@ -53,6 +56,7 @@ async def analyze(
 ):
     file_path = save_file(file)
     text = extract_text_from_file(file_path)
+    validate_cv_text(text)
     file_links = extract_links_from_file(file_path, text)
 
     # Normalise JD inputs

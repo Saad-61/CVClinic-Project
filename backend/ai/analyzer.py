@@ -205,6 +205,25 @@ OUTPUT (STRICT JSON ONLY — no markdown fences):
 """
 
 
+def _infer_fallback_role(cv_text: str, target_role: str | None) -> str:
+    if target_role and target_role.strip():
+        return target_role.strip()
+        
+    text_lower = cv_text.lower()
+    common_roles = [
+        "software engineer", "frontend developer", "backend developer", 
+        "full stack developer", "data scientist", "data analyst", 
+        "data engineer", "product manager", "project manager", 
+        "devops engineer", "system administrator", "security engineer", 
+        "machine learning engineer", "qa engineer", "designer"
+    ]
+    for role in common_roles:
+        if role in text_lower:
+            return role.title()
+            
+    return "No Matching Role"
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -245,6 +264,8 @@ def analyze_cv(
     if total_overlap == 0 and len(top_jobs) > 0:
         print("[Analyzer] Zero overlap detected — returning template response (no LLM call)")
         template = dict(_ZERO_OVERLAP_TEMPLATE)
+        # Dynamically infer fallback role
+        template["inferred_role"] = _infer_fallback_role(cv_text, target_role)
         # Populate job_matches from scored data so UI still shows jobs
         template["job_matches"] = [
             {

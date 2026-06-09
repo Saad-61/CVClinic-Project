@@ -406,6 +406,46 @@ def extract_skills(text: str) -> list[str]:
     terms = [*SKILL_KEYWORDS, *SKILL_ALIASES.keys()]
 
     for skill in terms:
+        # Special handling for single-character skills to avoid coincidental matches
+        if skill == "c":
+            # Match C/c but exclude common non-programming uses
+            c_matches = re.finditer(r"\b[Cc]\b", text)
+            has_valid_c = False
+            for m in c_matches:
+                start = max(0, m.start() - 15)
+                end = min(len(text), m.end() + 15)
+                context = text[start:end].lower()
+                if any(x in context for x in [
+                    "c-level", "c level", "c-suite", "c suite", 
+                    "vitamin c", "c/o", "c.v.", "c.o.", "grade c", 
+                    "tier c", "c-class", "c class"
+                ]):
+                    continue
+                has_valid_c = True
+                break
+            if has_valid_c:
+                found_skills.add(normalize_skill("c"))
+            continue
+
+        elif skill == "r":
+            # Match R/r but exclude common non-programming uses
+            r_matches = re.finditer(r"\b[Rr]\b", text)
+            has_valid_r = False
+            for m in r_matches:
+                start = max(0, m.start() - 15)
+                end = min(len(text), m.end() + 15)
+                context = text[start:end].lower()
+                if any(x in context for x in [
+                    "r&d", "r & d", "r-level", "r-value", "r-squared", 
+                    "r squared", "r-type", "r.d.", "register", "registered"
+                ]):
+                    continue
+                has_valid_r = True
+                break
+            if has_valid_r:
+                found_skills.add(normalize_skill("r"))
+            continue
+
         pattern = _term_pattern(skill)
         if re.search(pattern, cleaned_text):
             found_skills.add(normalize_skill(skill))
