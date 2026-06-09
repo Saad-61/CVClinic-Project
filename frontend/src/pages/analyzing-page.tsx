@@ -77,16 +77,11 @@ export default function AnalyzingPage() {
 
   return (
     <div className="mx-auto max-w-lg py-10">
-      {/* Premium glowing card wrapper */}
-      <div className="relative rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-8 shadow-2xl overflow-hidden">
-        {/* Decorative background glow behind the card content */}
-        <div className="absolute -top-12 -left-12 h-36 w-36 rounded-full bg-[#9e59d9]/10 blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 h-36 w-36 rounded-full bg-[#B6ABFF]/05 blur-2xl pointer-events-none" />
-
-        <div className="relative space-y-8">
+      {/* Simple card wrapper matching landing page theme */}
+      <div className="relative rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <div className="space-y-8">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="section-label">System Active</div>
               <h2 className="font-outfit text-2xl font-black text-white">Analyzing your CV</h2>
               <div className="text-xs text-slate-400 font-medium truncate max-w-[220px]">
                 File: {filename || file?.name}
@@ -124,11 +119,9 @@ export default function AnalyzingPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 px-4 text-center space-y-8">
-              {/* Spinner wrapper with pulse animation and gradient ring */}
-              <div className="relative flex items-center justify-center">
-                <div className="absolute h-20 w-20 rounded-full border border-[#9e59d9]/25 animate-ping duration-1000" />
-                <div className="absolute h-16 w-16 rounded-full bg-gradient-to-tr from-[#9e59d9]/20 to-[#B6ABFF]/10 blur" />
-                <Loader2 className="h-12 w-12 animate-spin text-[#af6eeb] relative z-10" />
+              {/* Simple loader spinner without ping or background blur/gradients */}
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-[#af6eeb]" />
               </div>
 
               {/* Progress tip card */}
