@@ -9,12 +9,39 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className={cn("container flex h-14 items-center justify-between")}>
           <div className="flex items-center gap-1.5">
             {/* Redesigned Premium Logo Image */}
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center">
-              <img src="/logo.png?v=2" alt="CVClinic Logo" className="h-full w-full object-contain" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center mr-1">
+              <svg
+                viewBox="0 0 100 100"
+                className="h-full w-full object-contain"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Document shape with folded top-right corner */}
+                <path
+                  d="M25 10H60L80 30V85C80 87.7614 77.7614 90 75 90H25C22.2386 90 20 87.7614 20 85V15C20 12.2386 22.2386 10 25 10Z"
+                  stroke="white"
+                  strokeWidth="5"
+                  strokeLinejoin="round"
+                />
+                {/* Folded corner */}
+                <path
+                  d="M60 10V30H80"
+                  stroke="white"
+                  strokeWidth="5"
+                  strokeLinejoin="round"
+                />
+                {/* Middle plus symbol in gold */}
+                <path
+                  d="M50 42V68M37 55H63"
+                  stroke="#d6a943"
+                  strokeWidth="9"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
             <div className="leading-tight">
               <div className="text-lg font-outfit font-extrabold tracking-tight">
-                <span className="text-[#af6eeb]">CV</span>
+                <span className="text-primary">CV</span>
                 <span className="text-white">Clinic</span>
               </div>
               <div className="text-xs text-slate-500">AI Resume Diagnostics</div>

@@ -11,7 +11,7 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
       case "HIGH":
         return { label: "Advanced", variant: "red" as const };
       case "MEDIUM":
-        return { label: "Intermediate", variant: "indigo" as const };
+        return { label: "Intermediate", variant: "amber" as const };
       default:
         return { label: "Beginner", variant: "slate" as const };
     }
@@ -22,7 +22,7 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
   return (
     <div className="rounded-xl border-l-4 border-l-primary border border-border bg-card p-5 shadow-sm space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Badge variant="indigo" className="font-semibold">
+        <Badge variant="amber" className="font-semibold">
           {skill.skill}
         </Badge>
         <Badge variant={difficulty.variant} className="text-[10px] font-medium">

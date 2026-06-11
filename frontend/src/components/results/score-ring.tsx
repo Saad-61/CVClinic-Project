@@ -8,17 +8,15 @@ interface ScoreRingProps {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 75) return "hsl(142 71% 45%)"; // green — Strong/Excellent
-  if (score >= 55) return "hsl(38 92% 50%)";  // amber — Good
-  if (score >= 35) return "hsl(25 95% 53%)";  // orange — Fair
+  if (score >= 80) return "hsl(142 71% 45%)"; // green — Strong/Excellent
+  if (score >= 60) return "hsl(38 92% 50%)";  // amber — Good
   return "hsl(0 72% 51%)";                     // red — Needs work
 }
 
 function getScoreLabel(score: number): string {
   if (score >= 90) return "Excellent";
-  if (score >= 75) return "Strong";
-  if (score >= 55) return "Good";
-  if (score >= 35) return "Fair";
+  if (score >= 80) return "Strong";
+  if (score >= 60) return "Good";
   return "Needs work";
 }
 

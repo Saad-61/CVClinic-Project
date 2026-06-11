@@ -2,8 +2,8 @@ import { cn, clampScore, formatScore } from "../lib/utils";
 
 function scoreTone(score: number) {
   const s = clampScore(score);
-  if (s > 50) return "green";
-  if (s >= 40) return "amber";
+  if (s >= 80) return "green";
+  if (s >= 60) return "amber";
   return "rose";
 }
 

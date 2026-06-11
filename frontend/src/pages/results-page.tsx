@@ -802,7 +802,7 @@ export default function ResultsPage() {
                           <div className="text-sm font-semibold text-slate-900">
                             {fix.section}
                           </div>
-                          <Badge variant="indigo" className="shrink-0">
+                          <Badge variant="amber" className="shrink-0">
                             Fix
                           </Badge>
                         </div>

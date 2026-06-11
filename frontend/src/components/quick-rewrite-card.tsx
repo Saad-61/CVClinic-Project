@@ -126,7 +126,7 @@ export function QuickRewriteCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-sm font-semibold text-white">{candidate.section}</div>
-              <Badge variant={candidate.source === "cv_fix" ? "indigo" : "slate"}>
+              <Badge variant={candidate.source === "cv_fix" ? "amber" : "slate"}>
                 {candidate.source === "cv_fix" ? "From CV fix" : "Promoted from action"}
               </Badge>
             </div>

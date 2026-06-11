@@ -21,9 +21,9 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
   const [coverError, setCoverError] = useState<string | null>(null);
 
   const barColor =
-    pct > 50 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-rose-500";
+    pct >= 80 ? "bg-emerald-500" : pct >= 60 ? "bg-amber-500" : "bg-rose-500";
   const textColor =
-    pct > 50 ? "text-emerald-400" : pct >= 40 ? "text-amber-400" : "text-rose-400";
+    pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-amber-400" : "text-rose-400";
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -70,7 +70,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-[#B6ABFF]/10 px-2 py-0.5 text-xs font-medium text-[#B6ABFF] border border-[#B6ABFF]/20"
+              className="rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20"
             >
               {s}
             </span>

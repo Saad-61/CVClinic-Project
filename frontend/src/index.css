@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -23,6 +23,9 @@
   --primary: 276 60% 62%;
   --primary-foreground: 0 0% 100%; /* White text on purple buttons for accessibility */
 
+  --popover: 200 7% 10%; /* Matches --card */
+  --popover-foreground: 0 0% 100%;
+
   --secondary: 240 5% 16%;
   --secondary-foreground: 0 0% 100%;
 
@@ -33,10 +36,53 @@
   --destructive-foreground: 0 0% 100%;
 }
 
+.theme-premium-landing {
+  --foreground: 48 9% 90%; /* #EAE8E3 */
+  --primary: 45 60% 55%; /* Rich Gold #d6a943 */
+  --primary-foreground: 200 7% 8%; /* Dark charcoal text for gold buttons */
+  --ring: 45 60% 55%;
+  --accent: 45 35% 70%; /* Soft Champagne */
+  --accent-foreground: 200 7% 8%;
+  --popover: 200 7% 10%;
+  --popover-foreground: 48 9% 90%;
+}
+
+/* Scoped typography overrides for luxury feel on landing page */
+.theme-premium-landing h1,
+.theme-premium-landing h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Scoped Slate overrides to ensure #EAE8E3 color scale applies on landing page */
+.theme-premium-landing .text-slate-900 {
+  color: #EAE8E3 !important;
+}
+.theme-premium-landing .text-slate-800 {
+  color: #EAE8E3 !important;
+}
+.theme-premium-landing .text-slate-700 {
+  color: #D2D0C8 !important;
+}
+.theme-premium-landing .text-slate-600 {
+  color: #D2D0C8 !important;
+}
+.theme-premium-landing .text-slate-500 {
+  color: #B4B2AA !important;
+}
+.theme-premium-landing .text-slate-400 {
+  color: #8C8A82 !important;
+}
+
+/* Secondary adjustments for container styling in landing page */
+.theme-premium-landing .border-slate-200 {
+  border-color: rgba(214, 169, 67, 0.15) !important; /* Muted gold border tint */
+}
+
 html, body {
   height: 100%;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  scroll-behavior: smooth;
 }
 
 body {
@@ -88,18 +134,18 @@ body {
    LANDING PAGE UTILITIES
    ═══════════════════════════════════════════════ */
 
-/* Section label — small uppercase lavender pill */
+/* Section label — small uppercase zinc pill */
 .section-label {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.725rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: hsl(var(--ring));
-  background: hsl(var(--ring) / 0.1);
-  border: 1px solid hsl(var(--ring) / 0.2);
+  color: #a1a1aa;
+  background: rgba(161, 161, 170, 0.08);
+  border: 1px solid rgba(161, 161, 170, 0.2);
   border-radius: 9999px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.3rem 0.8rem;
   margin-bottom: 0.5rem;
 }
 
@@ -310,6 +356,45 @@ select:focus, input:focus, textarea:focus {
 }
 .bg-amber-50 {
   background-color: rgb(120 53 4 / 0.2) !important;
+}
+
+/* ── Accordion Animation Keyframes and helper classes ── */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+.data-\[state\=open\]\:animate-accordion-down[data-state=open] {
+  animation: accordion-down 0.2s ease-out;
+}
+.data-\[state\=closed\]\:animate-accordion-up[data-state=closed] {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* ── Sleek Dark Scrollbar Styles ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background)) !important;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border)) !important;
+  border-radius: 4px;
+  border: 2px solid hsl(var(--background)) !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7) !important;
+}
+
+/* Firefox scrollbars */
+* {
+  scrollbar-color: hsl(var(--border)) hsl(var(--background));
+  scrollbar-width: thin;
 }
 
 

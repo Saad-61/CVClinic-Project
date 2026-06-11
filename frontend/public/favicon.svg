@@ -1,0 +1,23 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document shape with folded top-right corner in White -->
+  <path
+    d="M25 10H60L80 30V85C80 87.7614 77.7614 90 75 90H25C22.2386 90 20 87.7614 20 85V15C20 12.2386 22.2386 10 25 10Z"
+    stroke="white"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+  <!-- Folded corner -->
+  <path
+    d="M60 10V30H80"
+    stroke="white"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+  <!-- Middle plus symbol in gold -->
+  <path
+    d="M50 42V68M37 55H63"
+    stroke="#d6a943"
+    stroke-width="10"
+    stroke-linecap="round"
+  />
+</svg>
