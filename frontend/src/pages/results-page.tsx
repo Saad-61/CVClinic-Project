@@ -324,6 +324,8 @@ export default function ResultsPage() {
                             jdJobTitle
                           ) : (
                             <DecryptedText
+                              speed={15}
+                              maxIterations={3}
                               text={effective.report.target_role || analysis.inferred_role || "Software Engineer"}
                             />
                           )}
@@ -371,7 +373,7 @@ export default function ResultsPage() {
                   </div>
                 </div>
               </div>
-              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
+              <Card>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -404,9 +406,9 @@ export default function ResultsPage() {
                     <div className="text-sm text-zinc-400">No matches returned.</div>
                   )}
                 </CardContent>
-              </SpotlightCard>
+              </Card>
 
-              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
+              <Card>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -441,9 +443,9 @@ export default function ResultsPage() {
                     <div className="text-sm text-zinc-400">No actions returned.</div>
                   )}
                 </CardContent>
-              </SpotlightCard>
+              </Card>
 
-              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
+              <Card>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -505,7 +507,7 @@ export default function ResultsPage() {
                     </div>
                   )}
                 </CardContent>
-              </SpotlightCard>
+              </Card>
             </div>
           </TabFade>
         </TabsContent>
