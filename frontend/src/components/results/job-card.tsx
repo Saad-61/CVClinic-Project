@@ -4,6 +4,8 @@ import { generateCoverLetter } from "../../api/cv";
 import { CopyButton } from "../copy-button";
 import { Button } from "../ui/button";
 import type { MatchedJob } from "../../types/cv";
+import SpotlightCard from "../animations/SpotlightCard";
+import { Sheet } from "../ui/sheet";
 
 interface JobCardProps {
   job: MatchedJob;
@@ -19,6 +21,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
   const [coverNote, setCoverNote] = useState("");
   const [coverLoading, setCoverLoading] = useState(false);
   const [coverError, setCoverError] = useState<string | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const barColor =
     pct >= 80 ? "bg-emerald-500" : pct >= 60 ? "bg-amber-500" : "bg-rose-500";
@@ -26,7 +29,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
     pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-amber-400" : "text-rose-400";
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+    <SpotlightCard className="rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="font-semibold text-white leading-snug">{job.title}</div>
@@ -95,10 +98,13 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               type="button"
               size="sm"
               variant="outline"
-              disabled={coverLoading || !!coverLetter}
+              disabled={coverLoading}
               className="border-zinc-800 text-primary hover:bg-primary/10 hover:text-white hover:border-primary"
               onClick={async () => {
-                if (coverLetter) return;
+                if (coverLetter) {
+                  setIsSheetOpen(true);
+                  return;
+                }
                 setCoverError(null);
                 setCoverLoading(true);
                 try {
@@ -118,6 +124,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
                   });
                   setCoverLetter(response.cover_letter);
                   setCoverNote(response.notes || "");
+                  setIsSheetOpen(true);
                 } catch (error) {
                   setCoverError(
                     (error as Error).message || "Could not draft cover letter."
@@ -134,7 +141,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               ) : (
                 <Mail className="h-3.5 w-3.5" />
               )}
-              {coverLetter ? "Letter drafted" : "Draft cover letter"}
+              {coverLetter ? "View cover letter" : "Draft cover letter"}
             </Button>
           ) : null}
         </div>
@@ -147,24 +154,27 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       ) : null}
 
       {!compact && coverLetter ? (
-        <div className="mt-3 rounded-xl border border-border bg-zinc-950/40 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-primary" />
-              <div className="text-sm font-semibold text-zinc-100">Cover Letter Draft</div>
+        <Sheet
+          isOpen={isSheetOpen}
+          onClose={() => setIsSheetOpen(false)}
+          title="Cover Letter Draft"
+        >
+          <div className="space-y-5 pt-2">
+            <div className="flex items-center justify-between gap-3 bg-zinc-900 border border-border/80 rounded-xl p-3.5">
+              <div className="text-sm font-semibold text-zinc-300">Target Role: {job.title}</div>
+              <CopyButton value={coverLetter} label="Copy Letter" />
             </div>
-            <CopyButton value={coverLetter} label="Copy" />
+            <pre className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-100 font-sans bg-zinc-950/40 border border-border p-4 rounded-xl">
+              {coverLetter}
+            </pre>
+            {coverNote ? (
+              <div className="text-xs text-slate-600 bg-zinc-900 border border-border/60 rounded-xl p-3">
+                <span className="font-semibold text-zinc-400">Editor's Note:</span> {coverNote}
+              </div>
+            ) : null}
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-white">
-            {coverLetter}
-          </p>
-          {coverNote ? (
-            <p className="mt-2 text-xs text-slate-600">
-              <span className="font-semibold">Note:</span> {coverNote}
-            </p>
-          ) : null}
-        </div>
+        </Sheet>
       ) : null}
-    </div>
+    </SpotlightCard>
   );
 }

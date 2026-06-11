@@ -1,4 +1,6 @@
 import type { MissingSkill, MatchedJob } from "../../types/cv";
+import SpotlightCard from "../animations/SpotlightCard";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface SkillCardProps {
   skill: MissingSkill;
@@ -43,7 +45,7 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
   const demandPercent = Math.max(rawPercent, minPercent);
 
   return (
-    <div
+    <SpotlightCard
       className={`rounded-xl border bg-card p-4 shadow-sm ${borderColor} border-border`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -76,7 +78,16 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
       <div className="mt-4 space-y-3">
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-zinc-400 font-medium">Market Demand</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-zinc-400 font-medium cursor-help select-none hover:text-zinc-300 transition-colors">
+                  Market Demand
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-950 border border-zinc-800 text-zinc-200 max-w-[200px] shadow-xl p-2 text-xs">
+                Percentage of matched job listings that require this skill.
+              </TooltipContent>
+            </Tooltip>
             <span className={`font-semibold ${labelColorClass}`}>{demandPercent}% of matched roles</span>
           </div>
           <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/30">
@@ -99,6 +110,6 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
           </div>
         )}
       </div>
-    </div>
+    </SpotlightCard>
   );
 }

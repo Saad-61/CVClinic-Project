@@ -42,6 +42,23 @@ import { loadStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
 import type { AnalyzeResponse, MatchedJob, StoredReport } from "../types/cv";
 
+// New components and animations imports
+import CountUp from "../components/animations/CountUp";
+import DecryptedText from "../components/animations/DecryptedText";
+import SpotlightCard from "../components/animations/SpotlightCard";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/ui/accordion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
+
 // ── Tab fade wrapper ──────────────────────────────────────────────────────────
 function TabFade({ children }: { children: React.ReactNode }) {
   return (
@@ -61,15 +78,28 @@ function StatTile({
   value,
   sub,
   accent,
+  tooltipText,
+  isCountUp = false,
+  countUpSuffix = "",
 }: {
   label: string;
   value: string | number;
   sub?: string;
   accent?: string;
+  tooltipText?: string;
+  isCountUp?: boolean;
+  countUpSuffix?: string;
 }) {
-  return (
-    <div className="flex flex-col gap-0.5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
-      <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+  const displayValue =
+    isCountUp && typeof value === "number" ? (
+      <CountUp end={value} suffix={countUpSuffix} />
+    ) : (
+      value
+    );
+
+  const tileContent = (
+    <div className="flex flex-col gap-0.5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm select-none cursor-help transition-all hover:border-zinc-700/80">
+      <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
         {label}
       </div>
       <div
@@ -77,12 +107,25 @@ function StatTile({
           accent ?? "text-white"
         }`}
       >
-        {value}
+        {displayValue}
       </div>
       {sub && (
-        <div className="text-[11px] text-slate-600 leading-tight truncate">{sub}</div>
+        <div className="text-[11px] text-zinc-400 leading-tight truncate">{sub}</div>
       )}
     </div>
+  );
+
+  if (!tooltipText) return tileContent;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {tileContent}
+      </TooltipTrigger>
+      <TooltipContent className="bg-zinc-950 border border-zinc-800 text-zinc-200 max-w-[220px] shadow-xl p-2 text-xs">
+        {tooltipText}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -171,7 +214,8 @@ export default function ResultsPage() {
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
+    <TooltipProvider delayDuration={200}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
       {/* Centered navigation tabs right below header */}
       <div className="flex justify-center w-full">
         <TabsList className="grid bg-muted p-1.5 rounded-xl max-w-2xl w-full border border-border/50 shadow-sm gap-1"
@@ -276,9 +320,13 @@ export default function ResultsPage() {
                             : effective.report.target_role ? "Selected Target Role" : "Inferred CV Profile"}
                         </div>
                         <div className="text-base font-bold text-primary leading-tight max-w-[200px]">
-                          {isJdMode
-                            ? jdJobTitle
-                            : effective.report.target_role || analysis.inferred_role || "Software Engineer"}
+                          {isJdMode ? (
+                            jdJobTitle
+                          ) : (
+                            <DecryptedText
+                              text={effective.report.target_role || analysis.inferred_role || "Software Engineer"}
+                            />
+                          )}
                         </div>
                         <div className="text-[11px] text-zinc-400 font-medium">
                           {isJdMode
@@ -296,27 +344,34 @@ export default function ResultsPage() {
                       value={isJdMode ? jdJobTitle : jobsSorted.length}
                       sub={isJdMode ? "Custom job description" : `${evaluatedCount} total evaluated`}
                       accent="text-accent"
+                      tooltipText={isJdMode ? "The custom job description you uploaded to evaluate against your CV." : "Total Pakistan-targeted and remote jobs matched to your CV profile."}
+                      isCountUp={!isJdMode}
                     />
                     <StatTile
                       label="Best match"
-                      value={bestMatchScore}
-                      sub={jobsSorted[0]?.title ?? ""}
+                      value={jobsSorted.length > 0 && jobsSorted[0]?.score ? Math.round(jobsSorted[0].score) : 0}
+                      sub={jobsSorted[0]?.title ?? "No matches"}
                       accent={
-                        jobsSorted[0]?.score && jobsSorted[0].score > 50
+                        jobsSorted.length > 0 && jobsSorted[0]?.score && jobsSorted[0].score > 50
                           ? "text-emerald-400"
                           : "text-amber-400"
                       }
+                      tooltipText="The highest compatibility match percentage among matched jobs."
+                      isCountUp={jobsSorted.length > 0}
+                      countUpSuffix="%"
                     />
                     <StatTile
                       label="Skills gap"
                       value={missingSkills.length}
                       sub={`Top: ${highPrioritySkill}`}
                       accent={missingSkills.length > 0 ? "text-rose-400" : "text-emerald-400"}
+                      tooltipText="Number of key skills identified in job descriptions that are missing from your resume."
+                      isCountUp={true}
                     />
                   </div>
                 </div>
               </div>
-              <Card>
+              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -349,9 +404,9 @@ export default function ResultsPage() {
                     <div className="text-sm text-zinc-400">No matches returned.</div>
                   )}
                 </CardContent>
-              </Card>
+              </SpotlightCard>
 
-              <Card>
+              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -386,9 +441,9 @@ export default function ResultsPage() {
                     <div className="text-sm text-zinc-400">No actions returned.</div>
                   )}
                 </CardContent>
-              </Card>
+              </SpotlightCard>
 
-              <Card>
+              <SpotlightCard className="border-border bg-card p-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -450,7 +505,7 @@ export default function ResultsPage() {
                     </div>
                   )}
                 </CardContent>
-              </Card>
+              </SpotlightCard>
             </div>
           </TabFade>
         </TabsContent>
@@ -771,16 +826,29 @@ export default function ResultsPage() {
                         generate rewrites.
                       </div>
                     ) : (
-                      quickRewriteCandidates.map((candidate, index) => (
-                        <QuickRewriteCard
-                          key={`${candidate.section}-${candidate.source}-${index}`}
-                          candidate={candidate}
-                          cvText={cvText}
-                        />
-                      ))
+                      <Accordion type="single" collapsible className="w-full space-y-2">
+                        {quickRewriteCandidates.map((candidate, index) => {
+                          const value = `rewrite-${index}`;
+                          return (
+                            <AccordionItem key={value} value={value} className="border border-border rounded-xl px-4 bg-zinc-950/20">
+                              <AccordionTrigger className="hover:no-underline py-3">
+                                <span className="text-sm font-semibold text-white">
+                                  {candidate.section} Rewrite Candidate
+                                </span>
+                              </AccordionTrigger>
+                              <AccordionContent className="pb-4 pt-1">
+                                <QuickRewriteCard
+                                  candidate={candidate}
+                                  cvText={cvText}
+                                />
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                      </Accordion>
                     )
                   ) : (
-                    <div className="text-sm text-slate-500">
+                    <div className="text-sm text-zinc-400">
                       No rewrite candidates found.
                     </div>
                   )}
@@ -794,36 +862,42 @@ export default function ResultsPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {cvFixes.length ? (
-                    cvFixes.map((fix, idx) => (
-                      <div
-                        key={`fix-${idx}`}
-                        className="rounded-xl border border-border bg-card p-4 shadow-sm"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold text-slate-900">
-                            {fix.section}
-                          </div>
-                          <Badge variant="amber" className="shrink-0">
-                            Fix
-                          </Badge>
-                        </div>
-                        <p className="mt-1.5 text-sm text-slate-600">{fix.fix}</p>
-                        {fix.why && (
-                          <p className="mt-1 text-xs text-slate-500">
-                            <span className="font-semibold text-slate-700">Why:</span>{" "}
-                            {fix.why}
-                          </p>
-                        )}
-                        {fix.how && (
-                          <p className="mt-0.5 text-xs text-slate-500">
-                            <span className="font-semibold text-slate-700">How:</span>{" "}
-                            {fix.how}
-                          </p>
-                        )}
-                      </div>
-                    ))
+                    <Accordion type="single" collapsible className="w-full space-y-2">
+                      {cvFixes.map((fix, idx) => {
+                        const value = `fix-${idx}`;
+                        return (
+                          <AccordionItem key={value} value={value} className="border border-border rounded-xl px-4 bg-zinc-950/20">
+                            <AccordionTrigger className="hover:no-underline py-3">
+                              <div className="flex items-center justify-between w-full pr-4 text-left">
+                                <span className="text-sm font-semibold text-white">
+                                  {fix.section}
+                                </span>
+                                <Badge variant="amber" className="shrink-0 ml-2">
+                                  Fix Needed
+                                </Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-4 pt-1 space-y-2 text-zinc-300">
+                              <p className="text-sm leading-relaxed text-zinc-100 font-medium">{fix.fix}</p>
+                              {fix.why && (
+                                <p className="text-xs text-zinc-400">
+                                  <span className="font-semibold text-primary">Why:</span>{" "}
+                                  {fix.why}
+                                </p>
+                              )}
+                              {fix.how && (
+                                <p className="text-xs text-zinc-400">
+                                  <span className="font-semibold text-primary">How:</span>{" "}
+                                  {fix.how}
+                                </p>
+                              )}
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
                   ) : (
-                    <div className="text-sm text-slate-500">No CV fixes returned.</div>
+                    <div className="text-sm text-zinc-400">No CV fixes returned.</div>
                   )}
                 </CardContent>
               </Card>
@@ -853,5 +927,6 @@ export default function ResultsPage() {
         )}
       </div>
     </Tabs>
+    </TooltipProvider>
   );
 }
