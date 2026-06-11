@@ -85,7 +85,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               href={job.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-1.5 rounded-full border border-transparent bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-[#904cc9] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full border border-transparent bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               Apply <ExternalLink className="h-3 w-3" />
             </a>
@@ -96,7 +96,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               size="sm"
               variant="outline"
               disabled={coverLoading || !!coverLetter}
-              className="border-zinc-800 text-[#af6eeb] hover:bg-[#9e59d9]/10 hover:text-white hover:border-[#9e59d9]"
+              className="border-zinc-800 text-primary hover:bg-primary/10 hover:text-white hover:border-primary"
               onClick={async () => {
                 if (coverLetter) return;
                 setCoverError(null);
@@ -147,10 +147,10 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       ) : null}
 
       {!compact && coverLetter ? (
-        <div className="mt-3 rounded-xl border border-[#9e59d9]/30 bg-gradient-to-br from-[#9e59d9]/10 to-[#B6ABFF]/5 p-4">
+        <div className="mt-3 rounded-xl border border-border bg-zinc-950/40 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-[#B6ABFF]" />
+              <Mail className="h-4 w-4 text-primary" />
               <div className="text-sm font-semibold text-zinc-100">Cover Letter Draft</div>
             </div>
             <CopyButton value={coverLetter} label="Copy" />

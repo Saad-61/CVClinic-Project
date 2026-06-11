@@ -177,11 +177,11 @@ export default function ResultsPage() {
         <TabsList className="grid bg-muted p-1.5 rounded-xl max-w-2xl w-full border border-border/50 shadow-sm gap-1"
           style={{ gridTemplateColumns: isJdMode ? "repeat(4, minmax(0, 1fr))" : "repeat(5, minmax(0, 1fr))" }}
         >
-          <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-[#af6eeb] data-[state=active]:shadow-sm">
+          <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
             <LayoutGrid className="h-3.5 w-3.5" /> Overview
           </TabsTrigger>
           {!isJdMode && (
-            <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-[#af6eeb] data-[state=active]:shadow-sm">
+            <TabsTrigger value="jobs" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
               <Briefcase className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Jobs</span>
               <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-300 border border-zinc-700/50">
@@ -189,21 +189,21 @@ export default function ResultsPage() {
               </span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="actions" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-[#af6eeb] data-[state=active]:shadow-sm">
+          <TabsTrigger value="actions" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
             <ListTodo className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Actions</span>
             <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-300 border border-zinc-700/50">
               {topActions.length}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="skills" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-[#af6eeb] data-[state=active]:shadow-sm">
+          <TabsTrigger value="skills" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
             <GraduationCap className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Skills</span>
             <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-300 border border-zinc-700/50">
               {missingSkills.length}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="cv-fixes" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-[#af6eeb] data-[state=active]:shadow-sm">
+          <TabsTrigger value="cv-fixes" className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
             <Wrench className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Fixes</span>
             <span className="rounded-full bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-300 border border-zinc-700/20">
@@ -275,7 +275,7 @@ export default function ResultsPage() {
                             ? "Analyzing for"
                             : effective.report.target_role ? "Selected Target Role" : "Inferred CV Profile"}
                         </div>
-                        <div className="text-base font-bold text-[#af6eeb] leading-tight max-w-[200px]">
+                        <div className="text-base font-bold text-primary leading-tight max-w-[200px]">
                           {isJdMode
                             ? jdJobTitle
                             : effective.report.target_role || analysis.inferred_role || "Software Engineer"}
@@ -295,6 +295,7 @@ export default function ResultsPage() {
                       label={isJdMode ? "Role analyzed" : "Jobs matched"}
                       value={isJdMode ? jdJobTitle : jobsSorted.length}
                       sub={isJdMode ? "Custom job description" : `${evaluatedCount} total evaluated`}
+                      accent="text-accent"
                     />
                     <StatTile
                       label="Best match"
@@ -320,7 +321,7 @@ export default function ResultsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-[#af6eeb]" />
+                        <Briefcase className="h-4 w-4 text-primary" />
                         Best Fit Roles
                       </CardTitle>
                       <CardDescription>Your top matches by score.</CardDescription>
@@ -331,7 +332,7 @@ export default function ResultsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setActiveTab("jobs")}
-                      className="text-[#af6eeb] hover:text-[#B6ABFF] text-xs"
+                      className="text-primary hover:text-accent hover:bg-transparent text-xs p-0 h-auto font-semibold"
                     >
                       See all {jobsSorted.length} jobs{" "}
                       <ChevronRight className="h-3.5 w-3.5" />
@@ -355,7 +356,7 @@ export default function ResultsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <ListTodo className="h-4 w-4 text-[#af6eeb]" />
+                        <ListTodo className="h-4 w-4 text-primary" />
                         Your Next 3 Actions
                       </CardTitle>
                       <CardDescription>
@@ -370,7 +371,7 @@ export default function ResultsPage() {
                         setActiveTab("actions");
                         window.scrollTo({ top: 0, behavior: "instant" });
                       }}
-                      className="text-[#af6eeb] hover:text-[#B6ABFF] text-xs"
+                      className="text-primary hover:text-accent hover:bg-transparent text-xs p-0 h-auto font-semibold"
                     >
                       Full plan <ChevronRight className="h-3.5 w-3.5" />
                     </Button>
@@ -407,7 +408,7 @@ export default function ResultsPage() {
                         setActiveTab("skills");
                         window.scrollTo({ top: 0, behavior: "instant" });
                       }}
-                      className="text-[#af6eeb] hover:text-[#B6ABFF] text-xs"
+                      className="text-primary hover:text-accent hover:bg-transparent text-xs p-0 h-auto font-semibold"
                     >
                       Full analysis <ChevronRight className="h-3.5 w-3.5" />
                     </Button>
@@ -499,14 +500,14 @@ export default function ResultsPage() {
                       </div>
                     </div>
                   ) : effective.report.jooble_configured === true ? (
-                    <div className="rounded-xl border border-emerald-900/30 bg-emerald-950/20 p-3 text-sm">
+                    <div className="rounded-xl border border-border bg-card p-3 text-sm">
                       <div className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" />
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
                         <div>
-                          <div className="font-semibold text-emerald-200">
+                          <div className="font-semibold text-white">
                             Searching all connected platforms
                           </div>
-                          <p className="text-emerald-300 mt-0.5">
+                          <p className="text-zinc-400 mt-0.5">
                             Sourcing and ranking jobs from: {jobSources.length ? jobSources.join(", ") : "Jooble, Remotive, Jobicy, Arbeitnow, Adzuna"}.
                           </p>
                         </div>
@@ -515,13 +516,13 @@ export default function ResultsPage() {
                   ) : null}
 
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-emerald-950/30 border border-emerald-900/50 px-2.5 py-1 font-semibold text-emerald-300">
+                    <span className="rounded-full bg-zinc-950 border border-emerald-500/20 px-2.5 py-1 font-semibold text-emerald-400">
                       Above 50% = strong
                     </span>
-                    <span className="rounded-full bg-amber-950/30 border border-amber-900/50 px-2.5 py-1 font-semibold text-amber-300">
+                    <span className="rounded-full bg-zinc-950 border border-amber-500/20 px-2.5 py-1 font-semibold text-amber-400">
                       40–50% = workable
                     </span>
-                    <span className="rounded-full bg-rose-950/30 border border-rose-900/50 px-2.5 py-1 font-semibold text-rose-300">
+                    <span className="rounded-full bg-zinc-950 border border-rose-500/20 px-2.5 py-1 font-semibold text-rose-400">
                       Below 40% = weak
                     </span>
                   </div>
@@ -579,7 +580,7 @@ export default function ResultsPage() {
                   onClick={() => setActionsSubTab("actions")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "actions"
-                      ? "bg-card text-[#af6eeb] shadow-sm"
+                      ? "bg-card text-primary shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-card/40"
                   }`}
                 >
@@ -590,7 +591,7 @@ export default function ResultsPage() {
                   onClick={() => setActionsSubTab("upgrades")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "upgrades"
-                      ? "bg-card text-[#af6eeb] shadow-sm"
+                      ? "bg-card text-primary shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-card/40"
                   }`}
                 >
@@ -601,7 +602,7 @@ export default function ResultsPage() {
                   onClick={() => setActionsSubTab("new-projects")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     actionsSubTab === "new-projects"
-                      ? "bg-card text-[#af6eeb] shadow-sm"
+                      ? "bg-card text-primary shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-card/40"
                   }`}
                 >
@@ -634,7 +635,7 @@ export default function ResultsPage() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-start gap-2">
-                      <Wrench className="mt-0.5 h-4 w-4 text-[#af6eeb]" />
+                      <Wrench className="mt-0.5 h-4 w-4 text-primary" />
                       <div>
                         <CardTitle className="text-base sm:text-lg">Project Upgrades</CardTitle>
                         <CardDescription className="text-xs sm:text-sm">
@@ -661,7 +662,7 @@ export default function ResultsPage() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-start gap-2">
-                      <Lightbulb className="mt-0.5 h-4 w-4 text-[#af6eeb]" />
+                      <Lightbulb className="mt-0.5 h-4 w-4 text-primary" />
                       <div>
                         <CardTitle className="text-base sm:text-lg">New Project Ideas</CardTitle>
                         <CardDescription className="text-xs sm:text-sm">
@@ -702,7 +703,7 @@ export default function ResultsPage() {
                   onClick={() => setSkillsSubTab("detail")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     skillsSubTab === "detail"
-                      ? "bg-card text-[#af6eeb] shadow-sm"
+                      ? "bg-card text-primary shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-card/40"
                   }`}
                 >
@@ -713,7 +714,7 @@ export default function ResultsPage() {
                   onClick={() => setSkillsSubTab("roadmap")}
                   className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                     skillsSubTab === "roadmap"
-                      ? "bg-card text-[#af6eeb] shadow-sm"
+                      ? "bg-card text-primary shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-card/40"
                   }`}
                 >

@@ -41,7 +41,7 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
 
       {skill.implementation && (
         <div className="text-xs space-y-1">
-          <div className="font-bold text-[#af6eeb]">How to implement:</div>
+          <div className="font-bold text-primary">How to implement:</div>
           <p className="text-white leading-relaxed">{skill.implementation}</p>
         </div>
       )}

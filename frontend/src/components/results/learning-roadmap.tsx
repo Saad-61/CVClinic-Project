@@ -22,26 +22,26 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
   }[] = [
     {
       label: "Phase 1 — High Priority",
-      color: "text-rose-400",
+      color: "text-primary",
       bg: "bg-zinc-900/50",
       border: "border-border",
-      dot: "bg-rose-500",
+      dot: "bg-primary",
       items: high,
     },
     {
       label: "Phase 2 — Medium Priority",
-      color: "text-amber-400",
+      color: "text-primary",
       bg: "bg-zinc-900/50",
       border: "border-border",
-      dot: "bg-amber-500",
+      dot: "bg-primary",
       items: medium,
     },
     {
       label: "Phase 3 — Lower Priority",
-      color: "text-zinc-300",
+      color: "text-primary",
       bg: "bg-zinc-900/50",
       border: "border-border",
-      dot: "bg-zinc-500",
+      dot: "bg-primary",
       items: low,
     },
   ].filter((p) => p.items.length > 0);

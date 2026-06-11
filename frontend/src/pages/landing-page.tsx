@@ -22,6 +22,11 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
+import BlurText from "../components/animations/BlurText";
+import ShinyText from "../components/animations/ShinyText";
+import SpotlightCard from "../components/animations/SpotlightCard";
+
+
 
 const TARGET_ROLES = [
   "Software Engineer",
@@ -146,20 +151,24 @@ export default function LandingPage() {
         className="space-y-24 pb-24"
       >
 
+
         {/* ── HERO ── */}
         <motion.section variants={fadeUp} className="py-10 sm:py-14">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/50 px-3.5 py-1.5 text-xs font-semibold text-zinc-300">
-            CV Analysis · No account required
+            <ShinyText text="CV Analysis · No account required" speed={4.5} />
           </div>
 
           {/* Headline */}
-          <h1 className="font-outfit mb-5 text-5xl font-black leading-[1.05] tracking-tight text-slate-900 sm:text-6xl xl:text-[4rem]">
-            Your CV,<br />
-            finally matched<br />
-            to{" "}
-            <span className="text-primary">real jobs.</span>
+          <h1 className="font-outfit mb-5 text-5xl font-black leading-[1.05] tracking-tight text-slate-900 sm:text-6xl xl:text-[4rem] flex flex-col gap-1">
+            <BlurText text="Your CV," delay={0} />
+            <BlurText text="finally matched" delay={0.15} />
+            <span className="flex flex-wrap items-center gap-[0.25em]">
+              <BlurText text="to" delay={0.3} />
+              <BlurText text="real jobs." className="text-primary font-black" delay={0.35} />
+            </span>
           </h1>
+
 
           <p className="mb-10 max-w-[440px] text-lg leading-relaxed text-slate-600">
             Upload your CV and get a complete diagnostic — match scores, skill gaps, and a ranked action plan based on live job listings.
@@ -236,17 +245,22 @@ export default function LandingPage() {
               <motion.div
                 key={title}
                 variants={fadeUp}
-                className={`rounded-xl border border-slate-200 border-l-4 ${accentBorder} bg-white p-5 shadow-sm`}
               >
-                <div className="flex items-start gap-4">
-                  <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${iconColor}`} aria-hidden="true" />
-                  <div>
-                    <div className="font-semibold text-slate-900">{title}</div>
-                    <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
+                <SpotlightCard
+                  spotlightColor="rgba(214, 169, 67, 0.05)"
+                  className={`border-l-4 ${accentBorder}`}
+                >
+                  <div className="flex items-start gap-4">
+                    <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${iconColor}`} aria-hidden="true" />
+                    <div>
+                      <div className="font-semibold text-slate-900">{title}</div>
+                      <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
+                    </div>
                   </div>
-                </div>
+                </SpotlightCard>
               </motion.div>
             ))}
+
           </motion.div>
         </motion.section>
 
@@ -273,95 +287,104 @@ export default function LandingPage() {
             {/* Job Match Score — large */}
             <motion.div
               variants={fadeUp}
-              className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="col-span-2"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="rounded-lg bg-primary/15 p-2">
-                    <Gauge className="h-4 w-4 text-primary" aria-hidden="true" />
-                  </div>
-                  <div className="font-semibold text-slate-900">Job Match Score</div>
-                </div>
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-400">
-                  Example output
-                </span>
-              </div>
-              <p className="mb-4 text-sm text-slate-500">
-                Exact semantic overlap between your CV and real open roles — not a keyword count.
-              </p>
-              <div className="space-y-3">
-                {[
-                  { role: "React Developer", score: 81, colorBar: "bg-emerald-500", colorText: "text-emerald-700" },
-                  { role: "Frontend Developer", score: 74, colorBar: "bg-amber-500", colorText: "text-amber-700" },
-                  { role: "Full Stack Engineer", score: 58, colorBar: "bg-rose-500", colorText: "text-rose-500" },
-                ].map(({ role, score, colorBar, colorText }) => (
-                  <div key={role} className="flex items-center gap-3 text-sm">
-                    <div className="w-36 shrink-0 text-slate-600">{role}</div>
-                    <div className="flex-1 rounded-full bg-slate-100 h-2 overflow-hidden">
-                      <motion.div
-                        className={`h-2 rounded-full ${colorBar}`}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${score}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-                      />
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="rounded-lg bg-primary/15 p-2">
+                      <Gauge className="h-4 w-4 text-primary" aria-hidden="true" />
                     </div>
-                    <div className={`w-9 text-right text-sm font-bold ${colorText}`}>{score}%</div>
+                    <div className="font-semibold text-slate-900">Job Match Score</div>
                   </div>
-                ))}
-              </div>
+                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+                    Example output
+                  </span>
+                </div>
+                <p className="mb-4 text-sm text-slate-500">
+                  Exact semantic overlap between your CV and real open roles — not a keyword count.
+                </p>
+                <div className="space-y-3">
+                  {[
+                    { role: "React Developer", score: 81, colorBar: "bg-emerald-500", colorText: "text-emerald-700" },
+                    { role: "Frontend Developer", score: 74, colorBar: "bg-amber-500", colorText: "text-amber-700" },
+                    { role: "Full Stack Engineer", score: 58, colorBar: "bg-rose-500", colorText: "text-rose-500" },
+                  ].map(({ role, score, colorBar, colorText }) => (
+                    <div key={role} className="flex items-center gap-3 text-sm">
+                      <div className="w-36 shrink-0 text-slate-600">{role}</div>
+                      <div className="flex-1 rounded-full bg-slate-100 h-2 overflow-hidden">
+                        <motion.div
+                          className={`h-2 rounded-full ${colorBar}`}
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${score}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                        />
+                      </div>
+                      <div className={`w-9 text-right text-sm font-bold ${colorText}`}>{score}%</div>
+                    </div>
+                  ))}
+                </div>
+              </SpotlightCard>
             </motion.div>
 
             {/* Skill Gaps */}
-            <motion.div variants={fadeUp} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="rounded-lg bg-amber-50 p-2 w-fit mb-3">
-                <Search className="h-4 w-4 text-amber-600" aria-hidden="true" />
-              </div>
-              <div className="font-semibold text-slate-900 mb-1">Skill Gaps</div>
-              <div className="text-xs leading-relaxed text-slate-500">
-                Missing skills turned into concrete projects you can show employers.
-              </div>
+            <motion.div variants={fadeUp}>
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
+                <div className="rounded-lg bg-amber-50 p-2 w-fit mb-3">
+                  <Search className="h-4 w-4 text-amber-600" aria-hidden="true" />
+                </div>
+                <div className="font-semibold text-slate-900 mb-1">Skill Gaps</div>
+                <div className="text-xs leading-relaxed text-slate-500">
+                  Missing skills turned into concrete projects you can show employers.
+                </div>
+              </SpotlightCard>
             </motion.div>
 
             {/* CV Fixes */}
-            <motion.div variants={fadeUp} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="rounded-lg bg-primary/15 p-2 w-fit mb-3">
-                <FileText className="h-4 w-4 text-primary" aria-hidden="true" />
-              </div>
-              <div className="font-semibold text-slate-900 mb-1">CV Fixes</div>
-              <div className="text-xs leading-relaxed text-slate-500">
-                Specific rewrites for underselling sections — actual edits, not vague advice.
-              </div>
+            <motion.div variants={fadeUp}>
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
+                <div className="rounded-lg bg-primary/15 p-2 w-fit mb-3">
+                  <FileText className="h-4 w-4 text-primary" aria-hidden="true" />
+                </div>
+                <div className="font-semibold text-slate-900 mb-1">CV Fixes</div>
+                <div className="text-xs leading-relaxed text-slate-500">
+                  Specific rewrites for underselling sections — actual edits, not vague advice.
+                </div>
+              </SpotlightCard>
             </motion.div>
 
             {/* Priority Action Plan */}
-            <motion.div variants={fadeUp} className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="rounded-lg bg-primary/15 p-2 w-fit">
-                  <TrendingUp className="h-4 w-4 text-primary" aria-hidden="true" />
+            <motion.div variants={fadeUp} className="col-span-2">
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="rounded-lg bg-primary/15 p-2 w-fit">
+                    <TrendingUp className="h-4 w-4 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="font-semibold text-slate-900">Priority Action Plan</div>
                 </div>
-                <div className="font-semibold text-slate-900">Priority Action Plan</div>
-              </div>
-              <p className="text-sm text-slate-500 mb-3">
-                Ranked next steps ordered by market impact — know what to fix first, not a wall of bullet points.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "Add TypeScript projects",
-                  "Quantify impact metrics",
-                  "Certify AWS basics",
-                  "Show CI/CD experience",
-                ].map((action, i) => (
-                  <span
-                    key={action}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
-                  >
-                    <span className="font-bold text-primary">#{i + 1}</span>
-                    {action}
-                  </span>
-                ))}
-              </div>
+                <p className="text-sm text-slate-500 mb-3">
+                  Ranked next steps ordered by market impact — know what to fix first, not a wall of bullet points.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Add TypeScript projects",
+                    "Quantify impact metrics",
+                    "Certify AWS basics",
+                    "Show CI/CD experience",
+                  ].map((action, i) => (
+                    <span
+                      key={action}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                    >
+                      <span className="font-bold text-primary">#{i + 1}</span>
+                      {action}
+                    </span>
+                  ))}
+                </div>
+              </SpotlightCard>
             </motion.div>
+
           </motion.div>
         </motion.section>
 
@@ -388,17 +411,21 @@ export default function LandingPage() {
             {/* Step 1 — shared */}
             <motion.div
               variants={fadeUp}
-              className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
-                01
-              </div>
-              <div>
-                <div className="font-semibold text-slate-900">Upload your CV</div>
-                <div className="mt-1 text-sm leading-relaxed text-slate-500">
-                  Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.
+              <SpotlightCard
+                spotlightColor="rgba(214, 169, 67, 0.05)"
+                className="flex items-start gap-4"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
+                  01
                 </div>
-              </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Upload your CV</div>
+                  <div className="mt-1 text-sm leading-relaxed text-slate-500">
+                    Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.
+                  </div>
+                </div>
+              </SpotlightCard>
             </motion.div>
 
             {/* Fork label */}
@@ -412,7 +439,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
               {/* Mode A — Best Matches */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-sm">
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="space-y-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-xs font-black text-zinc-300 bg-zinc-900/40">
                     02
@@ -432,10 +459,10 @@ export default function LandingPage() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </SpotlightCard>
 
               {/* Mode B — Match a Job */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-sm">
+              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="space-y-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-xs font-black text-zinc-300 bg-zinc-900/40">
                     02
@@ -455,23 +482,27 @@ export default function LandingPage() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </SpotlightCard>
             </motion.div>
 
             {/* Step 3 — shared result */}
             <motion.div
               variants={fadeUp}
-              className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
-                03
-              </div>
-              <div>
-                <div className="font-semibold text-slate-900">Get your ranked action plan</div>
-                <div className="mt-1 text-sm leading-relaxed text-slate-500">
-                  Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — tailored to whichever mode you chose.
+              <SpotlightCard
+                spotlightColor="rgba(214, 169, 67, 0.05)"
+                className="flex items-start gap-4"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
+                  03
                 </div>
-              </div>
+                <div>
+                  <div className="font-semibold text-slate-900">Get your ranked action plan</div>
+                  <div className="mt-1 text-sm leading-relaxed text-slate-500">
+                    Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — tailored to whichever mode you chose.
+                  </div>
+                </div>
+              </SpotlightCard>
             </motion.div>
           </motion.div>
         </motion.section>

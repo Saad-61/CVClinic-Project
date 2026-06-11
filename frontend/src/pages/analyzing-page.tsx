@@ -5,10 +5,12 @@ import { analyzeCv } from "../api/cv";
 import { Button } from "../components/ui/button";
 import { saveStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
+import { Progress } from "../components/ui/progress";
+import BlurText from "../components/animations/BlurText";
 
 const LOADING_TIPS_DEFAULT = [
   "Extracting layout and text sections from your CV...",
-  "Searching and retrieving matching from live job listings...",
+  "Searching and retrieving matches from live job listings...",
   "Scoring skill alignment and calculating match scores...",
   "Generating missing skill project ideas and action items..."
 ];
@@ -28,14 +30,28 @@ export default function AnalyzingPage() {
   const startedRequestRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tipIndex, setTipIndex] = useState(0);
+  const [progress, setProgress] = useState(15);
   const LOADING_TIPS = analysisMode === "specific-role" ? LOADING_TIPS_JD : LOADING_TIPS_DEFAULT;
 
-  // Rotate loading tips every 3 seconds - separated to prevent double-render clear bugs
+  // Rotate loading tips every 4 seconds
   useEffect(() => {
     const tipTimer = setInterval(() => {
       setTipIndex((prev) => (prev + 1) % LOADING_TIPS.length);
     }, 4000);
     return () => clearInterval(tipTimer);
+  }, [LOADING_TIPS]);
+
+  // Increment progress bar continuously to simulate loading activity
+  useEffect(() => {
+    const progressTimer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return 95;
+        // Slow down as it approaches 95% to allow server response time
+        const step = prev > 70 ? Math.random() * 0.8 + 0.1 : Math.random() * 2 + 0.5;
+        return prev + step;
+      });
+    }, 400);
+    return () => clearInterval(progressTimer);
   }, []);
 
   useEffect(() => {
@@ -66,9 +82,8 @@ export default function AnalyzingPage() {
       });
 
     return () => {
-      // Only abort if this isn't the active request (navigating away mid-analysis)
       if (startedRequestRef.current === analysisRequestId) {
-        // Don't abort — let the request finish in background
+        // Let background request finish
       } else {
         controller.abort();
       }
@@ -76,17 +91,22 @@ export default function AnalyzingPage() {
   }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole, jobDescription, jobTitle]);
 
   return (
-    <div className="mx-auto max-w-lg py-10">
-      {/* Simple card wrapper matching landing page theme */}
-      <div className="relative rounded-2xl border border-border bg-card p-8 shadow-sm">
+    <div className="relative min-h-[calc(100vh-10rem)] w-full flex items-center justify-center py-6">
+      
+      {/* 2. Loading Card Overlay */}
+      <div className="relative z-10 w-full max-w-lg bg-card/85 border border-border/80 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
         <div className="space-y-8">
+          
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1.5">
-              <h2 className="font-outfit text-2xl font-black text-white">Analyzing your CV</h2>
+            <div className="space-y-2">
+              <h2 className="font-outfit text-2xl font-black text-white">
+                <BlurText text="Analyzing your CV" delay={0.1} />
+              </h2>
               <div className="text-xs text-slate-400 font-medium truncate max-w-[220px]">
                 File: {filename || file?.name}
               </div>
             </div>
+            
             <Button
               type="button"
               variant="outline"
@@ -96,9 +116,9 @@ export default function AnalyzingPage() {
                 clearPendingAnalysis();
                 navigate("/", { replace: true });
               }}
-              className="border-zinc-800 text-slate-400 hover:text-white hover:border-[#9e59d9]"
+              className="border-zinc-850 text-slate-400 hover:text-white hover:border-primary/50 transition-colors"
             >
-              <XCircle className="h-4 w-4" />
+              <XCircle className="h-4 w-4 mr-1.5 shrink-0" />
               Cancel
             </Button>
           </div>
@@ -112,28 +132,41 @@ export default function AnalyzingPage() {
                 type="button"
                 variant="default"
                 onClick={() => navigate("/", { replace: true })}
-                className="w-full bg-[#9e59d9] hover:bg-[#8346b9] text-white"
+                className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-bold"
               >
                 Back to upload
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-10 px-4 text-center space-y-8">
-              {/* Simple loader spinner without ping or background blur/gradients */}
+            <div className="flex flex-col items-center justify-center py-4 px-2 text-center space-y-8">
+              
+              {/* Spinning Loader with Primary Color (Gold) */}
               <div className="flex items-center justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-[#af6eeb]" />
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              </div>
+
+              {/* Dynamic Progress Bar */}
+              <div className="w-full space-y-2.5">
+                <div className="flex justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
+                  <span>Progress</span>
+                  <span className="tabular-nums font-bold text-primary">{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="w-full bg-zinc-950/70 border border-zinc-850" />
               </div>
 
               {/* Progress tip card */}
-              <div className="w-full max-w-sm rounded-xl bg-zinc-900/40 border border-border/50 px-5 py-4 min-h-[80px] flex items-center justify-center">
+              <div className="w-full rounded-xl bg-zinc-950/40 border border-border/50 px-5 py-4 min-h-[90px] flex items-center justify-center">
                 <p className="text-sm font-semibold text-zinc-200 transition-all duration-300 leading-relaxed">
                   {LOADING_TIPS[tipIndex]}
                 </p>
               </div>
+              
             </div>
           )}
+          
         </div>
       </div>
+
     </div>
   );
 }

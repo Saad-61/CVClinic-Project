@@ -90,7 +90,8 @@ RULES:
 - If information is missing, improve phrasing and structure using only supported details.
 - Return replacement-ready content the user can paste directly into their CV.
 - If output mode is plain text, the "rewritten_text" field of the JSON must contain clean resume-ready text only.
-- If output mode is latex, the "rewritten_text" field of the JSON must contain valid LaTeX code with proper LaTeX formatting (e.g. use \\begin{{itemize}} and \\item for bulleted lists, \\textbf{{...}} for bold headings/keywords, wrap in \\begin{{itemize}}...\\end{{itemize}}, and format quotation marks using LaTeX syntax like ``quotes'' instead of straight quotes "quotes") and ensure special characters (like %, &, $, _, etc.) are escaped (e.g. \\%, \\&, \\$, \\_). It must be pasteable directly into a LaTeX document.
+- If output mode is latex, the "rewritten_text" field of the JSON must contain valid LaTeX code with proper LaTeX formatting (e.g. use \\\\begin{{itemize}} and \\\\item for bulleted lists, \\\\textbf{{...}} for bold headings/keywords, wrap in \\\\begin{{itemize}}...\\\\end{{itemize}}, and format quotation marks using LaTeX syntax like ``quotes'' instead of straight quotes "quotes") and ensure special characters (like %, &, $, _, etc.) are escaped (e.g. \\\\%, \\\\&, \\\\$, \\\\_). It must be pasteable directly into a LaTeX document.
+- IMPORTANT: In the JSON response, you MUST escape all backslashes in the LaTeX code as double backslashes. For example, write "\\\\begin{{itemize}}" and "\\\\item" (with two backslashes) rather than "\\begin{{itemize}}" and "\\item" (with one backslash). Any unescaped backslash in a JSON string is invalid and will cause a JSON parsing failure.
 - Do not include markdown fences in the response.
 - Add a short paste note explaining where to place the rewrite in the "notes" field.
 
