@@ -1,0 +1,39 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+  <style>
+    :root {
+      background-color: #1a1c1e;
+    }
+    .logo-content {
+      transform-origin: 50px 50px;
+    }
+    @media (min-width: 121px) {
+      .logo-content {
+        /* Center and scale down the logo paths so they don't fill the entire screen when opened in a new tab */
+        transform: scale(0.3);
+      }
+    }
+  </style>
+  <g class="logo-content">
+    <!-- Document shape with folded top-right corner in white -->
+    <path
+      d="M25 10H60L80 30V85C80 87.7614 77.7614 90 75 90H25C22.2386 90 20 87.7614 20 85V15C20 12.2386 22.2386 10 25 10Z"
+      stroke="white"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+    <!-- Folded corner in white -->
+    <path
+      d="M60 10V30H80"
+      stroke="white"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+    <!-- Middle plus symbol in gold -->
+    <path
+      d="M50 42V68M37 55H63"
+      stroke="#d6a943"
+      stroke-width="9"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>

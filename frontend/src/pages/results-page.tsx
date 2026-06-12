@@ -609,8 +609,8 @@ export default function ResultsPage() {
                         <JobCard
                           key={job.id}
                           job={job}
-                          showScore={jobsView === "matched"}
-                          cvText={jobsView === "matched" ? cvText : undefined}
+                          showScore={true}
+                          cvText={cvText}
                         />
                       ))
                     ) : (

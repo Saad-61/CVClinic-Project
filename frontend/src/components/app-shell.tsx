@@ -1,43 +1,61 @@
 import { Compass } from "lucide-react";
 import type { ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "../lib/utils";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isAnalyzing = location.pathname === "/analyzing";
+
+  const handleLogoClick = () => {
+    if (isAnalyzing) return;
+    if (location.pathname === "/") {
+      // Manual smooth-scroll loop using requestAnimationFrame for perfect smoothness
+      const scroll = () => {
+        const current = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        if (current > 0) {
+          const step = Math.max(15, current / 8);
+          window.scrollTo(0, current - step);
+          document.documentElement.scrollTo(0, current - step);
+          document.body.scrollTo(0, current - step);
+          requestAnimationFrame(scroll);
+        }
+      };
+      scroll();
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+        document.documentElement.scrollTo({ top: 0, behavior: "instant" });
+      }, 0);
+    }
+  };
+
   return (
     <div className="min-h-screen app-theme-bg">
       <header className="sticky top-0 z-20 border-b border-border/60 bg-card/75 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className={cn("container flex h-14 items-center justify-between")}>
-          <div className="flex items-center gap-1.5">
+          <div
+            onClick={handleLogoClick}
+            className={cn(
+              "flex items-center gap-1.5 transition-all duration-200",
+              isAnalyzing
+                ? "cursor-default"
+                : "cursor-pointer select-none group hover:opacity-90 active:scale-[0.98]"
+            )}
+          >
             {/* Redesigned Premium Logo Image */}
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center mr-1">
-              <svg
-                viewBox="0 0 100 100"
+            <div className={cn(
+              "flex h-12 w-12 shrink-0 items-center justify-center mr-1 transition-transform duration-300",
+              !isAnalyzing && "group-hover:scale-105"
+            )}>
+              <img
+                src="/logo.svg"
+                alt="CVClinic Logo"
                 className="h-full w-full object-contain"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Document shape with folded top-right corner */}
-                <path
-                  d="M25 10H60L80 30V85C80 87.7614 77.7614 90 75 90H25C22.2386 90 20 87.7614 20 85V15C20 12.2386 22.2386 10 25 10Z"
-                  stroke="white"
-                  strokeWidth="5"
-                  strokeLinejoin="round"
-                />
-                {/* Folded corner */}
-                <path
-                  d="M60 10V30H80"
-                  stroke="white"
-                  strokeWidth="5"
-                  strokeLinejoin="round"
-                />
-                {/* Middle plus symbol in gold */}
-                <path
-                  d="M50 42V68M37 55H63"
-                  stroke="#d6a943"
-                  strokeWidth="9"
-                  strokeLinecap="round"
-                />
-              </svg>
+                draggable={false}
+              />
             </div>
             <div className="leading-tight">
               <div className="text-lg font-outfit font-extrabold tracking-tight">

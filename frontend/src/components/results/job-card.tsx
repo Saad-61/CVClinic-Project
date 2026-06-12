@@ -48,16 +48,31 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               )}
               {job.source && (() => {
                 const s = job.source.toLowerCase();
-                let style = "bg-primary/10 text-primary border-primary/20";
-                if (s.includes("jooble")) style = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-                else if (s.includes("linkedin")) style = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-                else if (s.includes("remotive")) style = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-                else if (s.includes("jobicy")) style = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                else if (s.includes("adzuna")) style = "bg-rose-500/10 text-rose-400 border-rose-500/20";
-                else if (s.includes("arbeitnow")) style = "bg-teal-500/10 text-teal-400 border-teal-500/20";
+                let textColor = "text-primary";
+                let dotColor = "bg-primary";
+                if (s.includes("jooble")) {
+                  textColor = "text-amber-400";
+                  dotColor = "bg-amber-500";
+                } else if (s.includes("linkedin")) {
+                  textColor = "text-blue-400";
+                  dotColor = "bg-blue-500";
+                } else if (s.includes("remotive")) {
+                  textColor = "text-purple-400";
+                  dotColor = "bg-purple-500";
+                } else if (s.includes("jobicy")) {
+                  textColor = "text-emerald-400";
+                  dotColor = "bg-emerald-500";
+                } else if (s.includes("adzuna")) {
+                  textColor = "text-rose-400";
+                  dotColor = "bg-rose-500";
+                } else if (s.includes("arbeitnow")) {
+                  textColor = "text-teal-400";
+                  dotColor = "bg-teal-500";
+                }
                 
                 return (
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border ${style}`}>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border border-zinc-800 bg-zinc-900 ${textColor}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
                     {job.source}
                   </span>
                 );

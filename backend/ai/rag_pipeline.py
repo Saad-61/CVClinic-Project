@@ -320,7 +320,7 @@ class RAGPipeline:
         links = cv_links if cv_links is not None else extract_links(cv_text)
 
         distances, indices = self.vector_store.index.search(
-            np.array([query_embedding]).astype('float32'), min(20, len(self.vector_store.data))
+            np.array([query_embedding]).astype('float32'), len(self.vector_store.data)
         )
 
         # extract structured skills
@@ -381,7 +381,7 @@ class RAGPipeline:
 
         return {
             "matched_jobs": filtered_results,
-            "all_jobs": [job.copy() for job in self.vector_store.data],
+            "all_jobs": results,
             "links": links,
             "resume_score": resume_score,
         }

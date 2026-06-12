@@ -63,6 +63,8 @@ export default function LandingPage() {
     file,
     filename,
     preview,
+    report,
+    startOver,
     setFile,
     setPreview,
     queueAnalysis,
@@ -898,8 +900,36 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {/* File dropzone */}
-              <FileDropzone disabled={uploading} onFileSelected={onFileSelected} />
+              {/* File dropzone or Loaded CV Card */}
+              {report ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-slate-800 truncate max-w-[160px] sm:max-w-[200px]">
+                          {filename || "Uploaded CV"}
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Analysis Ready
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFile(null)}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm"
+                    >
+                      Change CV
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <FileDropzone disabled={uploading} onFileSelected={onFileSelected} />
+              )}
 
               {/* Preview panel */}
               {filename && (
@@ -909,13 +939,15 @@ export default function LandingPage() {
                       <div className="text-sm font-semibold text-slate-900">{filename}</div>
                       <div className="mt-0.5 text-xs text-slate-500">Extracted text preview</div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setFile(null)}
-                      className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
-                    >
-                      Change
-                    </button>
+                    {!report && (
+                      <button
+                        type="button"
+                        onClick={() => setFile(null)}
+                        className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-650 hover:bg-slate-50 transition-colors shadow-sm"
+                      >
+                        Change
+                      </button>
+                    )}
                   </div>
 
                   <div className="h-px bg-slate-200" />
@@ -935,13 +967,15 @@ export default function LandingPage() {
                             <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                             Review before analyzing
                           </span>
-                          <label className="flex items-center gap-2 cursor-pointer select-none text-[10px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
-                            <Checkbox
-                              checked={redactPii}
-                              onCheckedChange={setRedactPii}
-                            />
-                            <span>Redact PII (Email/Phone)</span>
-                          </label>
+                          {!report && (
+                            <label className="flex items-center gap-2 cursor-pointer select-none text-[10px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
+                              <Checkbox
+                                checked={redactPii}
+                                onCheckedChange={setRedactPii}
+                              />
+                              <span>Redact PII (Email/Phone)</span>
+                            </label>
+                          )}
                         </div>
                         <button
                           type="button"
@@ -975,18 +1009,24 @@ export default function LandingPage() {
               <button
                 type="button"
                 id="analyze-cv-btn"
-                disabled={!file || uploading || !jdIsValid}
+                disabled={(!report && !file) || uploading || !jdIsValid}
                 onClick={() => {
-                  if (!queueAnalysis()) return;
-                  navigate("/analyzing");
+                  if (report) {
+                    navigate("/results");
+                  } else {
+                    if (!queueAnalysis()) return;
+                    navigate("/analyzing");
+                  }
                 }}
                 className="w-full rounded-xl bg-primary px-6 py-3.5 text-sm font-extrabold text-primary-foreground shadow-sm transition-all hover:bg-primary/95 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {uploading
                   ? "Uploading…"
-                  : analysisMode === "specific-role"
-                    ? "Analyze Against This Job"
-                    : "Analyze CV"}
+                  : report
+                    ? "Review Analysis"
+                    : analysisMode === "specific-role"
+                      ? "Analyze Against This Job"
+                      : "Analyze CV"}
               </button>
 
               <p className="text-center text-xs text-slate-400">
