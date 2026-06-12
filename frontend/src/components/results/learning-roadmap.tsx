@@ -85,7 +85,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
             className="w-full max-w-md"
           >
             <TabsList
-              className="grid bg-zinc-950/60 p-1 border border-border/80 rounded-xl shadow-sm gap-1 mx-auto w-full"
+              className="grid bg-muted p-1 border border-border/60 rounded-xl shadow-sm gap-1 mx-auto w-full"
               style={{ gridTemplateColumns: `repeat(${phases.length}, minmax(0, 1fr))` }}
             >
               {phases.map((phase, idx) => (
@@ -138,7 +138,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
                       <div className="font-semibold text-white text-sm">
                         {skill.skill}
                       </div>
-                      <span className="rounded-full bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[9px] font-bold text-zinc-400 shadow-sm uppercase tracking-wide">
+                      <span className="rounded-full bg-zinc-900 border border-zinc-800/80 px-2 py-0.5 text-[9px] font-bold text-zinc-400 shadow-sm uppercase tracking-wide">
                         {isNew ? "New project" : "Add to existing"}
                       </span>
                     </div>
@@ -151,7 +151,7 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
                     )}
 
                     {(skill.project || skill.project_idea) && (
-                      <div className="mt-3 rounded-lg bg-zinc-950/40 border border-border/50 px-3.5 py-2.5 text-xs text-zinc-200 space-y-1.5">
+                      <div className="mt-3 rounded-lg bg-zinc-900/30 border border-border/50 px-3.5 py-2.5 text-xs text-zinc-200 space-y-1.5">
                         {skill.project && (
                           <div>
                             <span className="font-bold text-primary">Project: </span>

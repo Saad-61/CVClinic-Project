@@ -15,31 +15,6 @@ interface JobCardProps {
   compact?: boolean;
 }
 
-function highlightDescription(desc: string, matched: string[] = []) {
-  if (!desc) return "";
-  if (!matched.length) return desc;
-
-  // Escape regex special characters
-  const escapedSkills = matched.map((s) => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"));
-  // Match skills with word boundaries
-  const regex = new RegExp(`\\b(${escapedSkills.join("|")})\\b`, "gi");
-
-  const parts = desc.split(regex);
-  return parts.map((part, index) => {
-    const isMatch = matched.some((s) => s.toLowerCase() === part.toLowerCase());
-    if (isMatch) {
-      return (
-        <mark
-          key={index}
-          className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded text-xs font-semibold"
-        >
-          {part}
-        </mark>
-      );
-    }
-    return part;
-  });
-}
 
 export function JobCard({ job, showScore, cvText, compact = false }: JobCardProps) {
   const score = job.score ?? 0;
@@ -185,16 +160,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
         </div>
       )}
 
-      {!compact && job.description && (
-        <div className="mt-4 pt-4 border-t border-border/60 space-y-2.5">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-            Job Description & Matched Gaps
-          </div>
-          <div className="text-xs leading-relaxed text-zinc-350 bg-zinc-950/40 p-3.5 border border-border rounded-xl whitespace-pre-wrap font-sans max-h-60 overflow-y-auto">
-            {highlightDescription(job.description, job.matched_skills)}
-          </div>
-        </div>
-      )}
+
 
       {!compact && coverError ? (
         <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">

@@ -479,12 +479,12 @@ export default function ResultsPage() {
                         return (
                           <span
                             key={`ov-skill-${idx}`}
-                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-zinc-900 border border-zinc-800/80 ${
                               p === "HIGH"
-                                ? "bg-rose-950/30 text-rose-300 border-rose-900/50"
+                                ? "text-rose-400"
                                 : p === "MEDIUM"
-                                ? "bg-amber-950/30 text-amber-300 border-amber-900/50"
-                                : "bg-zinc-800 text-zinc-300 border-zinc-700/50"
+                                ? "text-amber-400"
+                                : "text-zinc-400"
                             }`}
                           >
                             <span
