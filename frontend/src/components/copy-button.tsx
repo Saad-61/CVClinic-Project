@@ -2,6 +2,7 @@ import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { cn } from "../lib/utils";
 
 async function copyText(value: string) {
   if (navigator.clipboard?.writeText) {
@@ -23,9 +24,13 @@ async function copyText(value: string) {
 export function CopyButton({
   value,
   label = "Copy",
+  className,
+  variant = "outline",
 }: {
   value: string;
   label?: string;
+  className?: string;
+  variant?: "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -41,8 +46,12 @@ export function CopyButton({
         <TooltipTrigger asChild>
           <Button
             type="button"
-            variant="outline"
+            variant={variant}
             size="sm"
+            className={cn(
+              "border-zinc-800 text-primary hover:bg-primary/10 hover:text-white hover:border-primary transition-all",
+              className
+            )}
             onClick={async () => {
               await copyText(value);
               setCopied(true);
@@ -57,4 +66,5 @@ export function CopyButton({
     </TooltipProvider>
   );
 }
+
 
