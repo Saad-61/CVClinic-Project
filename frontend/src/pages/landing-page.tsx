@@ -55,6 +55,8 @@ const stagger = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredHowIndex, setHoveredHowIndex] = useState<number | null>(null);
   const {
     file,
     filename,
@@ -156,7 +158,7 @@ export default function LandingPage() {
         <motion.section variants={fadeUp} className="py-10 sm:py-14">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/50 px-3.5 py-1.5 text-xs font-semibold text-zinc-300">
-            <ShinyText text="CV Analysis · No account required" speed={4.5} />
+            <ShinyText text="CV Analysis · No account required" speed={4.5} baseColor="#b4b2aa" />
           </div>
 
           {/* Headline */}
@@ -208,7 +210,7 @@ export default function LandingPage() {
             <div className="section-label">The problem</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               You apply. You wait.<br />
-              <span className="text-slate-500 font-semibold">You never find out why.</span>
+              <span className="text-primary font-black">You never find out why.</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               Most rejections have nothing to do with your qualifications — and everything to do with the gap between your CV and what the role actually needs.
@@ -217,50 +219,81 @@ export default function LandingPage() {
 
           <motion.div
             variants={stagger}
-            className="grid gap-3"
+            className="relative space-y-4"
           >
             {[
               {
-                Icon: XCircle,
-                iconColor: "text-rose-500",
-                accentBorder: "border-l-rose-400",
+                accentGlow: "rgba(214, 169, 67, 0.04)",
                 title: "Applying blind",
                 body: "You send the same CV to every listing without knowing which specific skills or framing are making you fall short.",
               },
               {
-                Icon: Search,
-                iconColor: "text-amber-500",
-                accentBorder: "border-l-amber-400",
+                accentGlow: "rgba(214, 169, 67, 0.04)",
                 title: "No honest feedback",
                 body: "Rejections give you nothing. Generic AI tools give you encouragement — not a real gap analysis against actual job requirements.",
               },
               {
-                Icon: Clock,
-                iconColor: "text-slate-400",
-                accentBorder: "border-l-slate-300",
+                accentGlow: "rgba(214, 169, 67, 0.04)",
                 title: "Effort without direction",
                 body: "You have the experience. The problem is framing — and without a diagnostic, you can't fix what you can't see.",
               },
-            ].map(({ Icon, iconColor, accentBorder, title, body }) => (
-              <motion.div
-                key={title}
-                variants={fadeUp}
-              >
-                <SpotlightCard
-                  spotlightColor="rgba(214, 169, 67, 0.05)"
-                  className={`border-l-4 ${accentBorder}`}
-                >
-                  <div className="flex items-start gap-4">
-                    <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${iconColor}`} aria-hidden="true" />
-                    <div>
-                      <div className="font-semibold text-slate-900">{title}</div>
-                      <div className="mt-1 text-sm leading-relaxed text-slate-500">{body}</div>
-                    </div>
-                  </div>
-                </SpotlightCard>
-              </motion.div>
-            ))}
+            ].map(({ accentGlow, title, body }, index) => {
+              const isHovered = hoveredIndex === index;
+              const isAnyHovered = hoveredIndex !== null;
+              const isDimmed = isAnyHovered && !isHovered;
 
+              return (
+                <motion.div
+                  key={title}
+                  variants={fadeUp}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className="relative flex gap-6 items-start p-4 rounded-xl transition-all duration-300 group cursor-default overflow-hidden"
+                  style={{
+                    background: isHovered
+                      ? `radial-gradient(500px circle at center, ${accentGlow}, transparent 80%)`
+                      : "transparent",
+                  }}
+                >
+                  {/* Timeline bullet (Golden Node) */}
+                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                    {/* Outer Glow Ring */}
+                    <div
+                      className={`absolute rounded-full border border-primary/30 transition-all duration-500 pointer-events-none ${isHovered ? "w-8 h-8 opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-50"
+                        }`}
+                    />
+                    {/* Inner Golden Dot */}
+                    <div
+                      className={`rounded-full transition-all duration-300 ${isHovered
+                        ? "w-4 h-4 bg-primary shadow-[0_0_12px_rgba(214,169,67,0.7)]"
+                        : "w-3 h-3 bg-primary/35 border border-primary/50"
+                        }`}
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div
+                    className={`flex-1 transition-all duration-300 pr-10 ${isDimmed ? "opacity-35 filter blur-[0.2px]" : "opacity-100"
+                      }`}
+                  >
+                    <div className="flex items-center">
+                      <h3
+                        className={`font-semibold text-base transition-colors duration-300 ${isHovered ? "text-accent" : "text-slate-700"
+                          }`}
+                      >
+                        {title}
+                      </h3>
+                    </div>
+                    <p
+                      className={`mt-1.5 text-sm leading-relaxed transition-colors duration-300 ${isHovered ? "text-slate-600" : "text-slate-500"
+                        }`}
+                    >
+                      {body}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </motion.section>
 
@@ -273,7 +306,7 @@ export default function LandingPage() {
             <div className="section-label">What you get</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               A diagnostic report,<br />
-              <span className="text-accent">not just a score.</span>
+              <span className="text-primary font-black">not just a score.</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               CVClinic uses Retrieval-Augmented Generation to match your CV against live job listings — then builds a ranked plan of exactly what to change and why.
@@ -289,13 +322,11 @@ export default function LandingPage() {
               variants={fadeUp}
               className="col-span-2"
             >
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-lg bg-primary/15 p-2">
-                      <Gauge className="h-4 w-4 text-primary" aria-hidden="true" />
-                    </div>
-                    <div className="font-semibold text-slate-900">Job Match Score</div>
+              <div className="h-full p-2">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2 text-slate-900 font-semibold">
+                    <Gauge className="h-4.5 w-4.5 text-primary shrink-0" aria-hidden="true" />
+                    <span>Job Match Score</span>
                   </div>
                   <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-400">
                     Example output
@@ -325,43 +356,41 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
 
             {/* Skill Gaps */}
             <motion.div variants={fadeUp}>
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
-                <div className="rounded-lg bg-amber-50 p-2 w-fit mb-3">
-                  <Search className="h-4 w-4 text-amber-600" aria-hidden="true" />
+              <div className="h-full p-2">
+                <div className="flex items-center gap-2 text-slate-900 font-semibold mb-2">
+                  <Search className="h-4.5 w-4.5 text-primary shrink-0" aria-hidden="true" />
+                  <span>Skill Gaps</span>
                 </div>
-                <div className="font-semibold text-slate-900 mb-1">Skill Gaps</div>
                 <div className="text-xs leading-relaxed text-slate-500">
                   Missing skills turned into concrete projects you can show employers.
                 </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
 
             {/* CV Fixes */}
             <motion.div variants={fadeUp}>
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
-                <div className="rounded-lg bg-primary/15 p-2 w-fit mb-3">
-                  <FileText className="h-4 w-4 text-primary" aria-hidden="true" />
+              <div className="h-full p-2">
+                <div className="flex items-center gap-2 text-slate-900 font-semibold mb-2">
+                  <FileText className="h-4.5 w-4.5 text-primary shrink-0" aria-hidden="true" />
+                  <span>CV Fixes</span>
                 </div>
-                <div className="font-semibold text-slate-900 mb-1">CV Fixes</div>
                 <div className="text-xs leading-relaxed text-slate-500">
                   Specific rewrites for underselling sections — actual edits, not vague advice.
                 </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
 
             {/* Priority Action Plan */}
             <motion.div variants={fadeUp} className="col-span-2">
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="h-full">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="rounded-lg bg-primary/15 p-2 w-fit">
-                    <TrendingUp className="h-4 w-4 text-primary" aria-hidden="true" />
-                  </div>
-                  <div className="font-semibold text-slate-900">Priority Action Plan</div>
+              <div className="h-full p-2">
+                <div className="flex items-center gap-2 text-slate-900 font-semibold mb-3">
+                  <TrendingUp className="h-4.5 w-4.5 text-primary shrink-0" aria-hidden="true" />
+                  <span>Priority Action Plan</span>
                 </div>
                 <p className="text-sm text-slate-500 mb-3">
                   Ranked next steps ordered by market impact — know what to fix first, not a wall of bullet points.
@@ -375,14 +404,14 @@ export default function LandingPage() {
                   ].map((action, i) => (
                     <span
                       key={action}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
                     >
-                      <span className="font-bold text-primary">#{i + 1}</span>
+                      <span className="font-bold text-accent">#{i + 1}</span>
                       {action}
                     </span>
                   ))}
                 </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
 
           </motion.div>
@@ -397,7 +426,7 @@ export default function LandingPage() {
             <div className="section-label">How it works</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               Two ways to get<br />
-              <span className="text-primary">your answer.</span>
+              <span className="text-primary font-black">your answer.</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               Upload your CV and choose how you want to analyse it.
@@ -406,104 +435,283 @@ export default function LandingPage() {
 
           <motion.div
             variants={stagger}
-            className="space-y-3"
+            className="relative space-y-4"
           >
-            {/* Step 1 — shared */}
+            {/* Timeline Track Container */}
+            <div className="absolute left-[23px] top-[40px] bottom-[40px] w-0.5 pointer-events-none">
+              {/* Background Timeline Track */}
+              <div className="w-full h-full bg-zinc-800/40" />
+
+              {/* Glowing Active Progress Line */}
+              <motion.div
+                className="absolute top-0 left-0 w-full bg-primary origin-top shadow-[0_0_8px_rgba(214,169,67,0.5)]"
+                animate={{
+                  height: hoveredHowIndex !== null 
+                    ? hoveredHowIndex === 0 ? "12%" : hoveredHowIndex === 1 ? "50%" : "100%"
+                    : "12%"
+                }}
+                transition={{ type: "spring", stiffness: 90, damping: 15 }}
+              />
+            </div>
+
+            {/* Step 1: Upload */}
             <motion.div
               variants={fadeUp}
+              onMouseEnter={() => setHoveredHowIndex(0)}
+              onMouseLeave={() => setHoveredHowIndex(null)}
+              className="relative flex gap-6 items-start p-4 rounded-xl transition-all duration-300 group cursor-default overflow-hidden"
+              style={{
+                background: hoveredHowIndex === 0
+                  ? "radial-gradient(500px circle at center, rgba(214, 169, 67, 0.04), transparent 80%)"
+                  : "transparent",
+              }}
             >
-              <SpotlightCard
-                spotlightColor="rgba(214, 169, 67, 0.05)"
-                className="flex items-start gap-4"
+              {/* Large Background Step Number */}
+              <div
+                className={`font-outfit absolute right-6 bottom-2 text-7xl font-black transition-all duration-500 select-none pointer-events-none tracking-tight ${
+                  hoveredHowIndex === 0
+                    ? "text-primary/[0.15] translate-y-[-4px]"
+                    : "text-slate-800/[0.04]"
+                }`}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
-                  01
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-900">Upload your CV</div>
-                  <div className="mt-1 text-sm leading-relaxed text-slate-500">
-                    Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.
-                  </div>
-                </div>
-              </SpotlightCard>
-            </motion.div>
+                01
+              </div>
 
-            {/* Fork label */}
-            <motion.div variants={fadeUp} className="flex items-center gap-3 px-1">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">then choose</span>
-              <div className="flex-1 h-px bg-slate-200" />
-            </motion.div>
+              {/* Timeline bullet (Golden Node) */}
+              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                {/* Outer Glow Ring */}
+                <div
+                  className={`absolute rounded-full border border-primary/30 transition-all duration-500 pointer-events-none ${
+                    hoveredHowIndex === 0 ? "w-8 h-8 opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-50"
+                  }`}
+                />
+                {/* Inner Golden Dot */}
+                <div
+                  className={`rounded-full transition-all duration-300 ${
+                    hoveredHowIndex === 0
+                      ? "w-4 h-4 bg-primary shadow-[0_0_12px_rgba(214,169,67,0.7)]"
+                      : "w-3 h-3 bg-primary/35 border border-primary/50"
+                  }`}
+                />
+              </div>
 
-            {/* Mode A & B side-by-side */}
-            <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-              {/* Mode A — Best Matches */}
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-xs font-black text-zinc-300 bg-zinc-900/40">
-                    02
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Search className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                    <span className="text-sm font-bold text-slate-900">Best Matches</span>
-                  </div>
-                </div>
-                <p className="text-sm leading-relaxed text-slate-600">
-                  We run your CV against our database of live job listings using RAG — and return ranked matches with a full score breakdown.
+              {/* Content */}
+              <div
+                className={`flex-1 transition-all duration-300 pr-10 ${
+                  hoveredHowIndex !== null && hoveredHowIndex !== 0 ? "opacity-35 filter blur-[0.2px]" : "opacity-100"
+                }`}
+              >
+                <h3
+                  className={`font-semibold text-base transition-colors duration-300 ${
+                    hoveredHowIndex === 0 ? "text-accent" : "text-slate-700"
+                  }`}
+                >
+                  Upload your CV
+                </h3>
+                <p
+                  className={`mt-1.5 text-sm leading-relaxed transition-colors duration-300 ${
+                    hoveredHowIndex === 0 ? "text-slate-600" : "text-slate-500"
+                  }`}
+                >
+                  Drop a PDF or DOCX — up to 10 MB. We extract the text immediately. No account, no email required.
                 </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Ranked job matches", "Skill gap analysis", "Action plan"].map(tag => (
-                    <span key={tag} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </SpotlightCard>
-
-              {/* Mode B — Match a Job */}
-              <SpotlightCard spotlightColor="rgba(214, 169, 67, 0.05)" className="space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-xs font-black text-zinc-300 bg-zinc-900/40">
-                    02
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Briefcase className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                    <span className="text-sm font-bold text-slate-900">Match a Job</span>
-                  </div>
-                </div>
-                <p className="text-sm leading-relaxed text-slate-600">
-                  Found a role on LinkedIn or anywhere else? Paste the job description and we'll score your CV <strong>exclusively against that posting</strong> — nothing else.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Your JD, your rules", "Role-specific gaps", "Targeted advice"].map(tag => (
-                    <span key={tag} className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
 
-            {/* Step 3 — shared result */}
+            {/* Step 2: Choose Mode */}
             <motion.div
               variants={fadeUp}
+              onMouseEnter={() => setHoveredHowIndex(1)}
+              onMouseLeave={() => setHoveredHowIndex(null)}
+              className="relative flex gap-6 items-start p-4 rounded-xl transition-all duration-300 group cursor-default"
+              style={{
+                background: hoveredHowIndex === 1
+                  ? "radial-gradient(500px circle at center, rgba(214, 169, 67, 0.04), transparent 80%)"
+                  : "transparent",
+              }}
             >
-              <SpotlightCard
-                spotlightColor="rgba(214, 169, 67, 0.05)"
-                className="flex items-start gap-4"
+              {/* Large Background Step Number */}
+              <div
+                className={`font-outfit absolute right-6 top-2 text-7xl font-black transition-all duration-500 select-none pointer-events-none tracking-tight ${
+                  hoveredHowIndex === 1
+                    ? "text-primary/[0.15] translate-y-[-4px]"
+                    : "text-slate-800/[0.04]"
+                }`}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 text-sm font-black text-zinc-300 bg-zinc-900/40">
-                  03
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-900">Get your ranked action plan</div>
-                  <div className="mt-1 text-sm leading-relaxed text-slate-500">
-                    Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — tailored to whichever mode you chose.
+                02
+              </div>
+
+              {/* Timeline bullet (Golden Node) */}
+              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                {/* Outer Glow Ring */}
+                <div
+                  className={`absolute rounded-full border border-primary/30 transition-all duration-500 pointer-events-none ${
+                    hoveredHowIndex === 1 ? "w-8 h-8 opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-50"
+                  }`}
+                />
+                {/* Inner Golden Dot */}
+                <div
+                  className={`rounded-full transition-all duration-300 ${
+                    hoveredHowIndex === 1
+                      ? "w-4 h-4 bg-primary shadow-[0_0_12px_rgba(214,169,67,0.7)]"
+                      : "w-3 h-3 bg-primary/35 border border-primary/50"
+                  }`}
+                />
+              </div>
+
+              {/* Content */}
+              <div
+                className={`flex-1 transition-all duration-300 ${
+                  hoveredHowIndex !== null && hoveredHowIndex !== 1 ? "opacity-35 filter blur-[0.2px]" : "opacity-100"
+                }`}
+              >
+                <h3
+                  className={`font-semibold text-base transition-colors duration-300 ${
+                    hoveredHowIndex === 1 ? "text-accent" : "text-slate-700"
+                  }`}
+                >
+                  Choose your analysis mode
+                </h3>
+                <p
+                  className={`mt-1.5 text-sm leading-relaxed transition-colors duration-300 ${
+                    hoveredHowIndex === 1 ? "text-slate-600" : "text-slate-500"
+                  }`}
+                >
+                  Select the analysis path that matches your current job application strategy.
+                </p>
+
+                {/* Mode A & B side-by-side inside timeline step 2 with partition */}
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 mt-4 relative items-stretch">
+                  {/* Mode A — Best Matches */}
+                  <div className="space-y-3 p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Search className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                      <span className="text-sm font-bold text-slate-900">Best Matches</span>
+                    </div>
+                    <p className="text-xs leading-relaxed text-slate-500">
+                      We run your CV against our database of live job listings using RAG — and return ranked matches with a full score breakdown.
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {["Ranked matches", "Skill gaps", "Action plan"].map(tag => (
+                        <span key={tag} className="rounded border border-slate-800 bg-zinc-900/40 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Partition Divider (static highly-curved wavy golden line choice indicator) */}
+                  <div className="flex sm:flex-col items-center justify-center py-2 sm:py-0 px-4 sm:px-2">
+                    {/* Desktop Divider (Vertical Wave - Static & Thick) */}
+                    <div className="hidden sm:flex flex-col items-center h-full relative justify-center py-1 w-10">
+                      <svg className="w-10 h-full text-primary/60" viewBox="0 0 40 100" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M20 0 C 52 25, -12 75, 20 100"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeDasharray="4 4"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Mobile Divider (Horizontal Wave - Static & Thick) */}
+                    <div className="flex sm:hidden items-center w-full py-2 justify-center">
+                      <svg className="h-10 w-full text-primary/60" viewBox="0 0 100 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M0 20 C 25 52, 75 -12, 100 20"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeDasharray="4 4"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Mode B — Match a Job */}
+                  <div className="space-y-3 p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Briefcase className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                      <span className="text-sm font-bold text-slate-900">Match a Job</span>
+                    </div>
+                    <p className="text-xs leading-relaxed text-slate-500">
+                      Found a role on LinkedIn or elsewhere? Paste the job description and we'll score your CV exclusively against that posting.
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {["Role-specific", "Targeted gaps", "Custom advice"].map(tag => (
+                        <span key={tag} className="rounded border border-slate-800 bg-zinc-900/40 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </SpotlightCard>
+              </div>
             </motion.div>
+
+            {/* Step 3: Get action plan */}
+            <motion.div
+              variants={fadeUp}
+              onMouseEnter={() => setHoveredHowIndex(2)}
+              onMouseLeave={() => setHoveredHowIndex(null)}
+              className="relative flex gap-6 items-start p-4 rounded-xl transition-all duration-300 group cursor-default overflow-hidden"
+              style={{
+                background: hoveredHowIndex === 2
+                  ? "radial-gradient(500px circle at center, rgba(214, 169, 67, 0.04), transparent 80%)"
+                  : "transparent",
+              }}
+            >
+              {/* Large Background Step Number */}
+              <div
+                className={`font-outfit absolute right-6 bottom-2 text-7xl font-black transition-all duration-500 select-none pointer-events-none tracking-tight ${
+                  hoveredHowIndex === 2
+                    ? "text-primary/[0.15] translate-y-[-4px]"
+                    : "text-slate-800/[0.04]"
+                }`}
+              >
+                03
+              </div>
+
+              {/* Timeline bullet (Golden Node) */}
+              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                {/* Outer Glow Ring */}
+                <div
+                  className={`absolute rounded-full border border-primary/30 transition-all duration-500 pointer-events-none ${
+                    hoveredHowIndex === 2 ? "w-8 h-8 opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-50"
+                  }`}
+                />
+                {/* Inner Golden Dot */}
+                <div
+                  className={`rounded-full transition-all duration-300 ${
+                    hoveredHowIndex === 2
+                      ? "w-4 h-4 bg-primary shadow-[0_0_12px_rgba(214,169,67,0.7)]"
+                      : "w-3 h-3 bg-primary/35 border border-primary/50"
+                  }`}
+                />
+              </div>
+
+              {/* Content */}
+              <div
+                className={`flex-1 transition-all duration-300 pr-10 ${
+                  hoveredHowIndex !== null && hoveredHowIndex !== 2 ? "opacity-35 filter blur-[0.2px]" : "opacity-100"
+                }`}
+              >
+                <h3
+                  className={`font-semibold text-base transition-colors duration-300 ${
+                    hoveredHowIndex === 2 ? "text-accent" : "text-slate-700"
+                  }`}
+                >
+                  Get your ranked action plan
+                </h3>
+                <p
+                  className={`mt-1.5 text-sm leading-relaxed transition-colors duration-300 ${
+                    hoveredHowIndex === 2 ? "text-slate-600" : "text-slate-500"
+                  }`}
+                >
+                  Receive match scores, skill gaps, specific CV edits, and a ranked list of what to fix — tailored to whichever mode you chose.
+                </p>
+              </div>
+            </motion.div>
+
           </motion.div>
         </motion.section>
 
@@ -516,7 +724,7 @@ export default function LandingPage() {
             <div className="section-label">FAQ</div>
             <h2 className="font-outfit text-4xl font-black text-slate-900 sm:text-5xl">
               Frequently Asked<br />
-              <span className="text-primary">Questions</span>
+              <span className="text-primary font-black">Questions</span>
             </h2>
             <p className="max-w-md text-slate-600 leading-relaxed">
               Find quick answers to common questions about CVClinic and how it processes your CV.
@@ -559,7 +767,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
         >
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
             <div className="p-6 space-y-5">
               {/* Header */}
@@ -662,9 +870,8 @@ export default function LandingPage() {
                       >
                         Job Description <span className="text-rose-500">*</span>
                       </label>
-                      <span className={`text-xs tabular-nums ${
-                        jobDescription.length > JD_MAX * 0.9 ? "text-amber-600" : "text-slate-400"
-                      }`}>
+                      <span className={`text-xs tabular-nums ${jobDescription.length > JD_MAX * 0.9 ? "text-amber-600" : "text-slate-400"
+                        }`}>
                         {jobDescription.length}/{JD_MAX}
                       </span>
                     </div>
@@ -675,11 +882,10 @@ export default function LandingPage() {
                       placeholder="Paste the full job description here — responsibilities, requirements, preferred skills…"
                       rows={7}
                       disabled={uploading}
-                      className={`w-full p-3 resize-none ${
-                        jobDescription.trim().length > 0 && jobDescription.trim().length < 30
-                          ? "border-amber-300 bg-amber-50/30 focus-visible:ring-amber-300"
-                          : "border-slate-200"
-                      }`}
+                      className={`w-full p-3 resize-none ${jobDescription.trim().length > 0 && jobDescription.trim().length < 30
+                        ? "border-amber-300 bg-amber-50/30 focus-visible:ring-amber-300"
+                        : "border-slate-200"
+                        }`}
                     />
                     {jobDescription.trim().length > 0 && jobDescription.trim().length < 30 && (
                       <p className="mt-1 text-xs text-amber-600">Please paste a more complete job description (at least 30 characters).</p>
@@ -721,7 +927,7 @@ export default function LandingPage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                           <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                           Review before analyzing
                         </div>
                         <button
@@ -737,9 +943,8 @@ export default function LandingPage() {
                         </button>
                       </div>
                       <pre
-                        className={`overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white border border-slate-200 p-3 text-xs leading-relaxed text-slate-600 transition-all ${
-                          previewExpanded ? "max-h-64" : "max-h-36"
-                        }`}
+                        className={`overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white border border-slate-200 p-3 text-xs leading-relaxed text-slate-600 transition-all ${previewExpanded ? "max-h-64" : "max-h-36"
+                          }`}
                         aria-label="Extracted CV text preview"
                       >
                         {preview}
@@ -767,8 +972,8 @@ export default function LandingPage() {
                 {uploading
                   ? "Uploading…"
                   : analysisMode === "specific-role"
-                  ? "Analyze Against This Job"
-                  : "Analyze CV"}
+                    ? "Analyze Against This Job"
+                    : "Analyze CV"}
               </button>
 
               <p className="text-center text-xs text-slate-400">
