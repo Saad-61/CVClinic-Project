@@ -1,12 +1,13 @@
-import { Loader2, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { analyzeCv } from "../api/cv";
 import { Button } from "../components/ui/button";
 import { saveStoredReport } from "../lib/storage";
 import { useCv } from "../state/cv-context";
-import { Progress } from "../components/ui/progress";
 import BlurText from "../components/animations/BlurText";
+import { AnimatePresence, motion } from "framer-motion";
+import { redactPiiText } from "../lib/utils";
 
 const LOADING_TIPS_DEFAULT = [
   "Extracting layout and text sections from your CV...",
@@ -24,8 +25,19 @@ const LOADING_TIPS_JD = [
 
 export default function AnalyzingPage() {
   const navigate = useNavigate();
-  const { analysisRequestId, clearPendingAnalysis, file, filename, setReport, targetRole, jobDescription, jobTitle, analysisMode } =
-    useCv();
+  const {
+    analysisRequestId,
+    clearPendingAnalysis,
+    file,
+    filename,
+    setReport,
+    targetRole,
+    jobDescription,
+    jobTitle,
+    analysisMode,
+    preview,
+    redactPii
+  } = useCv();
   const controllerRef = useRef<AbortController | null>(null);
   const startedRequestRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +80,9 @@ export default function AnalyzingPage() {
     setError(null);
 
     const createdAt = new Date().toISOString();
+    const cvPayloadText = redactPii ? redactPiiText(preview) : undefined;
 
-    analyzeCv(file, targetRole, controller.signal, jobDescription || undefined, jobTitle || undefined)
+    analyzeCv(file, targetRole, controller.signal, jobDescription || undefined, jobTitle || undefined, cvPayloadText)
       .then((report) => {
         setReport(report, filename || file.name, createdAt);
         saveStoredReport({ filename: filename || file.name, createdAt, report });
@@ -88,12 +101,12 @@ export default function AnalyzingPage() {
         controller.abort();
       }
     };
-  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole, jobDescription, jobTitle]);
+  }, [analysisRequestId, clearPendingAnalysis, file, filename, navigate, setReport, targetRole, jobDescription, jobTitle, redactPii, preview]);
 
   return (
     <div className="relative min-h-[calc(100vh-10rem)] w-full flex items-center justify-center py-6">
       
-      {/* 2. Loading Card Overlay */}
+      {/* Loading Card Overlay */}
       <div className="relative z-10 w-full max-w-lg bg-card/85 border border-border/80 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
         <div className="space-y-8">
           
@@ -140,25 +153,57 @@ export default function AnalyzingPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-4 px-2 text-center space-y-8">
               
-              {/* Spinning Loader with Primary Color (Gold) */}
-              <div className="flex items-center justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              {/* Custom Document Scanner Graphic */}
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative w-24 h-32 border border-primary/20 rounded-xl bg-zinc-950/60 flex flex-col gap-2.5 p-3.5 overflow-hidden shadow-[0_0_20px_rgba(214,169,67,0.05)] select-none">
+                  {/* Scanner laser bar */}
+                  <motion.div
+                    className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_8px_rgba(214,169,67,0.8)]"
+                    animate={{ top: ["10%", "90%", "10%"] }}
+                    transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                  />
+                  {/* CV layout lines */}
+                  <div className="w-1/3 h-2.5 bg-primary/25 rounded-md" />
+                  <div className="w-full h-1.5 bg-zinc-800/80 rounded" />
+                  <div className="w-5/6 h-1.5 bg-zinc-800/80 rounded" />
+                  <div className="w-11/12 h-1.5 bg-zinc-800/80 rounded" />
+                  <div className="w-3/4 h-1.5 bg-zinc-800/80 rounded" />
+                  <div className="w-1/2 h-1.5 bg-zinc-850 rounded" />
+                  <div className="w-5/6 h-1.5 bg-zinc-800/80 rounded" />
+                  <div className="w-full h-1.5 bg-zinc-800/80 rounded" />
+                </div>
               </div>
 
-              {/* Dynamic Progress Bar */}
+              {/* Dynamic Fluid Progress Bar */}
               <div className="w-full space-y-2.5">
                 <div className="flex justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
                   <span>Progress</span>
                   <span className="tabular-nums font-bold text-primary">{Math.round(progress)}%</span>
                 </div>
-                <Progress value={progress} className="w-full bg-zinc-950/70 border border-zinc-850" />
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-zinc-950/70 border border-zinc-850">
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                  />
+                </div>
               </div>
 
-              {/* Progress tip card */}
-              <div className="w-full rounded-xl bg-zinc-950/40 border border-border/50 px-5 py-4 min-h-[90px] flex items-center justify-center">
-                <p className="text-sm font-semibold text-zinc-200 transition-all duration-300 leading-relaxed">
-                  {LOADING_TIPS[tipIndex]}
-                </p>
+              {/* Progress tip card with Framer Motion transitions */}
+              <div className="w-full rounded-xl bg-zinc-950/40 border border-border/50 px-5 py-4 min-h-[90px] flex items-center justify-center overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={tipIndex}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.28, ease: "easeOut" }}
+                    className="text-sm font-semibold text-zinc-200 leading-relaxed"
+                  >
+                    {LOADING_TIPS[tipIndex]}
+                  </motion.p>
+                </AnimatePresence>
               </div>
               
             </div>

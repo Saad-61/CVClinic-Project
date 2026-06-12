@@ -1,17 +1,44 @@
 import { useState } from "react";
-import { ExternalLink, MapPin, Mail, Loader2, CheckCircle2 } from "lucide-react";
+import { ExternalLink, MapPin, Mail, Loader2, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { generateCoverLetter } from "../../api/cv";
 import { CopyButton } from "../copy-button";
 import { Button } from "../ui/button";
 import type { MatchedJob } from "../../types/cv";
 import SpotlightCard from "../animations/SpotlightCard";
 import { Sheet } from "../ui/sheet";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface JobCardProps {
   job: MatchedJob;
   showScore: boolean;
   cvText?: string;
   compact?: boolean;
+}
+
+function highlightDescription(desc: string, matched: string[] = []) {
+  if (!desc) return "";
+  if (!matched.length) return desc;
+
+  // Escape regex special characters
+  const escapedSkills = matched.map((s) => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"));
+  // Match skills with word boundaries
+  const regex = new RegExp(`\\b(${escapedSkills.join("|")})\\b`, "gi");
+
+  const parts = desc.split(regex);
+  return parts.map((part, index) => {
+    const isMatch = matched.some((s) => s.toLowerCase() === part.toLowerCase());
+    if (isMatch) {
+      return (
+        <mark
+          key={index}
+          className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded text-xs font-semibold"
+        >
+          {part}
+        </mark>
+      );
+    }
+    return part;
+  });
 }
 
 export function JobCard({ job, showScore, cvText, compact = false }: JobCardProps) {
@@ -22,6 +49,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
   const [coverLoading, setCoverLoading] = useState(false);
   const [coverError, setCoverError] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const barColor =
     pct >= 80 ? "bg-emerald-500" : pct >= 60 ? "bg-amber-500" : "bg-rose-500";
@@ -34,21 +62,32 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
         <div className="min-w-0">
           <div className="font-semibold text-white leading-snug">{job.title}</div>
           {job.company_name && (
-            <div className="mt-0.5 text-xs text-slate-600">{job.company_name}</div>
+            <div className="mt-0.5 text-xs text-slate-650">{job.company_name}</div>
           )}
           {(job.location || job.source) && (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               {job.location && (
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
                   {job.location}
                 </span>
               )}
-              {job.source && (
-                <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-slate-800">
-                  {job.source}
-                </span>
-              )}
+              {job.source && (() => {
+                const s = job.source.toLowerCase();
+                let style = "bg-primary/10 text-primary border-primary/20";
+                if (s.includes("jooble")) style = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                else if (s.includes("linkedin")) style = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                else if (s.includes("remotive")) style = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+                else if (s.includes("jobicy")) style = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                else if (s.includes("adzuna")) style = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                else if (s.includes("arbeitnow")) style = "bg-teal-500/10 text-teal-400 border-teal-500/20";
+                
+                return (
+                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border ${style}`}>
+                    {job.source}
+                  </span>
+                );
+              })()}
             </div>
           )}
         </div>
@@ -60,7 +99,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       </div>
 
       {showScore && (
-        <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
+        <div className="mt-2.5 h-1.5 w-full rounded-full bg-muted">
           <div
             className={`h-1.5 rounded-full transition-all duration-700 ${barColor}`}
             style={{ width: `${Math.max(pct, 4)}%` }}
@@ -73,7 +112,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20"
+              className="rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-400 border border-amber-500/20"
             >
               {s}
             </span>
@@ -82,7 +121,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
       ) : null}
 
       {!compact && (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-3.5 flex flex-wrap items-center gap-2">
           {job.url ? (
             <a
               href={job.url}
@@ -112,7 +151,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
                     cv_text: cvText,
                     job: {
                       title: job.title,
-                      description: job.description,
+                      description: job.description || "",
                       company_name: job.company_name,
                       location: job.location,
                       source: job.source,
@@ -144,7 +183,49 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               {coverLetter ? "View cover letter" : "Draft cover letter"}
             </Button>
           ) : null}
+          {job.description ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="text-zinc-400 hover:text-white hover:bg-zinc-800/40 text-xs gap-1 py-1 h-auto font-semibold ml-auto"
+              onClick={() => setDescExpanded((c) => !c)}
+            >
+              {descExpanded ? (
+                <>
+                  Hide Details <ChevronUp className="h-3.5 w-3.5" />
+                </>
+              ) : (
+                <>
+                  Show Details <ChevronDown className="h-3.5 w-3.5" />
+                </>
+              )}
+            </Button>
+          ) : null}
         </div>
+      )}
+
+      {!compact && job.description && (
+        <AnimatePresence>
+          {descExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 pt-4 border-t border-border/60 space-y-2.5">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                  Job Description & Matched Gaps
+                </div>
+                <div className="text-xs leading-relaxed text-zinc-350 bg-zinc-950/40 p-3.5 border border-border rounded-xl whitespace-pre-wrap font-sans max-h-60 overflow-y-auto">
+                  {highlightDescription(job.description, job.matched_skills)}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       {!compact && coverError ? (

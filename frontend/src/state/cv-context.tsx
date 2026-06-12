@@ -15,6 +15,7 @@ type CvState = {
   analysisMode: AnalysisMode;
   jobDescription: string;
   jobTitle: string;
+  redactPii: boolean;
 };
 
 type CvActions = {
@@ -28,6 +29,7 @@ type CvActions = {
   setAnalysisMode: (mode: AnalysisMode) => void;
   setJobDescription: (jd: string) => void;
   setJobTitle: (title: string) => void;
+  setRedactPii: (redact: boolean) => void;
 };
 
 const CvContext = createContext<(CvState & CvActions) | null>(null);
@@ -43,6 +45,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
   const [analysisMode, setAnalysisModeState] = useState<AnalysisMode>("best-matches");
   const [jobDescription, setJobDescriptionState] = useState("");
   const [jobTitle, setJobTitleState] = useState("");
+  const [redactPii, setRedactPiiState] = useState(false);
 
   const setFile = useCallback((next: File | null) => {
     setFileState(next);
@@ -87,6 +90,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setAnalysisModeState("best-matches");
     setJobDescriptionState("");
     setJobTitleState("");
+    setRedactPiiState(false);
     clearStoredReport();
   }, []);
 
@@ -106,6 +110,10 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
     setJobTitleState(title);
   }, []);
 
+  const setRedactPii = useCallback((redact: boolean) => {
+    setRedactPiiState(redact);
+  }, []);
+
   const value = useMemo(
     () => ({
       file,
@@ -118,6 +126,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       analysisMode,
       jobDescription,
       jobTitle,
+      redactPii,
       setFile,
       setPreview,
       setReport,
@@ -128,6 +137,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       setAnalysisMode,
       setJobDescription,
       setJobTitle,
+      setRedactPii,
     }),
     [
       file,
@@ -140,6 +150,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       analysisMode,
       jobDescription,
       jobTitle,
+      redactPii,
       setFile,
       setPreview,
       setReport,
@@ -150,6 +161,7 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
       setAnalysisMode,
       setJobDescription,
       setJobTitle,
+      setRedactPii,
     ],
   );
 

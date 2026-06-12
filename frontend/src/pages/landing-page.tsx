@@ -25,6 +25,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "..
 import BlurText from "../components/animations/BlurText";
 import ShinyText from "../components/animations/ShinyText";
 import SpotlightCard from "../components/animations/SpotlightCard";
+import { redactPiiText } from "../lib/utils";
 
 
 
@@ -72,6 +73,8 @@ export default function LandingPage() {
     setJobDescription,
     jobTitle,
     setJobTitle,
+    redactPii,
+    setRedactPii,
   } = useCv();
 
   const JD_MAX = 4000;
@@ -925,10 +928,21 @@ export default function LandingPage() {
                     </div>
                   ) : preview ? (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                          Review before analyzing
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-4 text-[11px] sm:text-xs text-slate-500">
+                          <span className="flex items-center gap-1.5">
+                            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                            Review before analyzing
+                          </span>
+                          <label className="flex items-center gap-1.5 cursor-pointer select-none text-[10px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={redactPii}
+                              onChange={(e) => setRedactPii(e.target.checked)}
+                              className="rounded border-zinc-800 bg-zinc-950 text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5"
+                            />
+                            Redact PII (Email/Phone)
+                          </label>
                         </div>
                         <button
                           type="button"
@@ -947,7 +961,7 @@ export default function LandingPage() {
                           }`}
                         aria-label="Extracted CV text preview"
                       >
-                        {preview}
+                        {redactPii ? redactPiiText(preview) : preview}
                       </pre>
                     </div>
                   ) : (

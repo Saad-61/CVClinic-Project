@@ -9,6 +9,7 @@ import { CopyButton } from "./copy-button";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { diffWords } from "../lib/diff";
 
 type RewriteState = {
   plain?: GenerateFixRewriteResponse;
@@ -50,6 +51,40 @@ function extractSectionBlock(cvText: string, section: string, maxLines = 20) {
   return block.join("\n").trim();
 }
 
+function renderDiffBefore(diffs: any[]) {
+  return diffs.map((change, idx) => {
+    if (change.added) return null;
+    if (change.removed) {
+      return (
+        <span
+          key={`before-${idx}`}
+          className="bg-rose-950/40 text-rose-355 line-through px-0.5 rounded font-medium border-b border-rose-800/30"
+        >
+          {change.value}
+        </span>
+      );
+    }
+    return <span key={`before-${idx}`}>{change.value}</span>;
+  });
+}
+
+function renderDiffAfter(diffs: any[]) {
+  return diffs.map((change, idx) => {
+    if (change.removed) return null;
+    if (change.added) {
+      return (
+        <span
+          key={`after-${idx}`}
+          className="bg-emerald-950/45 text-emerald-300 font-medium px-0.5 rounded border-b border-emerald-800/30"
+        >
+          {change.value}
+        </span>
+      );
+    }
+    return <span key={`after-${idx}`}>{change.value}</span>;
+  });
+}
+
 export function QuickRewriteCard({
   candidate,
   cvText,
@@ -75,6 +110,11 @@ export function QuickRewriteCard({
     () => extractSectionBlock(cvText, candidate.section),
     [candidate.section, cvText],
   );
+
+  const diffs = useMemo(() => {
+    if (!current?.rewritten_text || !sourceSection) return [];
+    return diffWords(sourceSection, current.rewritten_text);
+  }, [sourceSection, current?.rewritten_text]);
 
   const requestFormat = async (format: "plain" | "latex") => {
     if (results[format]?.rewritten_text) {
@@ -132,7 +172,7 @@ export function QuickRewriteCard({
             </div>
             <p className="mt-2 text-sm text-zinc-300">{candidate.fix}</p>
           </div>
-          <Button type="button" onClick={() => requestFormat("plain")}>
+          <Button type="button" onClick={() => requestFormat("plain")} disabled={loadingFormat !== null}>
             {loadingFormat === "plain" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -153,7 +193,7 @@ export function QuickRewriteCard({
           </p>
         ) : null}
 
-        {sourceSection ? (
+        {sourceSection && !current?.rewritten_text ? (
           <div className="rounded-lg border border-border bg-muted p-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Source section
@@ -173,6 +213,7 @@ export function QuickRewriteCard({
                   size="sm"
                   variant={activeFormat === "plain" ? "default" : "outline"}
                   onClick={() => requestFormat("plain")}
+                  disabled={loadingFormat !== null}
                 >
                   Plain text
                 </Button>
@@ -181,6 +222,7 @@ export function QuickRewriteCard({
                   size="sm"
                   variant={activeFormat === "latex" ? "default" : "outline"}
                   onClick={() => requestFormat("latex")}
+                  disabled={loadingFormat !== null}
                 >
                   <Braces className="h-4 w-4" />
                   LaTeX version
@@ -198,18 +240,37 @@ export function QuickRewriteCard({
 
             {error ? <div className="text-sm text-rose-400">{error}</div> : null}
 
-            {current?.rewritten_text ? (
-              <>
-                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-card border border-border p-4 text-sm leading-relaxed text-zinc-200">
-                  {current.rewritten_text}
-                </pre>
+            {current?.rewritten_text && loadingFormat !== activeFormat ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Before (Original) Panel */}
+                  <div className="rounded-xl border border-rose-900/20 bg-zinc-950/40 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-rose-400">
+                      <span>Before (Original)</span>
+                    </div>
+                    <div className="h-48 overflow-y-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-300 font-mono bg-zinc-950/30 p-3 rounded-lg border border-border/40">
+                      {renderDiffBefore(diffs)}
+                    </div>
+                  </div>
+
+                  {/* After (Suggested Rewrite) */}
+                  <div className="rounded-xl border border-emerald-900/20 bg-zinc-950/40 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      <span>After (Suggested Rewrite)</span>
+                    </div>
+                    <div className="h-48 overflow-y-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-200 font-mono bg-zinc-950/30 p-3 rounded-lg border border-border/40">
+                      {renderDiffAfter(diffs)}
+                    </div>
+                  </div>
+                </div>
+
                 {current.notes ? (
-                  <p className="text-sm text-zinc-400">
+                  <p className="text-xs text-zinc-400 bg-zinc-950/20 border border-border/60 rounded-xl p-3.5 leading-relaxed">
                     <span className="font-semibold text-zinc-200">Paste note:</span>{" "}
                     {current.notes}
                   </p>
                 ) : null}
-              </>
+              </div>
             ) : null}
           </div>
         ) : null}

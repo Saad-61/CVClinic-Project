@@ -55,3 +55,12 @@ export function stripHtml(value: string) {
     .trim();
 }
 
+export function redactPiiText(text: string): string {
+  if (!text) return "";
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const phoneRegex = /(?:\+\d{1,3}[-.\s]?)?\(?\d{3,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{4,9}/g;
+  return text
+    .replace(emailRegex, "[email redacted]")
+    .replace(phoneRegex, "[phone redacted]");
+}
+

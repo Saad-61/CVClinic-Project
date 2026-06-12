@@ -41,12 +41,14 @@ export async function analyzeCv(
   signal?: AbortSignal,
   jobDescription?: string,
   jobTitle?: string,
+  cvText?: string,
 ) {
   const form = new FormData();
   form.append("file", file);
   if (targetRole) form.append("target_role", targetRole);
   if (jobDescription) form.append("job_description", jobDescription);
   if (jobTitle) form.append("job_title", jobTitle);
+  if (cvText) form.append("cv_text", cvText);
 
   const response = await fetch("/api/cv/analyze", {
     method: "POST",

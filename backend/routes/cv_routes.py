@@ -53,9 +53,13 @@ async def analyze(
     target_role: str | None = Form(None),
     job_description: str | None = Form(None),
     job_title: str | None = Form(None),
+    cv_text: str | None = Form(None),
 ):
     file_path = save_file(file)
-    text = extract_text_from_file(file_path)
+    if cv_text:
+        text = cv_text
+    else:
+        text = extract_text_from_file(file_path)
     validate_cv_text(text)
     file_links = extract_links_from_file(file_path, text)
 
