@@ -18,15 +18,51 @@ type RewriteState = {
 
 function extractSectionBlock(cvText: string, section: string, maxLines = 20) {
   const lines = cvText.split(/\r?\n/);
-  const target = section.trim().toLowerCase();
+  const terms = section.split("->").map(t => t.trim().toLowerCase()).filter(Boolean);
+  if (terms.length === 0) return cvText.trim().slice(0, 800);
+
+  const targetTerm = terms[terms.length - 1];
   let startIndex = -1;
 
-  for (let index = 0; index < lines.length; index += 1) {
-    const current = lines[index].trim().toLowerCase();
-    if (!current) continue;
-    if (current === target || current.startsWith(`${target} `) || current.startsWith(`${target}:`)) {
-      startIndex = index;
+  // 1. Look for a line containing/matching targetTerm with bullet or start check
+  for (let idx = 0; idx < lines.length; idx++) {
+    const lineClean = lines[idx].trim().toLowerCase();
+    if (!lineClean) continue;
+    if (
+      lineClean === targetTerm ||
+      lineClean.startsWith(`${targetTerm} `) ||
+      lineClean.startsWith(`${targetTerm}:`) ||
+      (lineClean.includes(targetTerm) && (lineClean.includes("•") || lineClean.includes("-") || lineClean.includes("*")))
+    ) {
+      startIndex = idx;
       break;
+    }
+  }
+
+  // 2. Look for any line containing targetTerm
+  if (startIndex === -1) {
+    for (let idx = 0; idx < lines.length; idx++) {
+      const lineClean = lines[idx].trim().toLowerCase();
+      if (lineClean.includes(targetTerm)) {
+        startIndex = idx;
+        break;
+      }
+    }
+  }
+
+  // 3. Fall back to parent term if multiple parts
+  if (startIndex === -1 && terms.length > 1) {
+    const parentTerm = terms[0];
+    for (let idx = 0; idx < lines.length; idx++) {
+      const lineClean = lines[idx].trim().toLowerCase();
+      if (
+        lineClean === parentTerm ||
+        lineClean.startsWith(`${parentTerm} `) ||
+        lineClean.startsWith(`${parentTerm}:`)
+      ) {
+        startIndex = idx;
+        break;
+      }
     }
   }
 
@@ -35,14 +71,21 @@ function extractSectionBlock(cvText: string, section: string, maxLines = 20) {
   }
 
   const block: string[] = [];
+  const startIsBullet = /^[•\-*]/.test(lines[startIndex].trim());
+
   for (let index = startIndex; index < lines.length; index += 1) {
     const line = lines[index];
     const trimmed = line.trim();
-    if (block.length > 0 && trimmed && trimmed === trimmed.toUpperCase() && trimmed.length <= 80) {
-      break;
-    }
-    if (block.length > 0 && trimmed.endsWith(":") && trimmed.length <= 40) {
-      break;
+    if (block.length > 0) {
+      if (startIsBullet && /^[•\-*]/.test(trimmed)) {
+        break;
+      }
+      if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length <= 80) {
+        break;
+      }
+      if (trimmed.endsWith(":") && trimmed.length <= 40) {
+        break;
+      }
     }
     block.push(line);
     if (block.length >= maxLines) break;
@@ -106,10 +149,28 @@ export function QuickRewriteCard({
   }, []);
 
   const current = useMemo(() => results[activeFormat], [activeFormat, results]);
-  const sourceSection = useMemo(
-    () => extractSectionBlock(cvText, candidate.section),
-    [candidate.section, cvText],
-  );
+  const sourceSection = useMemo(() => {
+    let rawBlock = extractSectionBlock(cvText, candidate.section);
+    const lines = rawBlock.split(/\r?\n/);
+    if (lines.length > 1) {
+      const firstLine = lines[0].trim();
+      const firstLineLower = firstLine.toLowerCase();
+      const sectionLower = candidate.section.toLowerCase();
+      const parentSectionLower = candidate.section.split("->")[0].trim().toLowerCase();
+
+      if (
+        firstLineLower === sectionLower ||
+        firstLineLower === parentSectionLower ||
+        (firstLine === firstLine.toUpperCase() && firstLine.length <= 40)
+      ) {
+        const rewriteText = results[activeFormat]?.rewritten_text || "";
+        if (rewriteText && !rewriteText.toLowerCase().includes(firstLineLower)) {
+          rawBlock = lines.slice(1).join("\n").trim();
+        }
+      }
+    }
+    return rawBlock;
+  }, [candidate.section, cvText, results, activeFormat]);
 
   const diffs = useMemo(() => {
     if (!current?.rewritten_text || !sourceSection) return [];

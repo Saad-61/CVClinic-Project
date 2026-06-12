@@ -57,10 +57,14 @@ export default function AnalyzingPage() {
   useEffect(() => {
     const progressTimer = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 95) return 95;
-        // Slow down as it approaches 95% to allow server response time
+        if (prev >= 99) return 99;
+        if (prev >= 95) {
+          return prev + 1;
+        }
         const step = prev > 70 ? Math.random() * 0.8 + 0.1 : Math.random() * 2 + 0.5;
-        return prev + step;
+        const nextVal = prev + step;
+        if (nextVal >= 95) return 95;
+        return nextVal;
       });
     }, 400);
     return () => clearInterval(progressTimer);
@@ -182,11 +186,14 @@ export default function AnalyzingPage() {
                 </div>
                 <div className="relative h-2 w-full overflow-hidden rounded-full bg-zinc-950/70 border border-zinc-850">
                   <motion.div
-                    className="h-full bg-primary rounded-full"
+                    className="relative h-full bg-primary rounded-full overflow-hidden"
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                  />
+                  >
+                    {/* Shimmer overlay */}
+                    <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.25)_50%,transparent_100%)] animate-progress-shimmer" />
+                  </motion.div>
                 </div>
               </div>
 

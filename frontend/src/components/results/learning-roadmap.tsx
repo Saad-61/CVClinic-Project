@@ -2,6 +2,7 @@ import { BookOpen } from "lucide-react";
 import type { MissingSkill } from "../../types/cv";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface LearningRoadmapProps {
   skills: MissingSkill[];
@@ -75,61 +76,30 @@ export function LearningRoadmap({ skills }: LearningRoadmapProps) {
         </div>
       </div>
 
-      {/* Horizontal Phase Timeline Stepper */}
+      {/* Centered Tabs Switcher */}
       {phases.length > 1 && (
-        <div className="relative flex items-center justify-between max-w-md mx-auto mb-8 px-6">
-          {/* Connecting Track Line */}
-          <div className="absolute left-10 right-10 top-[18px] h-0.5 bg-zinc-800 -translate-y-1/2 z-0">
-            <motion.div
-              className="h-full bg-primary"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentPhaseIndex / (phases.length - 1)) * 100}%` }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-            />
-          </div>
-
-          {phases.map((phase, idx) => {
-            const isCompletedOrActive = idx <= currentPhaseIndex;
-            const isActive = idx === currentPhaseIndex;
-            
-            return (
-              <button
-                key={phase.label}
-                onClick={() => setActivePhase(idx)}
-                className="relative z-10 flex flex-col items-center gap-1.5 focus:outline-none group"
-              >
-                {/* Step Circle Indicator */}
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-350 font-bold text-xs ${
-                    isActive
-                      ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(214,169,67,0.45)] scale-110"
-                      : isCompletedOrActive
-                      ? "bg-primary/90 border-primary text-primary-foreground"
-                      : "bg-zinc-950 border-zinc-850 text-zinc-500 group-hover:border-zinc-750 group-hover:text-zinc-350"
-                  }`}
+        <div className="flex justify-center mb-8">
+          <Tabs
+            value={String(currentPhaseIndex)}
+            onValueChange={(val) => setActivePhase(Number(val))}
+            className="w-full max-w-md"
+          >
+            <TabsList
+              className="grid bg-zinc-950/60 p-1 border border-border/80 rounded-xl shadow-sm gap-1 mx-auto w-full"
+              style={{ gridTemplateColumns: `repeat(${phases.length}, minmax(0, 1fr))` }}
+            >
+              {phases.map((phase, idx) => (
+                <TabsTrigger
+                  key={phase.label}
+                  value={String(idx)}
+                  className="flex flex-col items-center justify-center py-1.5 px-3 text-xs font-semibold rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                 >
-                  {idx + 1}
-                </div>
-                {/* Step Text Labels */}
-                <div className="flex flex-col items-center text-center">
-                  <span
-                    className={`text-[9px] font-black uppercase tracking-wider transition-colors duration-300 ${
-                      isActive ? "text-primary" : "text-zinc-500 group-hover:text-zinc-400"
-                    }`}
-                  >
-                    {phase.label}
-                  </span>
-                  <span
-                    className={`text-[8px] font-semibold transition-colors duration-300 whitespace-nowrap ${
-                      isActive ? "text-zinc-200" : "text-zinc-550"
-                    }`}
-                  >
-                    {phase.subLabel}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+                  <span className="text-[10px] font-black uppercase tracking-wider">{phase.label}</span>
+                  <span className="text-[8px] font-semibold opacity-85 whitespace-nowrap">{phase.subLabel}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       )}
 

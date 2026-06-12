@@ -485,4 +485,16 @@ select:focus, input:focus, textarea:focus {
   animation: blob3 infinite ease-in-out;
 }
 
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-progress-shimmer {
+  animation: progress-shimmer 2s infinite linear;
+}
+
 

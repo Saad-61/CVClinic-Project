@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, MapPin, Mail, Loader2, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, MapPin, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import { generateCoverLetter } from "../../api/cv";
 import { CopyButton } from "../copy-button";
 import { Button } from "../ui/button";
@@ -49,12 +49,11 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
   const [coverLoading, setCoverLoading] = useState(false);
   const [coverError, setCoverError] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [descExpanded, setDescExpanded] = useState(false);
 
   const barColor =
-    pct >= 80 ? "bg-emerald-500" : pct >= 60 ? "bg-amber-500" : "bg-rose-500";
+    pct >= 50 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-rose-500";
   const textColor =
-    pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-amber-400" : "text-rose-400";
+    pct >= 50 ? "text-emerald-400" : pct >= 40 ? "text-amber-400" : "text-rose-400";
 
   return (
     <SpotlightCard className="rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -112,7 +111,7 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
           {job.matched_skills.slice(0, 6).map((s) => (
             <span
               key={s}
-              className="rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-400 border border-amber-500/20"
+              className="rounded-md bg-zinc-900 px-2 py-0.5 text-xs font-semibold text-zinc-300 border border-zinc-800"
             >
               {s}
             </span>
@@ -183,49 +182,18 @@ export function JobCard({ job, showScore, cvText, compact = false }: JobCardProp
               {coverLetter ? "View cover letter" : "Draft cover letter"}
             </Button>
           ) : null}
-          {job.description ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              className="text-zinc-400 hover:text-white hover:bg-zinc-800/40 text-xs gap-1 py-1 h-auto font-semibold ml-auto"
-              onClick={() => setDescExpanded((c) => !c)}
-            >
-              {descExpanded ? (
-                <>
-                  Hide Details <ChevronUp className="h-3.5 w-3.5" />
-                </>
-              ) : (
-                <>
-                  Show Details <ChevronDown className="h-3.5 w-3.5" />
-                </>
-              )}
-            </Button>
-          ) : null}
         </div>
       )}
 
       {!compact && job.description && (
-        <AnimatePresence>
-          {descExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 pt-4 border-t border-border/60 space-y-2.5">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  Job Description & Matched Gaps
-                </div>
-                <div className="text-xs leading-relaxed text-zinc-350 bg-zinc-950/40 p-3.5 border border-border rounded-xl whitespace-pre-wrap font-sans max-h-60 overflow-y-auto">
-                  {highlightDescription(job.description, job.matched_skills)}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="mt-4 pt-4 border-t border-border/60 space-y-2.5">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Job Description & Matched Gaps
+          </div>
+          <div className="text-xs leading-relaxed text-zinc-350 bg-zinc-950/40 p-3.5 border border-border rounded-xl whitespace-pre-wrap font-sans max-h-60 overflow-y-auto">
+            {highlightDescription(job.description, job.matched_skills)}
+          </div>
+        </div>
       )}
 
       {!compact && coverError ? (
