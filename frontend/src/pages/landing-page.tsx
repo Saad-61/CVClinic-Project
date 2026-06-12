@@ -26,6 +26,7 @@ import BlurText from "../components/animations/BlurText";
 import ShinyText from "../components/animations/ShinyText";
 import SpotlightCard from "../components/animations/SpotlightCard";
 import { redactPiiText } from "../lib/utils";
+import { Checkbox } from "../components/ui/checkbox";
 
 
 
@@ -934,14 +935,12 @@ export default function LandingPage() {
                             <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                             Review before analyzing
                           </span>
-                          <label className="flex items-center gap-1.5 cursor-pointer select-none text-[10px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
-                            <input
-                              type="checkbox"
+                          <label className="flex items-center gap-2 cursor-pointer select-none text-[10px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
+                            <Checkbox
                               checked={redactPii}
-                              onChange={(e) => setRedactPii(e.target.checked)}
-                              className="rounded border-zinc-800 bg-zinc-950 text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5"
+                              onCheckedChange={setRedactPii}
                             />
-                            Redact PII (Email/Phone)
+                            <span>Redact PII (Email/Phone)</span>
                           </label>
                         </div>
                         <button

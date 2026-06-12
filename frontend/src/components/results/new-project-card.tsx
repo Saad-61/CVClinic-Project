@@ -1,5 +1,4 @@
 import type { MissingSkill } from "../../types/cv";
-import { Badge } from "../ui/badge";
 
 interface NewProjectCardProps {
   skill: MissingSkill;
@@ -22,12 +21,18 @@ export function NewProjectCard({ skill }: NewProjectCardProps) {
   return (
     <div className="rounded-xl border-l-4 border-l-primary border border-border bg-card p-5 shadow-sm space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Badge variant="amber" className="font-semibold">
+        <span className="rounded-full border bg-zinc-900 border-zinc-800/80 px-2.5 py-0.5 text-xs font-semibold text-zinc-300">
           {skill.skill}
-        </Badge>
-        <Badge variant={difficulty.variant} className="text-[10px] font-medium">
+        </span>
+        <span className={`rounded-full border bg-zinc-900 border-zinc-800/80 px-2.5 py-0.5 text-[10px] font-semibold ${
+          difficulty.variant === "red"
+            ? "text-rose-400"
+            : difficulty.variant === "amber"
+            ? "text-amber-400"
+            : "text-zinc-400"
+        }`}>
           {difficulty.label}
-        </Badge>
+        </span>
       </div>
 
       <div>

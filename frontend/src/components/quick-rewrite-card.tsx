@@ -6,7 +6,6 @@ import type {
   QuickRewriteCandidate,
 } from "../types/cv";
 import { CopyButton } from "./copy-button";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { diffWords } from "../lib/diff";
@@ -227,9 +226,11 @@ export function QuickRewriteCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-sm font-semibold text-white">{candidate.section}</div>
-              <Badge variant={candidate.source === "cv_fix" ? "amber" : "slate"}>
+              <span className={`rounded-full border bg-zinc-900 border-zinc-800/80 px-2.5 py-0.5 text-[10px] font-semibold ${
+                candidate.source === "cv_fix" ? "text-amber-400" : "text-zinc-400"
+              }`}>
                 {candidate.source === "cv_fix" ? "From CV fix" : "Promoted from action"}
-              </Badge>
+              </span>
             </div>
             <p className="mt-2 text-sm text-zinc-300">{candidate.fix}</p>
           </div>

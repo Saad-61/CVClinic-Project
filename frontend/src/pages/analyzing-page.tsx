@@ -57,6 +57,7 @@ export default function AnalyzingPage() {
   useEffect(() => {
     const progressTimer = setInterval(() => {
       setProgress((prev) => {
+        if (prev >= 100) return 100;
         if (prev >= 99) return 99;
         if (prev >= 95) {
           return prev + 1;
@@ -88,9 +89,12 @@ export default function AnalyzingPage() {
 
     analyzeCv(file, targetRole, controller.signal, jobDescription || undefined, jobTitle || undefined, cvPayloadText)
       .then((report) => {
-        setReport(report, filename || file.name, createdAt);
-        saveStoredReport({ filename: filename || file.name, createdAt, report });
-        navigate("/results", { replace: true });
+        setProgress(100);
+        setTimeout(() => {
+          setReport(report, filename || file.name, createdAt);
+          saveStoredReport({ filename: filename || file.name, createdAt, report });
+          navigate("/results", { replace: true });
+        }, 600);
       })
       .catch((e) => {
         if ((e as Error).name === "AbortError") return;

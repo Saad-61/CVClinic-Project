@@ -573,13 +573,13 @@ export default function ResultsPage() {
                   ) : null}
 
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-zinc-950 border border-emerald-500/20 px-2.5 py-1 font-semibold text-emerald-400">
+                    <span className="rounded-full bg-zinc-900 border border-zinc-800/80 px-2.5 py-1 font-semibold text-emerald-400">
                       Above 50% = strong
                     </span>
-                    <span className="rounded-full bg-zinc-950 border border-amber-500/20 px-2.5 py-1 font-semibold text-amber-400">
+                    <span className="rounded-full bg-zinc-900 border border-zinc-800/80 px-2.5 py-1 font-semibold text-amber-400">
                       40–50% = workable
                     </span>
-                    <span className="rounded-full bg-zinc-950 border border-rose-500/20 px-2.5 py-1 font-semibold text-rose-400">
+                    <span className="rounded-full bg-zinc-900 border border-zinc-800/80 px-2.5 py-1 font-semibold text-rose-400">
                       Below 40% = weak
                     </span>
                   </div>
@@ -874,9 +874,9 @@ export default function ResultsPage() {
                                 <span className="text-sm font-semibold text-white">
                                   {fix.section}
                                 </span>
-                                <Badge variant="amber" className="shrink-0 ml-2">
+                                <span className="rounded-full border bg-zinc-900 border-zinc-800/80 px-2.5 py-0.5 text-[10px] font-semibold text-amber-400 shrink-0 ml-2">
                                   Fix Needed
-                                </Badge>
+                                </span>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent className="pb-4 pt-1 space-y-2 text-zinc-300">

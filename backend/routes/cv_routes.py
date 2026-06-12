@@ -62,6 +62,8 @@ async def analyze(
         text = extract_text_from_file(file_path)
     validate_cv_text(text)
     file_links = extract_links_from_file(file_path, text)
+    if cv_text:
+        file_links = [l for l in file_links if "@" not in l and not l.lower().startswith("mailto:")]
 
     # Normalise JD inputs
     jd_text  = (job_description or "").strip()[:4000] or None

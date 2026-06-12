@@ -53,23 +53,23 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
           <div className="text-sm font-bold text-white">{skill.skill}</div>
           <div className="mt-1 flex flex-wrap gap-1.5">
             <span
-              className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
+              className={`rounded-md border px-2 py-0.5 text-xs font-semibold bg-zinc-900 border-zinc-800/80 ${
                 priority === "HIGH"
-                  ? "bg-rose-950/40 text-rose-300"
+                  ? "text-rose-400"
                   : priority === "MEDIUM"
-                  ? "bg-amber-950/40 text-amber-300"
-                  : "bg-zinc-800 text-zinc-300"
+                  ? "text-amber-400"
+                  : "text-zinc-400"
               }`}
             >
               {priority}
             </span>
-            <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-300 border border-zinc-700/20 shadow-sm">
+            <span className="rounded-md bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-zinc-300 border border-zinc-800/80 shadow-sm">
               {isNew ? "New project" : "Add to existing"}
             </span>
           </div>
         </div>
         {skill.project ? (
-          <span className="shrink-0 rounded-md bg-zinc-800 px-2 py-1 text-xs font-bold text-zinc-300 border border-zinc-700/20 shadow-sm">
+          <span className="shrink-0 rounded-md bg-zinc-900 px-2 py-1 text-xs font-bold text-zinc-300 border border-zinc-800/80 shadow-sm">
             {skill.project}
           </span>
         ) : null}
