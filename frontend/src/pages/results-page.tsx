@@ -337,6 +337,23 @@ export default function ResultsPage() {
                             ? "Specified before upload"
                             : "Analyzed from your resume"}
                         </div>
+                        <div className={`text-xs font-semibold mt-1 ${
+                          resumeScore >= 85
+                            ? "text-emerald-400"
+                            : resumeScore >= 70
+                            ? "text-emerald-400/90"
+                            : resumeScore >= 55
+                            ? "text-amber-400"
+                            : "text-rose-400"
+                        }`}>
+                          {resumeScore >= 85
+                            ? "Strong candidate — apply confidently"
+                            : resumeScore >= 70
+                            ? "Good fit — minor gaps to close"
+                            : resumeScore >= 55
+                            ? "Partial fit — skills work needed"
+                            : "Significant gaps — build first"}
+                        </div>
                       </div>
                     </div>
                   )}

@@ -72,7 +72,7 @@ def _build_structured_prompt(
     target_role_section = ""
     if job_description and job_description.strip():
         # JD mode: full job description injected — advice is role-specific
-        jd_preview = job_description.strip()[:3000]
+        jd_preview = job_description.strip()[:5000]
         role_label = (target_role or "the target role").strip()
         target_role_section = f"""
 ---
@@ -86,6 +86,7 @@ All missing skills, CV fixes, top actions, and project ideas MUST be derived
 exclusively from the requirements stated in the job description above.
 Do NOT give generic advice. Every recommendation must directly map to a
 specific requirement in this job description.
+In your explanations/reasons/gaps, you MUST map each missing skill directly to the exact line in the job description that requires it by quoting it inline (e.g. 'as required by "Must have 3+ years experience with Docker..."').
 The candidate wants to know: "Am I a fit for THIS specific role?"
 """
     elif target_role and target_role.strip():
@@ -140,13 +141,23 @@ TASKS & DETAILED INSTRUCTIONS:
    - You MUST propose EXACTLY 2 entries as new project ideas (project_type: "new"). 
    - You MUST propose EXACTLY 3 entries as existing projects to update (project_type: "existing").
    - For the 2 new projects:
-     * STRICT CRITICAL RULE: The proposed projects MUST be completely new, standalone project concepts from scratch that are NOT listed anywhere on the candidate's CV. Do NOT suggest containerizing, writing tests for, or adding features to projects already listed on the candidate's CV (e.g. do not suggest containerizing or testing their existing 'Student Management System' or 'Simple Portfolio Website'). Any extensions, containerizations, or test suites for existing CV projects belong strictly in the 'existing' projects updates.
+     * STRICT CRITICAL RULE: The proposed projects MUST be completely new, standalone project concepts from scratch that are NOT listed anywhere on the candidate's CV. Do NOT suggest containerizing, writing tests for, or adding features to projects already listed on the candidate's CV. Any extensions, containerizations, or test suites for existing CV projects belong strictly in the 'existing' projects updates.
      * Focus on critical technical gaps (e.g. Docker, Redis, CI/CD, testing frameworks like PyTest, message queues like RabbitMQ/Celery).
      * Propose a highly tailored, production-grade project title and details.
      * In "project_idea": Describe a solid architecture, the specific features, and exactly what tools/libraries to use. Write a detailed paragraph (2-3 sentences).
-     * In "implementation": Give advanced step-by-step instructions and explicitly tell the candidate WHERE to look/what resources to read (e.g. "Follow the official Docker multi-stage build docs", "Refer to the FastAPI background tasks guide", "Check the Redis caching standard tutorials"). Write a detailed paragraph (3-4 sentences).
+     * In "implementation": Give step-by-step instructions as 3 phases labeled 'Phase 1:', 'Phase 2:', 'Phase 3:' each on a new line. End the implementation field with a 'Resources:' line listing 2-3 real, specific official doc URLs (e.g. https://docs.docker.com/compose/, https://fastapi.tiangolo.com/tutorial/). Do NOT use generic descriptions like "follow the official docs" — provide actual URLs.
+     * In "tech_stack": List exactly 3-5 specific technology names as a JSON array (e.g. ["Docker", "FastAPI", "PostgreSQL", "Redis"]). Use short canonical names.
+     * In "estimated_hours": Provide an integer — realistic total hours to build this project (e.g. 20 for a weekend project, 50 for a 2-week project).
+     * In "milestone_1": One sentence describing the first deliverable (setup + basic scaffold).
+     * In "milestone_2": One sentence describing the core feature deliverable.
+     * In "milestone_3": One sentence describing the final polish/deploy milestone.
+     * In "learn_at": Provide a JSON array of 2-3 real, specific learning resource URLs for this skill (e.g. ["https://docs.docker.com/get-started/", "https://testdriven.io/courses/tdd-fastapi/"]). Must be real URLs.
    - For the 3 existing project updates (project_type: "existing"):
-     * Select a project from the CV (e.g., BookYourShoot, ScoutVCT, Student Management System) and suggest adding a highly advanced feature that demonstrates the missing skill.
+     * Select a project from the CV and suggest adding a highly advanced feature that demonstrates the missing skill.
+     * Set "tech_stack" to the 2-3 key technologies involved in the upgrade.
+     * Set "estimated_hours" to a realistic integer for the upgrade effort.
+     * Set "learn_at" to 1-2 relevant official documentation URLs.
+     * Leave milestone_1/2/3 as empty strings for existing-type entries.
 
 3. PROJECT IMPROVEMENTS — for existing projects only (Max 3 entries):
    - Read the candidate's existing projects (BookYourShoot, ScoutVCT, VisionBench) and suggest ADVANCED technical upgrades.
@@ -162,8 +173,9 @@ TASKS & DETAILED INSTRUCTIONS:
 5. TOP ACTIONS — exactly 3:
    - STRICT CRITICAL RULES:
      * Do NOT suggest creating a GitHub repository or setting up basic Git.
-     * Do NOT suggest generic "tailor your LinkedIn profile" or "add a summary". If suggesting a LinkedIn/resume polish, be highly specific and advanced (e.g., "Add your PyTorch/CUDA benchmarks or face recognition models pipeline diagram link to LinkedIn").
+     * Do NOT suggest generic "tailor your LinkedIn profile" or "add a summary". If suggesting a LinkedIn/resume polish, be highly specific and advanced.
      * Focus on high-impact, professional actions (e.g. containerizing a service, setting up unit tests with 80%+ coverage, writing API documentation).
+     * In "how": Always include a realistic time estimate at the end in parentheses (e.g. "(~4 hours)", "(~1 weekend)", "(~3-5 days)") and name at least one specific resource or tool to use.
 
 6. INFERRED ROLE — Determine a short 2-3 word career title that best describes the candidate's CV profile (e.g. 'Frontend Developer', 'Machine Learning Engineer', 'DevOps Engineer', 'Full Stack Developer').
 
@@ -173,7 +185,7 @@ RULES:
 - Be specific: name projects, technologies, exact deliverables
 - Do NOT invent projects, metrics, links, or technologies not found in the excerpt or skills list
 - Use the full CV details when proposing top actions, project improvements, and new projects.
-- Do NOT suggest moving technologies or tools to a section they are already in (e.g. if a tool is already under 'Databases & Cloud', do not recommend moving it there).
+- Do NOT suggest moving technologies or tools to a section they are already in.
 - Double check the candidate's existing sections and categories to ensure your CV fixes do not recommend changes the candidate has already implemented.
 - missing_skills: EXACTLY 2 "new" project entries, and EXACTLY 3 "existing" project entries (5 entries total).
 - project_improvements: max 3 entries
@@ -190,7 +202,11 @@ OUTPUT (STRICT JSON ONLY — no markdown fences):
   "missing_skills": [
     {{"skill": "", "priority": "HIGH|MEDIUM|LOW", "why": "",
       "project_type": "existing|new", "project": "",
-      "project_idea": "", "implementation": "", "evidence": ""}}
+      "project_idea": "", "implementation": "", "evidence": "",
+      "tech_stack": ["Tech1", "Tech2"],
+      "estimated_hours": 20,
+      "milestone_1": "", "milestone_2": "", "milestone_3": "",
+      "learn_at": ["https://...", "https://..."]}}
   ],
   "project_improvements": [
     {{"project": "", "current_issue": "", "improvement": "", "impact": ""}}

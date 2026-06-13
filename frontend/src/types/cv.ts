@@ -34,6 +34,12 @@ export type MissingSkill = {
   project_idea: string;
   implementation: string;
   evidence: string;
+  tech_stack?: string[];
+  estimated_hours?: number;
+  milestone_1?: string;
+  milestone_2?: string;
+  milestone_3?: string;
+  learn_at?: string[];
 };
 
 export type ProjectImprovement = {

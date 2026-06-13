@@ -1,6 +1,8 @@
 import type { MissingSkill, MatchedJob } from "../../types/cv";
 import SpotlightCard from "../animations/SpotlightCard";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ExternalLink } from "lucide-react";
+import { safeUrlLabel } from "../../lib/utils";
 
 interface SkillCardProps {
   skill: MissingSkill;
@@ -44,9 +46,21 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
   const minPercent = priority === "HIGH" ? 75 : priority === "MEDIUM" ? 45 : 20;
   const demandPercent = Math.max(rawPercent, minPercent);
 
+  const getSpotlightColor = (p: string) => {
+    switch (p) {
+      case "HIGH":
+        return "rgba(244, 63, 94, 0.12)";
+      case "MEDIUM":
+        return "rgba(245, 158, 11, 0.12)";
+      default:
+        return "rgba(113, 113, 122, 0.12)";
+    }
+  };
+
   return (
     <SpotlightCard
       className={`rounded-xl border bg-card p-4 shadow-sm ${borderColor} border-border`}
+      spotlightColor={getSpotlightColor(priority)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -109,6 +123,46 @@ export function SkillCard({ skill, jobs = [] }: SkillCardProps) {
             <span className={`font-bold ${labelColorClass}`}>Why:</span> {skill.why}
           </div>
         )}
+
+        {/* Learn this skill resources */}
+        {(() => {
+          const list = skill.learn_at || [];
+          const urls = list.length > 0 ? list : (() => {
+            const parsedUrls: string[] = [];
+            const urlRegex = /(https?:\/\/[^\s\)]+)/g;
+            const matches = skill.implementation?.match(urlRegex);
+            if (matches) {
+              matches.forEach(url => {
+                if (!parsedUrls.includes(url)) parsedUrls.push(url);
+              });
+            }
+            return parsedUrls;
+          })();
+
+          if (urls.length === 0) return null;
+
+          return (
+            <div className="mt-3 pt-3 border-t border-zinc-800/60 space-y-1.5">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                Learn this skill
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {urls.map((link) => (
+                  <a
+                    key={link}
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 px-2 py-0.5 text-xs text-zinc-300 transition-colors"
+                  >
+                    <span>{safeUrlLabel(link)}</span>
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </SpotlightCard>
   );

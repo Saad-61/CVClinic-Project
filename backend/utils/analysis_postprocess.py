@@ -77,6 +77,28 @@ def postprocess_analysis(analysis):
         skill["implementation"] = _normalize_text(skill.get("implementation"))
         skill["evidence"] = _normalize_text(skill.get("evidence"))
 
+        # Normalize new project details
+        tech_raw = skill.get("tech_stack")
+        if isinstance(tech_raw, list):
+            skill["tech_stack"] = [str(t).strip() for t in tech_raw if t]
+        else:
+            skill["tech_stack"] = []
+
+        try:
+            skill["estimated_hours"] = int(skill.get("estimated_hours") or 0)
+        except Exception:
+            skill["estimated_hours"] = 0
+
+        skill["milestone_1"] = _normalize_text(skill.get("milestone_1"))
+        skill["milestone_2"] = _normalize_text(skill.get("milestone_2"))
+        skill["milestone_3"] = _normalize_text(skill.get("milestone_3"))
+
+        learn_raw = skill.get("learn_at")
+        if isinstance(learn_raw, list):
+            skill["learn_at"] = [str(l).strip() for l in learn_raw if l]
+        else:
+            skill["learn_at"] = []
+
     # Guarantee at least one new project suggestion.
     if not any(item.get("project_type") == "new" for item in analysis["missing_skills"]):
         seed_skill = (
@@ -92,8 +114,14 @@ def postprocess_analysis(analysis):
                 "project_type": "new",
                 "project": "FastAPI Production Readiness Starter",
                 "project_idea": "Build a small API service with Docker, tests, and docs as a portfolio-ready deployment sample.",
-                "implementation": "Create a FastAPI service, add pytest tests, dockerize with docker-compose, and publish Swagger docs.",
+                "implementation": "Create a FastAPI service, add pytest tests, dockerize with docker-compose, and publish Swagger docs.\n\nResources:\n- https://fastapi.tiangolo.com/tutorial/\n- https://docs.docker.com/get-started/",
                 "evidence": "No explicit standalone project currently demonstrates this gap end-to-end.",
+                "tech_stack": ["FastAPI", "Docker", "pytest", "Docker Compose"],
+                "estimated_hours": 20,
+                "milestone_1": "Setup FastAPI scaffold and pytest config",
+                "milestone_2": "Dockerize the application and set up docker-compose.yml",
+                "milestone_3": "Create basic endpoints, write unit tests, and publish Swagger docs",
+                "learn_at": ["https://fastapi.tiangolo.com/tutorial/", "https://docs.docker.com/get-started/"]
             }
         )
 
