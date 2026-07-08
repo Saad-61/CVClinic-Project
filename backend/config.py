@@ -17,12 +17,21 @@ class Settings:
 
     @property
     def allowed_origins(self) -> list[str]:
-        """CORS origins derived from FRONTEND_PORT — no hardcoding needed."""
-        port = self.FRONTEND_PORT
-        return [
-            f"http://localhost:{port}",
-            f"http://127.0.0.1:{port}",
+        """CORS origins derived from FRONTEND_PORT, supporting env overrides and wildcard fallback."""
+        origins = [
+            f"http://localhost:{self.FRONTEND_PORT}",
+            f"http://127.0.0.1:{self.FRONTEND_PORT}",
         ]
+        env_origins = os.getenv("ALLOWED_ORIGINS")
+        if env_origins:
+            for origin in env_origins.split(","):
+                clean = origin.strip()
+                if clean:
+                    origins.append(clean)
+        else:
+            # Default to wildcard fallback in production to make deployment smooth
+            origins.append("*")
+        return origins
 
 
 settings = Settings()
