@@ -42,3 +42,8 @@ backend/models/history.json
 frontend/tsconfig.tsbuildinfo
 backend/profile_test_results.json
 backend/full_advice_dumps.json
+
+# DeepEval & QA Reports
+.deepeval/
+evaluation/reports/
+

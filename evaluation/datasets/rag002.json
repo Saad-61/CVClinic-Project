@@ -1,0 +1,16 @@
+{
+  "test_id": "RAG-002",
+  "name": "Frontend Developer Alignment",
+  "input": {
+    "cv_name": "JohnDoe",
+    "target_role": "Frontend Developer"
+  },
+  "expected_behavior": {
+    "inferred_role_options": [
+      "Frontend Developer",
+      "Software Engineer"
+    ],
+    "missing_skills_count": 5,
+    "top_actions_count": 3
+  }
+}

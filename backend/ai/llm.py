@@ -31,9 +31,8 @@ def _groq_candidate_model_names() -> list[str]:
     candidates = [
         preferred,
         "llama-3.3-70b-versatile",
-        "llama-3.1-70b-versatile",
         "llama-3.1-8b-instant",
-        "mixtral-8x7b-32768",
+        "gemma2-9b-it",
     ]
     return [model for model in candidates if model]
 
@@ -145,20 +144,7 @@ def _configure_genai() -> None:
 
 
 def _is_fallback_worthy_error(exc: Exception) -> bool:
-    message = str(exc).lower()
-    fallback_markers = [
-        "429",
-        "quota",
-        "rate limit",
-        "resource exhausted",
-        "temporarily unavailable",
-        "503",
-        "500",
-        "deadline exceeded",
-        "timed out",
-        "unavailable",
-    ]
-    return any(marker in message for marker in fallback_markers)
+    return True
 
 
 # ----------------------------
@@ -210,7 +196,19 @@ def _try_parse_json(text: str):
 # ----------------------------
 # MAIN FUNCTION
 # ----------------------------
+LLM_ROUTING_TRACE = []
+
+def get_and_clear_routing_trace() -> list[dict]:
+    global LLM_ROUTING_TRACE
+    trace = list(LLM_ROUTING_TRACE)
+    LLM_ROUTING_TRACE = []
+    return trace
+
+# ----------------------------
+# MAIN FUNCTION
+# ----------------------------
 def generate_response(prompt: str, request_source: str = "unknown"):
+    global LLM_ROUTING_TRACE
     text = ""
     errors: list[str] = []
 
@@ -222,12 +220,24 @@ def generate_response(prompt: str, request_source: str = "unknown"):
             except Exception as exc:
                 errors.append(f"gemini: {str(exc)}")
                 _log_llm_event(request_source, f"Skipping gemini provider: {exc}")
+                LLM_ROUTING_TRACE.append({
+                    "provider": "gemini",
+                    "model": "configure",
+                    "status": "failed",
+                    "error": str(exc)
+                })
                 continue
 
             from google.genai import types
             for model_name in candidates:
                 try:
                     _log_llm_event(request_source, f"Trying gemini model {model_name}")
+                    LLM_ROUTING_TRACE.append({
+                        "provider": "gemini",
+                        "model": model_name,
+                        "status": "trying"
+                    })
+                    
                     response = _client.models.generate_content(
                         model=model_name,
                         contents=prompt,
@@ -250,9 +260,11 @@ def generate_response(prompt: str, request_source: str = "unknown"):
                     try:
                         parsed = _try_parse_json(cleaned)
                         _log_llm_event(request_source, f"Using gemini model {model_name}")
+                        LLM_ROUTING_TRACE[-1]["status"] = "success"
                         return parsed
-                    except Exception:
-                        pass
+                    except Exception as json_exc:
+                        LLM_ROUTING_TRACE[-1]["status"] = "json_parse_failed"
+                        LLM_ROUTING_TRACE[-1]["error"] = str(json_exc)
 
                     _log_llm_event(request_source, f"Using gemini model {model_name} but JSON parse failed")
                     return {
@@ -263,6 +275,8 @@ def generate_response(prompt: str, request_source: str = "unknown"):
                     }
                 except Exception as exc:
                     errors.append(f"gemini:{model_name}: {str(exc)}")
+                    LLM_ROUTING_TRACE[-1]["status"] = "failed"
+                    LLM_ROUTING_TRACE[-1]["error"] = str(exc)
                     if _is_fallback_worthy_error(exc):
                         _log_llm_event(request_source, f"Falling back after gemini {model_name} error: {exc}")
                         continue
@@ -278,20 +292,34 @@ def generate_response(prompt: str, request_source: str = "unknown"):
             if not groq_key:
                 errors.append("groq: Missing GROQ_API_KEY")
                 _log_llm_event(request_source, "Skipping groq provider: missing GROQ_API_KEY")
+                LLM_ROUTING_TRACE.append({
+                    "provider": "groq",
+                    "model": "auth",
+                    "status": "failed",
+                    "error": "Missing GROQ_API_KEY"
+                })
                 continue
 
             for model_name in _groq_candidate_model_names():
                 try:
                     _log_llm_event(request_source, f"Trying groq model {model_name}")
+                    LLM_ROUTING_TRACE.append({
+                        "provider": "groq",
+                        "model": model_name,
+                        "status": "trying"
+                    })
+                    
                     text = _generate_with_groq(prompt, model_name)
                     cleaned = _clean_llm_output(text)
 
                     try:
                         parsed = _try_parse_json(cleaned)
                         _log_llm_event(request_source, f"Using groq model {model_name}")
+                        LLM_ROUTING_TRACE[-1]["status"] = "success"
                         return parsed
-                    except Exception:
-                        pass
+                    except Exception as json_exc:
+                        LLM_ROUTING_TRACE[-1]["status"] = "json_parse_failed"
+                        LLM_ROUTING_TRACE[-1]["error"] = str(json_exc)
 
                     _log_llm_event(request_source, f"Using groq model {model_name} but JSON parse failed")
                     return {
@@ -302,6 +330,8 @@ def generate_response(prompt: str, request_source: str = "unknown"):
                     }
                 except Exception as exc:
                     errors.append(f"groq:{model_name}: {str(exc)}")
+                    LLM_ROUTING_TRACE[-1]["status"] = "failed"
+                    LLM_ROUTING_TRACE[-1]["error"] = str(exc)
                     if _is_fallback_worthy_error(exc):
                         _log_llm_event(request_source, f"Falling back after groq {model_name} error: {exc}")
                         continue
@@ -316,3 +346,4 @@ def generate_response(prompt: str, request_source: str = "unknown"):
         "error": "LLM generation failed on all candidate models: " + " | ".join(errors),
         "raw": text,
     }
+

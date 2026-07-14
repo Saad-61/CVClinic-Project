@@ -1,0 +1,17 @@
+{
+  "test_id": "RAG-003",
+  "name": "Machine Learning Alignment (No Target)",
+  "input": {
+    "cv_name": "DrAliceSmith",
+    "target_role": null
+  },
+  "expected_behavior": {
+    "inferred_role_options": [
+      "Machine Learning Engineer",
+      "Senior Machine Learning Scientist",
+      "Data Scientist"
+    ],
+    "missing_skills_count": 5,
+    "top_actions_count": 3
+  }
+}

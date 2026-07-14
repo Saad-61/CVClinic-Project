@@ -1,0 +1,17 @@
+{
+  "test_id": "RAG-001",
+  "name": "Backend Developer Alignment",
+  "input": {
+    "cv_name": "SaadAsifResume",
+    "target_role": "Backend Developer"
+  },
+  "expected_behavior": {
+    "inferred_role_options": [
+      "Backend Developer",
+      "Full Stack Developer",
+      "Software Engineer"
+    ],
+    "missing_skills_count": 5,
+    "top_actions_count": 3
+  }
+}

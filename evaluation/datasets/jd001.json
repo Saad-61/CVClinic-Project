@@ -1,0 +1,17 @@
+{
+  "test_id": "JD-001",
+  "name": "Remote Fullstack Alignment (JD Mode)",
+  "input": {
+    "cv_name": "JohnDoe",
+    "job_title": "Remote Fullstack Engineer",
+    "job_description": "Remote Fullstack Engineer\nA respected US-based client is looking for a Full-stack Developer.\n\nJob Responsibilities:\n- Apply Python and/or JavaScript/TypeScript knowledge to solve challenges.\n- Maintain open lines of communication with stakeholders.\n- Create reliable response mechanisms using scripting or algorithms.\n- Help with troubleshooting initiatives and documenting issues.\n\nJob Requirements:\n- Bachelor degree in Engineering or Computer Science.\n- Knowledgeable in Python, JavaScript, and TypeScript.\n- Familiar with software engineering best practices.\n- Able to communicate effectively in English.\n\nJob Benefits:\n- Competitive salary in USD. Remote work. Collaborate with global experts."
+  },
+  "expected_behavior": {
+    "inferred_role_options": [
+      "Remote Fullstack Engineer",
+      "Software Engineer"
+    ],
+    "missing_skills_count": 1,
+    "top_actions_count": 1
+  }
+}

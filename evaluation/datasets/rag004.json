@@ -1,0 +1,18 @@
+{
+  "test_id": "RAG-004",
+  "name": "Backend DevOps Alignment",
+  "input": {
+    "cv_name": "SaadAsifResume",
+    "target_role": "Backend DevOps Engineer"
+  },
+  "expected_behavior": {
+    "inferred_role_options": [
+      "Full Stack AI Engineer",
+      "DevOps Engineer",
+      "Backend DevOps Engineer",
+      "Software Engineer"
+    ],
+    "missing_skills_count": 5,
+    "top_actions_count": 3
+  }
+}
