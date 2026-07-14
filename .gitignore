@@ -47,3 +47,18 @@ backend/full_advice_dumps.json
 .deepeval/
 evaluation/reports/
 
+# Root Node Modules & Local npm Caches
+node_modules/
+.npm-cache/
+.npm-tmp/
+.npm-global/
+.promptfoo/
+promptfoo-results/
+
+# Local configuration & run outputs
+.npmrc
+promptfoo_out.json
+promptfoo_run.log
+
+
+

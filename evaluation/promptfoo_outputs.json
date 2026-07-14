@@ -1,0 +1,460 @@
+{
+  "JohnDoe_Remote Fullstack Engineer": {
+    "inferred_role": "Remote Fullstack Engineer",
+    "job_matches": [
+      {
+        "title": "Remote Fullstack Engineer",
+        "score": 2.46,
+        "reason": "No skill overlap found between your CV and this role.",
+        "evidence": "None",
+        "gap": "See job description for required skills."
+      }
+    ],
+    "missing_skills": [
+      {
+        "skill": "Skill alignment with target roles",
+        "priority": "HIGH",
+        "why": "No skill overlap was found between your CV and the matched jobs. Focus on building the core skills those roles require.",
+        "project_type": "new",
+        "project": "Starter Project",
+        "project_idea": "Build a small project that uses at least 2-3 skills from the job descriptions.",
+        "implementation": "Pick the most common skill in the job list, build a minimal working project around it, and push it to GitHub.",
+        "evidence": "Zero skill overlap detected between CV and matched jobs.",
+        "tech_stack": [],
+        "estimated_hours": 0,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": []
+      }
+    ],
+    "project_improvements": [],
+    "cv_fixes": [
+      {
+        "section": "Skills",
+        "fix": "Add the technical skills required by your target roles.",
+        "why": "Your skills section does not currently match the requirements of the retrieved jobs.",
+        "how": "Review the job descriptions, identify the top 5 required skills, and add those you genuinely have."
+      }
+    ],
+    "top_actions": [
+      {
+        "action": "Research target job requirements and map your existing skills to them.",
+        "section": "Skills",
+        "why": "Zero overlap means recruiters will not shortlist this CV for these roles.",
+        "how": "Pick 2-3 job postings, list their required skills, highlight gaps, and plan one small project per gap."
+      }
+    ],
+    "_source": "template:zero_overlap",
+    "confidence": {
+      "job_matches": "high",
+      "missing_skills": "high",
+      "project_improvements": "low",
+      "cv_fixes": "high",
+      "top_actions": "high"
+    }
+  },
+  "SaadAsifResume_Backend Developer": {
+    "inferred_role": "Backend Developer",
+    "job_matches": [
+      {
+        "title": "Robotics / Embedded Software Engineer (m/f/d)",
+        "score": 40.0,
+        "reason": "The candidate possesses strong foundational skills in C, C++, and Python, which are highly relevant for robotics and embedded systems development. Their experience with artificial intelligence and end-to-end system building also aligns with complex software integration in this field.",
+        "evidence": "Matched skills include \"c++\", \"artificial intelligence\", \"python\", \"cloud\", \"end-to-end testing\", \"c\" from 'TECHNICAL SKILLS' and 'PROFESSIONAL SUMMARY'.",
+        "gap": "The CV does not explicitly demonstrate experience with Linux system-level development, specific monitoring tools, or dedicated testing frameworks beyond general 'end-to-end testing'."
+      },
+      {
+        "title": "Backend Developer",
+        "score": 30.46,
+        "reason": "The candidate has direct experience with API design using FastAPI and building full-stack applications with robust backend components. Their use of Supabase, PostgreSQL, and MongoDB showcases familiarity with various database systems and cloud-related services.",
+        "evidence": "Matched skills include \"api design\" (FastAPI in 'TECHNICAL SKILLS' and 'BookYourShoot') and \"cloud\" (Supabase in 'TECHNICAL SKILLS').",
+        "gap": "The CV does not explicitly mention experience with designing or implementing microservices architectures."
+      }
+    ],
+    "missing_skills": [
+      {
+        "skill": "Containerization & CI/CD",
+        "priority": "HIGH",
+        "why": "Modern backend development heavily relies on containerization for consistent environments and CI/CD for automated deployment, which are crucial for professional workflows.",
+        "project_type": "new",
+        "project": "",
+        "project_idea": "Develop a simple user management REST API using FastAPI and PostgreSQL. Containerize both the API and the database using Docker Compose. Implement a basic CI/CD pipeline with GitHub Actions to automate testing and Docker image builds upon code pushes.",
+        "implementation": "Phase 1: Build a FastAPI CRUD API for user management with PostgreSQL integration.\nPhase 2: Create a Dockerfile for the FastAPI application and a docker-compose.yml to orchestrate the API and PostgreSQL.\nPhase 3: Set up GitHub Actions to run tests, build the Docker image, and push it to a container registry on successful merges.\nResources: https://docs.docker.com/get-started/, https://docs.github.com/en/actions, https://fastapi.tiangolo.com/tutorial/",
+        "evidence": "",
+        "tech_stack": [
+          "Docker",
+          "FastAPI",
+          "PostgreSQL",
+          "GitHub Actions"
+        ],
+        "estimated_hours": 40,
+        "milestone_1": "Basic FastAPI CRUD API with PostgreSQL connection.",
+        "milestone_2": "Docker Compose setup for the API and database.",
+        "milestone_3": "GitHub Actions pipeline for automated testing and image building.",
+        "learn_at": [
+          "https://docs.docker.com/get-started/",
+          "https://docs.github.com/en/actions/"
+        ]
+      },
+      {
+        "skill": "Asynchronous Processing & Caching",
+        "priority": "HIGH",
+        "why": "Implementing asynchronous task queues and caching mechanisms is vital for building scalable, responsive, and performant backend systems that can handle heavy loads efficiently.",
+        "project_type": "new",
+        "project": "",
+        "project_idea": "Create an image processing service where users upload images via a FastAPI endpoint. Use Celery with Redis as a broker to offload image processing tasks (e.g., resizing, watermarking) to background workers. Implement Redis caching for frequently accessed image metadata or processing results.",
+        "implementation": "Phase 1: Develop a FastAPI endpoint to accept image uploads and push processing tasks to a Celery queue.\nPhase 2: Implement a Celery worker that consumes tasks, processes images using Pillow, and stores results.\nPhase 3: Integrate Redis caching for API responses or to store metadata about processed images, improving retrieval speed.\nResources: https://docs.celeryq.dev/en/stable/, https://redis.io/docs/, https://fastapi.tiangolo.com/tutorial/",
+        "evidence": "",
+        "tech_stack": [
+          "FastAPI",
+          "Celery",
+          "Redis",
+          "Pillow"
+        ],
+        "estimated_hours": 50,
+        "milestone_1": "FastAPI endpoint for task submission to a Celery queue.",
+        "milestone_2": "Celery worker for background image processing.",
+        "milestone_3": "Redis caching for API responses or processed image metadata.",
+        "learn_at": [
+          "https://docs.celeryq.dev/en/stable/",
+          "https://redis.io/docs/"
+        ]
+      },
+      {
+        "skill": "Microservices Architecture",
+        "priority": "HIGH",
+        "why": "This directly addresses a missing skill identified in the 'Backend Developer' job match, demonstrating an understanding of scalable and modular system design.",
+        "project_type": "existing",
+        "project": "BookYourShoot",
+        "project_idea": "",
+        "implementation": "",
+        "evidence": "The 'BookYourShoot' project is a full-stack marketplace built with FastAPI, currently likely a monolithic backend handling various functionalities.",
+        "tech_stack": [
+          "FastAPI",
+          "Docker",
+          "PostgreSQL"
+        ],
+        "estimated_hours": 30,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://fastapi.tiangolo.com/tutorial/bigger-applications/",
+          "https://docs.docker.com/compose/"
+        ]
+      },
+      {
+        "skill": "Unit & Integration Testing",
+        "priority": "MEDIUM",
+        "why": "Robust testing practices are fundamental for reliable backend systems, ensuring code quality, preventing regressions, and facilitating collaborative development.",
+        "project_type": "existing",
+        "project": "ScoutVCT",
+        "project_idea": "",
+        "implementation": "",
+        "evidence": "The 'ScoutVCT' project features a FastAPI backend with PostgreSQL, indicating a complex data and API layer that would benefit significantly from comprehensive testing.",
+        "tech_stack": [
+          "FastAPI",
+          "Pytest",
+          "PostgreSQL"
+        ],
+        "estimated_hours": 25,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://docs.pytest.org/en/stable/",
+          "https://fastapi.tiangolo.com/tutorial/testing/"
+        ]
+      },
+      {
+        "skill": "API Performance Optimization",
+        "priority": "MEDIUM",
+        "why": "Optimizing API performance through caching and query tuning is crucial for building efficient and scalable backend services that can handle real-world traffic.",
+        "project_type": "existing",
+        "project": "BookYourShoot",
+        "project_idea": "",
+        "implementation": "",
+        "evidence": "The 'BookYourShoot' project is a marketplace with an optimization-based matching system and real-time chat, suggesting potential for heavy database queries and API calls.",
+        "tech_stack": [
+          "FastAPI",
+          "Redis",
+          "PostgreSQL"
+        ],
+        "estimated_hours": 20,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://redis.io/docs/",
+          "https://www.postgresql.org/docs/current/sql-explain.html"
+        ]
+      }
+    ],
+    "project_improvements": [
+      {
+        "project": "BookYourShoot",
+        "current_issue": "The marketplace likely experiences frequent data retrieval for photographer listings and user profiles, potentially leading to database load and slower response times.",
+        "improvement": "Implement a robust API caching layer using Redis for frequently accessed, less volatile data such as photographer profiles, search results, or popular listings.",
+        "impact": "Significantly reduces database load, improves API response times, and enhances the overall user experience by providing faster data access."
+      },
+      {
+        "project": "ScoutVCT",
+        "current_issue": "The backend logic for evaluating player performance and handling natural-language queries may lack explicit testing, risking undetected bugs and regressions.",
+        "improvement": "Develop a comprehensive suite of unit and integration tests for the FastAPI backend using `Pytest`, focusing on critical API endpoints, database interactions, and business logic.",
+        "impact": "Increases code quality and reliability, reduces the likelihood of bugs in production, and provides confidence for future feature development and refactoring."
+      },
+      {
+        "project": "BookYourShoot / ScoutVCT",
+        "current_issue": "Both projects likely run as single processes, which can complicate local development setup and limit scalability for deployment.",
+        "improvement": "Containerize the FastAPI backends of both `BookYourShoot` and `ScoutVCT` using Docker, and orchestrate them with `Docker Compose` for local development and deployment.",
+        "impact": "Provides consistent development environments, simplifies dependency management, and lays essential groundwork for deploying scalable, production-ready services."
+      }
+    ],
+    "cv_fixes": [
+      {
+        "section": "PROFESSIONAL SUMMARY",
+        "fix": "Rephrase the summary to emphasize backend development skills and aspirations more directly, while still acknowledging ML/CV expertise.",
+        "why": "The current summary heavily focuses on computer vision and machine learning, which is not the target 'Backend Developer' role. Shifting focus will better align with job applications.",
+        "how": "Start by highlighting experience in building robust backend systems, API design, and database management for full-stack applications, then mention ML/CV as a complementary skill for intelligent systems."
+      },
+      {
+        "section": "TECHNICAL SKILLS",
+        "fix": "Reorganize the 'Frameworks' and 'Databases & Cloud' sections to clearly separate and highlight backend-focused technologies.",
+        "why": "A clearer categorization will immediately showcase the candidate's backend expertise, making it easier for recruiters to identify relevant skills for the target role.",
+        "how": "Create distinct sub-sections like 'Backend Frameworks & Runtimes' (FastAPI, Node.js, Express.js) and 'Databases & Cloud Platforms' (Supabase, MongoDB, PostgreSQL, DuckDB)."
+      },
+      {
+        "section": "PERSONAL PROJECTS",
+        "fix": "For each project, explicitly detail the candidate's specific backend contributions and the backend technologies used beyond just listing them.",
+        "why": "While technologies are listed, emphasizing the candidate's direct role in backend development within each project strengthens their profile for a Backend Developer role.",
+        "how": "For 'BookYourShoot', highlight 'Designed and implemented the FastAPI backend for role-based dashboards, real-time chat (WebSockets), and secure Stripe escrow payments.' For 'ScoutVCT', emphasize 'Developed the FastAPI backend for analytics and a natural-language interface for database operations.'"
+      }
+    ],
+    "top_actions": [
+      {
+        "action": "Implement comprehensive unit and integration tests for a backend project.",
+        "section": "PERSONAL PROJECTS",
+        "why": "Demonstrates a commitment to code quality, reliability, and professional development practices, which are critical for any backend role.",
+        "how": "Choose the `ScoutVCT` FastAPI backend and use `Pytest` to achieve at least 80% test coverage for critical API endpoints and business logic. (~1 weekend)"
+      },
+      {
+        "action": "Containerize an existing backend service using Docker and Docker Compose.",
+        "section": "PERSONAL PROJECTS",
+        "why": "Essential for modern deployment workflows, ensuring consistent development environments, and showcasing readiness for DevOps practices.",
+        "how": "Select the `BookYourShoot` FastAPI backend, create a `Dockerfile` and `docker-compose.yml` to run the service and its PostgreSQL database locally. (~1-2 days)"
+      },
+      {
+        "action": "Develop a small, standalone microservice to extend an existing project's functionality.",
+        "section": "PERSONAL PROJECTS",
+        "why": "Directly addresses the 'microservices' gap identified in the job match, demonstrating advanced architectural understanding and ability to build scalable systems.",
+        "how": "For `BookYourShoot`, extract the AI pipeline for photo organization into a separate FastAPI microservice, communicating with the main application via HTTP or a message queue. (~3-5 days)"
+      }
+    ],
+    "confidence": {
+      "job_matches": "high",
+      "missing_skills": "low",
+      "project_improvements": "high",
+      "cv_fixes": "high",
+      "top_actions": "high"
+    }
+  },
+  "JohnDoe_Frontend Developer": {
+    "inferred_role": "Frontend Developer",
+    "job_matches": [
+      {
+        "title": "Frontend Developer",
+        "score": 23.48,
+        "reason": "The candidate demonstrates foundational web development skills through their personal website and basic JavaScript calculator. Their CV explicitly lists HTML and CSS, which are core requirements for frontend roles.",
+        "evidence": "matched_skills: [\"css\", \"html\"], PROJECTS: \"Built my personal website using simple HTML.\"",
+        "gap": "The CV does not yet show experience with ci/cd, github, java, javascript (advanced), playwright, react, testing, and typescript."
+      }
+    ],
+    "missing_skills": [
+      {
+        "skill": "React & TypeScript",
+        "priority": "HIGH",
+        "why": "React and TypeScript are fundamental technologies for modern frontend development, crucial for building complex, scalable user interfaces that are type-safe and maintainable.",
+        "project_type": "new",
+        "project": "Interactive Product Catalog with Filtering",
+        "project_idea": "Develop a single-page application (SPA) that displays a list of products fetched from a mock API. Users should be able to filter products by category, search by name, and view product details, all built with a component-based architecture.",
+        "implementation": "Phase 1: Set up a new React project using Vite with TypeScript template. Create basic routing and a product listing page.\nPhase 2: Implement product filtering by category and a search bar using React hooks and state management. Integrate a mock API (e.g., JSON-server or a simple local JSON file).\nPhase 3: Add a product detail page, implement responsive design, and deploy the application to a static hosting service like Netlify or Vercel.\nResources: https://react.dev/learn, https://www.typescriptlang.org/docs/",
+        "tech_stack": [
+          "React",
+          "TypeScript",
+          "Vite",
+          "Tailwind CSS"
+        ],
+        "estimated_hours": 45,
+        "milestone_1": "Basic React/TypeScript project setup with a static product list display.",
+        "milestone_2": "Functional filtering and search implemented, fetching data from a mock API.",
+        "milestone_3": "Complete responsive UI, product detail view, and deployment to a live URL.",
+        "learn_at": [
+          "https://react.dev/learn",
+          "https://www.typescriptlang.org/docs/handbook/react.html"
+        ],
+        "evidence": ""
+      },
+      {
+        "skill": "Frontend Testing (Playwright)",
+        "priority": "HIGH",
+        "why": "Demonstrates the ability to write robust, maintainable code and ensure application quality, which is a key skill for professional frontend roles and reduces bugs in production.",
+        "project_type": "new",
+        "project": "E-commerce Checkout Flow with End-to-End Tests",
+        "project_idea": "Create a simplified e-commerce checkout process (e.g., add item to cart, proceed to checkout, fill form, confirm order). Implement comprehensive end-to-end tests using Playwright to simulate user interactions and validate the entire flow.",
+        "implementation": "Phase 1: Build a simple HTML/CSS/JavaScript application for a basic product page and a multi-step checkout form.\nPhase 2: Set up Playwright in the project. Write initial E2E tests for navigating to the product page and adding an item to the cart.\nPhase 3: Develop E2E tests for the entire checkout flow, including form submission, validation, and order confirmation. Run tests in different browsers.\nResources: https://playwright.dev/docs/intro, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+        "tech_stack": [
+          "Playwright",
+          "JavaScript",
+          "HTML",
+          "CSS"
+        ],
+        "estimated_hours": 35,
+        "milestone_1": "Basic HTML/CSS/JS checkout application scaffold.",
+        "milestone_2": "Playwright setup and initial tests for product selection.",
+        "milestone_3": "Full E2E test suite for the checkout process, running successfully across browsers.",
+        "learn_at": [
+          "https://playwright.dev/docs/intro",
+          "https://testing-library.com/docs/react-testing-library/intro/"
+        ],
+        "evidence": ""
+      },
+      {
+        "skill": "Advanced JavaScript",
+        "priority": "HIGH",
+        "why": "The current 'basic JavaScript' skill needs to be expanded to meet the demands of a professional frontend developer role, which often involves complex logic and interactions.",
+        "project_type": "existing",
+        "project": "basic calculator in Javascript",
+        "project_idea": "Enhance the existing calculator by adding advanced features such as memory functions (M+, M-, MR, MC), scientific operations (sin, cos, tan, log, sqrt), and robust error handling for invalid inputs.",
+        "implementation": "",
+        "evidence": "",
+        "tech_stack": [
+          "JavaScript",
+          "HTML",
+          "CSS"
+        ],
+        "estimated_hours": 15,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+          "https://javascript.info/"
+        ]
+      },
+      {
+        "skill": "Responsive Design & CSS Frameworks",
+        "priority": "MEDIUM",
+        "why": "Modern web development requires websites to be accessible and functional across various devices and screen sizes, making responsive design a crucial skill for frontend developers.",
+        "project_type": "existing",
+        "project": "personal website using simple HTML",
+        "project_idea": "Refactor the personal website to be fully responsive, ensuring optimal display on desktops, tablets, and mobile phones. Integrate a modern CSS framework like Tailwind CSS or Bootstrap to streamline styling and layout.",
+        "implementation": "",
+        "evidence": "",
+        "tech_stack": [
+          "HTML",
+          "CSS",
+          "Tailwind CSS"
+        ],
+        "estimated_hours": 10,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://tailwindcss.com/docs",
+          "https://getbootstrap.com/docs/5.3/getting-started/introduction/"
+        ]
+      },
+      {
+        "skill": "CI/CD for Frontend",
+        "priority": "MEDIUM",
+        "why": "Automating deployment processes is a valuable skill that demonstrates an understanding of modern development workflows, efficiency, and continuous delivery practices.",
+        "project_type": "existing",
+        "project": "personal website using simple HTML",
+        "project_idea": "Implement a Continuous Integration/Continuous Deployment (CI/CD) pipeline for the personal website using GitHub Actions. The pipeline should automatically build and deploy the website to a hosting service (e.g., Netlify, Vercel, GitHub Pages) whenever changes are pushed to the main branch.",
+        "implementation": "",
+        "evidence": "",
+        "tech_stack": [
+          "GitHub Actions",
+          "Netlify",
+          "HTML"
+        ],
+        "estimated_hours": 10,
+        "milestone_1": "",
+        "milestone_2": "",
+        "milestone_3": "",
+        "learn_at": [
+          "https://docs.github.com/en/actions",
+          "https://docs.netlify.com/"
+        ]
+      }
+    ],
+    "project_improvements": [
+      {
+        "project": "Built my personal website using simple HTML.",
+        "current_issue": "The website is described as 'simple HTML,' suggesting a lack of dynamic features or advanced styling.",
+        "improvement": "Implement a client-side contact form with JavaScript validation and a simple 'thank you' message, demonstrating interactive form handling.",
+        "impact": "Shows ability to create interactive user experiences and handle form inputs, a common frontend task."
+      },
+      {
+        "project": "Built my personal website using simple HTML.",
+        "current_issue": "The website likely lacks modern UI/UX features and dynamic styling capabilities.",
+        "improvement": "Add a dark mode toggle feature using CSS variables and JavaScript to dynamically switch themes, enhancing user experience and demonstrating advanced CSS/JS interaction.",
+        "impact": "Highlights proficiency in dynamic styling, accessibility considerations, and JavaScript DOM manipulation."
+      },
+      {
+        "project": "Made a basic calculator in Javascript.",
+        "current_issue": "Described as 'basic,' implying a simple, possibly monolithic JavaScript structure.",
+        "improvement": "Refactor the calculator's JavaScript code into a modular structure using ES Modules, separating concerns like UI logic, calculation logic, and event handling.",
+        "impact": "Demonstrates understanding of maintainable code architecture, modern JavaScript practices, and improved code organization."
+      }
+    ],
+    "cv_fixes": [
+      {
+        "section": "SUMMARY",
+        "fix": "Rewrite the summary to be more professional, outcome-oriented, and directly align with the 'Frontend Developer' target role.",
+        "why": "The current summary is generic and lacks specific achievements or career aspirations beyond 'looking for a job' and 'build web pages.'",
+        "how": "Start with 'Aspiring Frontend Developer with foundational skills in HTML, CSS, and JavaScript...' and mention eagerness to build responsive and interactive web applications."
+      },
+      {
+        "section": "SKILLS",
+        "fix": "Change 'basic JavaScript' to 'JavaScript' and list specific concepts or libraries learned (e.g., DOM manipulation, ES6 features, asynchronous JavaScript) as you gain more experience.",
+        "why": "'Basic' can undersell your capabilities; specifying learned concepts provides more detail and confidence to recruiters.",
+        "how": "Once you've completed the advanced JavaScript calculator project, update this to 'JavaScript (DOM Manipulation, ES6, Event Handling)'."
+      },
+      {
+        "section": "PROJECTS",
+        "fix": "Add live demo links and GitHub repository links for both 'personal website' and 'basic calculator' projects.",
+        "why": "Recruiters and hiring managers want to see your code and live applications to assess your skills directly and understand your work.",
+        "how": "For each project, add a line like 'Live Demo: [URL]' and 'GitHub: [URL]' below the project description."
+      }
+    ],
+    "top_actions": [
+      {
+        "action": "Develop a comprehensive React and TypeScript web application.",
+        "section": "PROJECTS, SKILLS",
+        "why": "This will directly address critical missing skills (React, TypeScript, advanced JavaScript) and provide a strong, modern portfolio piece essential for frontend developer roles.",
+        "how": "Build an 'Interactive Product Catalog with Filtering' project using React, TypeScript, and a modern CSS framework like Tailwind CSS, deploying it to Netlify or Vercel (~45 hours, using React.dev and TypeScriptlang.org docs)."
+      },
+      {
+        "action": "Implement robust testing for a frontend project.",
+        "section": "PROJECTS, SKILLS",
+        "why": "Demonstrates a commitment to quality and understanding of professional development practices, which is highly valued in frontend roles and ensures application reliability.",
+        "how": "Create an 'E-commerce Checkout Flow' application and integrate Playwright for end-to-end testing, covering critical user journeys and ensuring functionality across browsers (~35 hours, using Playwright.dev docs)."
+      },
+      {
+        "action": "Create and maintain a professional GitHub profile with project links.",
+        "section": "LINKS, PROJECTS",
+        "why": "A well-organized GitHub profile is essential for frontend developers to showcase their code, project history, and collaboration skills to potential employers.",
+        "how": "Create a GitHub account (if not already done), push all existing and new projects to separate repositories, and ensure each repository has a clear README, live demo link, and well-structured code (~1 weekend, using GitHub Docs)."
+      }
+    ],
+    "confidence": {
+      "job_matches": "high",
+      "missing_skills": "low",
+      "project_improvements": "high",
+      "cv_fixes": "high",
+      "top_actions": "high"
+    }
+  }
+}

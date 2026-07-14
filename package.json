@@ -1,0 +1,7 @@
+{
+  "name": "cvclinic-root",
+  "private": true,
+  "devDependencies": {
+    "promptfoo": "0.121.19"
+  }
+}
