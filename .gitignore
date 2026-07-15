@@ -60,5 +60,10 @@ promptfoo-results/
 promptfoo_out.json
 promptfoo_run.log
 
+# Playwright E2E Testing
+frontend/playwright-report/
+frontend/test-results/
+frontend/playwright/.cache/
+
 
 
